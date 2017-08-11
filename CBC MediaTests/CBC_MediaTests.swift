@@ -1,13 +1,13 @@
 //
 //  CBC_MediaTests.swift
-//  CBC MediaTests
+//  CBC TVTests
 //
 //  Created by Steve Leeke on 5/20/17.
 //  Copyright © 2017 Steve Leeke. All rights reserved.
 //
 
 import XCTest
-@testable import CBC_Media
+@testable import CBC_TV
 
 class CBC_MediaTests: XCTestCase {
     

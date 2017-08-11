@@ -572,11 +572,13 @@ class MediaPlayer : NSObject {
                             pause() // To reset playOnLoad
                             failedToLoad()
                         } else {
-                            
+                            // Wait
                         }
                     } else {
-                        
+                        // Paused normally
                     }
+                } else {
+                    // Load failed.
                 }
             }
             break

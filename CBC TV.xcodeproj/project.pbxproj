@@ -53,16 +53,16 @@
 		1701E20B1EE4AD3600D30202 /* PopoverTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverTableViewCell.swift; sourceTree = "<group>"; };
 		172A2B591EDDA0FA00C6F993 /* AboutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
 		1741BDCA1EDCB8F900A79AAE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		174E1A081ED084DA00D10AB5 /* CBC Media.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "CBC Media.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		174E1A0B1ED084DA00D10AB5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		174E1A081ED084DA00D10AB5 /* CBC TV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "CBC TV.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		174E1A0B1ED084DA00D10AB5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = AppDelegate.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		174E1A121ED084DA00D10AB5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		174E1A141ED084DA00D10AB5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		174E1A161ED084DA00D10AB5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		174E1A1B1ED084DA00D10AB5 /* CBC MediaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "CBC MediaTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		174E1A1F1ED084DA00D10AB5 /* CBC_MediaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CBC_MediaTests.swift; sourceTree = "<group>"; };
+		174E1A1B1ED084DA00D10AB5 /* CBC TVTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "CBC TVTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		174E1A1F1ED084DA00D10AB5 /* CBC_MediaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = CBC_MediaTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		174E1A211ED084DA00D10AB5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		174E1A261ED084DA00D10AB5 /* CBC MediaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "CBC MediaUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		174E1A2A1ED084DA00D10AB5 /* CBC_MediaUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CBC_MediaUITests.swift; sourceTree = "<group>"; };
+		174E1A261ED084DA00D10AB5 /* CBC TVUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "CBC TVUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		174E1A2A1ED084DA00D10AB5 /* CBC_MediaUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = CBC_MediaUITests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		174E1A2C1ED084DA00D10AB5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		17B3ABE21ED8A2CD0086B9E7 /* SwiftyJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
 		17B3ABE41ED8A2EC0086B9E7 /* MediaTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaTableViewController.swift; sourceTree = "<group>"; };
@@ -117,9 +117,9 @@
 		174E1A091ED084DA00D10AB5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				174E1A081ED084DA00D10AB5 /* CBC Media.app */,
-				174E1A1B1ED084DA00D10AB5 /* CBC MediaTests.xctest */,
-				174E1A261ED084DA00D10AB5 /* CBC MediaUITests.xctest */,
+				174E1A081ED084DA00D10AB5 /* CBC TV.app */,
+				174E1A1B1ED084DA00D10AB5 /* CBC TVTests.xctest */,
+				174E1A261ED084DA00D10AB5 /* CBC TVUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -173,9 +173,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		174E1A071ED084DA00D10AB5 /* CBC Media */ = {
+		174E1A071ED084DA00D10AB5 /* CBC TV */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 174E1A2F1ED084DA00D10AB5 /* Build configuration list for PBXNativeTarget "CBC Media" */;
+			buildConfigurationList = 174E1A2F1ED084DA00D10AB5 /* Build configuration list for PBXNativeTarget "CBC TV" */;
 			buildPhases = (
 				174E1A041ED084DA00D10AB5 /* Sources */,
 				174E1A051ED084DA00D10AB5 /* Frameworks */,
@@ -185,14 +185,14 @@
 			);
 			dependencies = (
 			);
-			name = "CBC Media";
+			name = "CBC TV";
 			productName = "CBC Media";
-			productReference = 174E1A081ED084DA00D10AB5 /* CBC Media.app */;
+			productReference = 174E1A081ED084DA00D10AB5 /* CBC TV.app */;
 			productType = "com.apple.product-type.application";
 		};
-		174E1A1A1ED084DA00D10AB5 /* CBC MediaTests */ = {
+		174E1A1A1ED084DA00D10AB5 /* CBC TVTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 174E1A321ED084DA00D10AB5 /* Build configuration list for PBXNativeTarget "CBC MediaTests" */;
+			buildConfigurationList = 174E1A321ED084DA00D10AB5 /* Build configuration list for PBXNativeTarget "CBC TVTests" */;
 			buildPhases = (
 				174E1A171ED084DA00D10AB5 /* Sources */,
 				174E1A181ED084DA00D10AB5 /* Frameworks */,
@@ -203,14 +203,14 @@
 			dependencies = (
 				174E1A1D1ED084DA00D10AB5 /* PBXTargetDependency */,
 			);
-			name = "CBC MediaTests";
+			name = "CBC TVTests";
 			productName = "CBC MediaTests";
-			productReference = 174E1A1B1ED084DA00D10AB5 /* CBC MediaTests.xctest */;
+			productReference = 174E1A1B1ED084DA00D10AB5 /* CBC TVTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		174E1A251ED084DA00D10AB5 /* CBC MediaUITests */ = {
+		174E1A251ED084DA00D10AB5 /* CBC TVUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 174E1A351ED084DA00D10AB5 /* Build configuration list for PBXNativeTarget "CBC MediaUITests" */;
+			buildConfigurationList = 174E1A351ED084DA00D10AB5 /* Build configuration list for PBXNativeTarget "CBC TVUITests" */;
 			buildPhases = (
 				174E1A221ED084DA00D10AB5 /* Sources */,
 				174E1A231ED084DA00D10AB5 /* Frameworks */,
@@ -221,9 +221,9 @@
 			dependencies = (
 				174E1A281ED084DA00D10AB5 /* PBXTargetDependency */,
 			);
-			name = "CBC MediaUITests";
+			name = "CBC TVUITests";
 			productName = "CBC MediaUITests";
-			productReference = 174E1A261ED084DA00D10AB5 /* CBC MediaUITests.xctest */;
+			productReference = 174E1A261ED084DA00D10AB5 /* CBC TVUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -260,7 +260,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 174E1A031ED084DA00D10AB5 /* Build configuration list for PBXProject "CBC Media" */;
+			buildConfigurationList = 174E1A031ED084DA00D10AB5 /* Build configuration list for PBXProject "CBC TV" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -273,9 +273,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				174E1A071ED084DA00D10AB5 /* CBC Media */,
-				174E1A1A1ED084DA00D10AB5 /* CBC MediaTests */,
-				174E1A251ED084DA00D10AB5 /* CBC MediaUITests */,
+				174E1A071ED084DA00D10AB5 /* CBC TV */,
+				174E1A1A1ED084DA00D10AB5 /* CBC TVTests */,
+				174E1A251ED084DA00D10AB5 /* CBC TVUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -353,12 +353,12 @@
 /* Begin PBXTargetDependency section */
 		174E1A1D1ED084DA00D10AB5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 174E1A071ED084DA00D10AB5 /* CBC Media */;
+			target = 174E1A071ED084DA00D10AB5 /* CBC TV */;
 			targetProxy = 174E1A1C1ED084DA00D10AB5 /* PBXContainerItemProxy */;
 		};
 		174E1A281ED084DA00D10AB5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 174E1A071ED084DA00D10AB5 /* CBC Media */;
+			target = 174E1A071ED084DA00D10AB5 /* CBC TV */;
 			targetProxy = 174E1A271ED084DA00D10AB5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -509,7 +509,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-MediaTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CBC Media.app/CBC Media";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CBC TV.app/CBC TV";
 			};
 			name = Debug;
 		};
@@ -524,7 +524,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-MediaTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CBC Media.app/CBC Media";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CBC TV.app/CBC TV";
 			};
 			name = Release;
 		};
@@ -559,7 +559,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		174E1A031ED084DA00D10AB5 /* Build configuration list for PBXProject "CBC Media" */ = {
+		174E1A031ED084DA00D10AB5 /* Build configuration list for PBXProject "CBC TV" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				174E1A2D1ED084DA00D10AB5 /* Debug */,
@@ -568,7 +568,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		174E1A2F1ED084DA00D10AB5 /* Build configuration list for PBXNativeTarget "CBC Media" */ = {
+		174E1A2F1ED084DA00D10AB5 /* Build configuration list for PBXNativeTarget "CBC TV" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				174E1A301ED084DA00D10AB5 /* Debug */,
@@ -577,7 +577,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		174E1A321ED084DA00D10AB5 /* Build configuration list for PBXNativeTarget "CBC MediaTests" */ = {
+		174E1A321ED084DA00D10AB5 /* Build configuration list for PBXNativeTarget "CBC TVTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				174E1A331ED084DA00D10AB5 /* Debug */,
@@ -586,7 +586,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		174E1A351ED084DA00D10AB5 /* Build configuration list for PBXNativeTarget "CBC MediaUITests" */ = {
+		174E1A351ED084DA00D10AB5 /* Build configuration list for PBXNativeTarget "CBC TVUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				174E1A361ED084DA00D10AB5 /* Debug */,

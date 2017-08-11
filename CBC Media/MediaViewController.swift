@@ -912,7 +912,11 @@ class MediaViewController: UIViewController
     fileprivate func setupTitle()
     {
         let titleString:String?
-        
+
+        let attrTitleString = NSMutableAttributedString()
+
+        attrTitleString.append(NSAttributedString(string: Constants.CBC.LONG,   attributes: Constants.Fonts.Attributes.boldGrey))
+
         if !globals.mediaPlayer.isZoomed {
             if let title = selectedMediaItem?.title {
                 titleString = title
@@ -923,7 +927,7 @@ class MediaViewController: UIViewController
             titleString = nil
         }
 
-        if let navBar = navigationController?.navigationBar {
+        if let navBar = navigationController?.navigationBar, let titleString = titleString {
             let labelWidth = navBar.bounds.width - 110
             
             let label = UILabel(frame: CGRect(x:(navBar.bounds.width/2) - (labelWidth/2), y:0, width:labelWidth, height:navBar.bounds.height))
@@ -934,7 +938,17 @@ class MediaViewController: UIViewController
             label.textColor = UIColor.black
             label.lineBreakMode = .byWordWrapping
             
-            label.text = titleString
+            label.text = Constants.CBC.LONG
+            label.attributedText = attrTitleString
+            
+            if titleString != Constants.CBC.LONG, let text = label.text {
+                label.text = text + "\n" + titleString
+
+                attrTitleString.append(NSAttributedString(string: "\n",   attributes: Constants.Fonts.Attributes.normal))
+                attrTitleString.append(NSAttributedString(string: titleString,   attributes: Constants.Fonts.Attributes.bold))
+                label.attributedText = attrTitleString
+            }
+            
             navigationItem.titleView = label
         }
     }
@@ -1628,6 +1642,8 @@ extension MediaViewController : UITableViewDelegate
             globals.addToHistory(mediaItems![indexPath.row])
         }
         selectedMediaItem = mediaItems![indexPath.row]
+        
+        preferredFocusView = playPauseButton
         
         setupSpinner()
         setupAudioOrVideo()

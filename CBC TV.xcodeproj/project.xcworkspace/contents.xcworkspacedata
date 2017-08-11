@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:CBC Media.xcodeproj">
+      location = "self:/Users/steveleeke/Dropbox/Development/CBC Media v4/CBC TV.xcodeproj">
    </FileRef>
 </Workspace>

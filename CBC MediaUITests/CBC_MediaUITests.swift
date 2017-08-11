@@ -1,6 +1,6 @@
 //
 //  CBC_MediaUITests.swift
-//  CBC MediaUITests
+//  CBC TVUITests
 //
 //  Created by Steve Leeke on 5/20/17.
 //  Copyright © 2017 Steve Leeke. All rights reserved.

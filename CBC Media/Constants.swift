@@ -475,13 +475,15 @@ struct Constants {
         
         static let bold = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
         
+        static let title = UIFont.preferredFont(forTextStyle: UIFontTextStyle.title3)
+        
         struct Attributes {
             static let normal = [ NSFontAttributeName: Fonts.body ]
             
             static let bold = [ NSFontAttributeName: Fonts.bold ]
             
             static let boldGrey = [ NSForegroundColorAttributeName: UIColor.gray,
-                                    NSFontAttributeName: Fonts.bold ]
+                                    NSFontAttributeName: Fonts.title ]
             
             static let highlighted = [ NSBackgroundColorAttributeName: UIColor.yellow,
                                        NSFontAttributeName: Fonts.body ]

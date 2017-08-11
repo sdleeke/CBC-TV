@@ -851,7 +851,9 @@ class MediaTableViewController : UIViewController
                     globals.mediaPlayer.setup(globals.mediaPlayer.mediaItem,playOnLoad:false)
                 }
 
-                self.navigationItem.title = Constants.CBC.TITLE.SHORT
+//                self.navigationItem.title = nil // Constants.Media // Constants.CBC.TITLE.SHORT
+                
+                self.setupTitle()
                 
                 self.setupViews()
                 
@@ -1313,13 +1315,56 @@ class MediaTableViewController : UIViewController
         })
     }
     
-
-    func setupTitle()
+    fileprivate func setupTitle()
     {
-        if !globals.isLoading {
-            navigationItem.title = Constants.CBC.TITLE.SHORT
+        let titleString : String?
+        
+        let attrTitleString = NSMutableAttributedString()
+        
+        attrTitleString.append(NSAttributedString(string: "Media",   attributes: Constants.Fonts.Attributes.boldGrey))
+        
+        if !globals.mediaPlayer.isZoomed {
+            titleString = Constants.CBC.SHORT
+        } else {
+            titleString = nil
+        }
+        
+        if let navBar = navigationController?.navigationBar, let titleString = titleString {
+            let labelWidth = navBar.bounds.width - 110
+            
+            let label = UILabel(frame: CGRect(x:(navBar.bounds.width/2) - (labelWidth/2), y:0, width:labelWidth, height:navBar.bounds.height))
+            label.backgroundColor = UIColor.clear
+            label.numberOfLines = 0
+            label.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
+            label.textAlignment = .center
+            label.textColor = UIColor.black
+            label.lineBreakMode = .byWordWrapping
+            
+            label.text = titleString
+            
+            attrTitleString.append(NSAttributedString(string: "\n",   attributes: Constants.Fonts.Attributes.normal))
+            attrTitleString.append(NSAttributedString(string: " ",   attributes: Constants.Fonts.Attributes.bold))
+
+            label.attributedText = attrTitleString
+            
+//            if titleString != Constants.CBC.LONG, let text = label.text {
+//                label.text = text + "\n" + titleString
+//                
+//                attrTitleString.append(NSAttributedString(string: "\n",   attributes: Constants.Fonts.Attributes.normal))
+//                attrTitleString.append(NSAttributedString(string: titleString,   attributes: Constants.Fonts.Attributes.bold))
+//                label.attributedText = attrTitleString
+//            }
+            
+            navigationItem.titleView = label
         }
     }
+
+//    func setupTitle()
+//    {
+//        if !globals.isLoading {
+//            navigationItem.title = Constants.CBC.TITLE.SHORT
+//        }
+//    }
     
     func updateSearch()
     {
@@ -1392,7 +1437,7 @@ class MediaTableViewController : UIViewController
         })
         alert.addAction(searchAction)
         
-        let clearAction = UIAlertAction(title: "Stop", style: .destructive, handler: {
+        let clearAction = UIAlertAction(title: "Clear", style: .default, handler: {
             (action : UIAlertAction!) -> Void in
             self.endSearch()
         })
