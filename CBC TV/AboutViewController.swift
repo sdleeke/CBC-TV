@@ -34,6 +34,11 @@ class AboutViewController: UIViewController
         super.viewWillAppear(animated)
         setVersion()
         
+        guard globals.reachability.currentReachabilityStatus != .notReachable else {
+            mapView.isHidden = true
+            return
+        }
+        
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(Constants.CBC.FULL_ADDRESS, completionHandler:{(placemarks, error) -> Void in
             if let placemark = placemarks?[0] {

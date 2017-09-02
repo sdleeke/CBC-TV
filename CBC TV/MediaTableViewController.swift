@@ -112,7 +112,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
 //                performSegue(withIdentifier: Constants.SEGUE.SHOW_LIVE, sender: self)
                 
                 
-                if  //globals.streamEntries?.count > 0,
+                if globals.streamEntries?.count > 0, globals.reachability.currentReachabilityStatus != .notReachable, //globals.streamEntries?.count > 0,
                     let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
                     let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
                     navigationController.modalPresentationStyle = .fullScreen
@@ -594,7 +594,7 @@ class MediaTableViewController : UIViewController
             let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
             navigationController.modalPresentationStyle = .fullScreen
             
-            popover.navigationItem.title = "Sections"
+            popover.navigationItem.title = "Index"
             
             popover.delegate = self
             
@@ -1700,7 +1700,7 @@ class MediaTableViewController : UIViewController
         })
         alert.addAction(searchAction)
         
-        let clearAction = UIAlertAction(title: "Clear", style: .default, handler: {
+        let clearAction = UIAlertAction(title: "Clear", style: .destructive, handler: {
             (action : UIAlertAction!) -> Void in
             self.endSearch()
         })
@@ -1802,7 +1802,9 @@ class MediaTableViewController : UIViewController
                         }
                     }
                     
-                    strings.append("Live")
+                    if globals.streamEntries?.count > 0, globals.reachability.currentReachabilityStatus != .notReachable {
+                        strings.append("Live")
+                    }
                     
                     strings.append("Category")
                     if let count = globals.media.all?.mediaItemTags?.count, count > 0 {
@@ -1865,6 +1867,59 @@ class MediaTableViewController : UIViewController
 //        }
     }
     
+    func willEnterForeground()
+    {
+        
+    }
+    
+    func didBecomeActive()
+    {
+        guard globals.mediaRepository.list == nil else {
+            return
+        }
+        
+        tableView.isHidden = true
+        
+        loadMediaItems()
+            {
+                if globals.mediaRepository.list == nil {
+                    let alert = UIAlertController(title: "No media available.",
+                                                  message: "Please check your network connection and try again.",
+                                                  preferredStyle: UIAlertControllerStyle.alert)
+                    
+                    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+                        self.setupListActivityIndicator()
+                    })
+                    alert.addAction(action)
+                    
+                    self.present(alert, animated: true, completion: nil)
+                } else {
+                    self.selectedMediaItem = globals.selectedMediaItem.master
+                    
+                    if globals.search.active && !globals.search.complete { // && globals.search.transcripts
+                        self.updateSearchResults(globals.search.text,completion: {
+                            DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+                                DispatchQueue.main.async(execute: { () -> Void in
+                                    self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)
+                                })
+                            })
+                        })
+                    } else {
+                        // Reload the table
+                        self.tableView.reloadData()
+                        
+                        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+                            DispatchQueue.main.async(execute: { () -> Void in
+                                self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)
+                            })
+                        })
+                    }
+                }
+                
+                self.tableView.isHidden = false
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
@@ -1876,7 +1931,10 @@ class MediaTableViewController : UIViewController
 
         NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.liveView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.LIVE_VIEW), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.playerView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PLAYER_VIEW), object: nil)
-        
+
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.willEnterForeground), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.didBecomeActive), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)
+
         updateUI()
     }
     

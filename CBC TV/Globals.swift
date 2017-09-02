@@ -228,6 +228,10 @@ struct MediaCategory {
     
     var selectedID:String? {
         get {
+            guard dicts?[selected!] != nil else {
+                return "1"
+            }
+            
             return dicts?[selected!]
         }
     }
@@ -787,7 +791,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         get {
             var streamStringIndex = [String:[String]]()
             
-            let now = Date() // .addHours(120)
+            let now = Date().addHours(0) // For convenience in testing.
             
             if let streamEntries = streamEntries {
                 for event in streamEntries {
@@ -827,7 +831,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         get {
             var streamEntryIndex = [String:[[String:Any]]]()
             
-            let now = Date() // .addHours(120)
+            let now = Date().addHours(0) // For convenience in testing.
             
             if let streamEntries = streamEntries {
                 for event in streamEntries {
