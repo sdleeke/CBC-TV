@@ -961,7 +961,9 @@ class MediaItem : NSObject {
 //            print(tags)
             
             while tags?.index(of: tag) != nil {
-                tags?.remove(at: tags!.index(of: tag)!)
+                if let index = tags!.index(of: tag) {
+                    tags?.remove(at: index)
+                }
             }
             
 //            print(tags)
