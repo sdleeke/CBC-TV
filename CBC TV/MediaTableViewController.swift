@@ -1265,9 +1265,26 @@ class MediaTableViewController : UIViewController
         view.addSubview(container) // loadingView
     }
 
-    override func viewDidLoad() {
+    func addNotifications()
+    {
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.menuButtonAction(tap:)), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MENU), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.updateList), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.updateSearch), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_SEARCH), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.liveView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.LIVE_VIEW), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.playerView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PLAYER_VIEW), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.willEnterForeground), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.didBecomeActive), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)
+    }
+   
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
-
+        
+        addNotifications()
+        
         let menuPressRecognizer = UITapGestureRecognizer(target: self, action: #selector(MediaTableViewController.menuButtonAction(tap:)))
         menuPressRecognizer.allowedPressTypes = [NSNumber(value: UIPressType.menu.rawValue)]
         view.addGestureRecognizer(menuPressRecognizer)
@@ -1276,62 +1293,63 @@ class MediaTableViewController : UIViewController
         tapRecognizer.allowedPressTypes = [NSNumber(value: UIPressType.playPause.rawValue)];
         view.addGestureRecognizer(tapRecognizer)
         
-        if globals.mediaRepository.list == nil {
-            //            disableBarButtons()
-            
-            loadCategories()
-            
-            // Download or Load
-            
-            switch jsonSource {
-            case .download:
-//                downloadJSON()
-                break
-                
-            case .direct:
-                tableView.isHidden = true
-
-                loadMediaItems()
-                {
-                    if globals.mediaRepository.list == nil {
-                        let alert = UIAlertController(title: "No media available.",
-                                                      message: "Please check your network connection and try again.",
-                                                      preferredStyle: UIAlertControllerStyle.alert)
-                        
-                        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-                            self.setupListActivityIndicator()
-                        })
-                        alert.addAction(action)
-                        
-                        self.present(alert, animated: true, completion: nil)
-                    } else {
-                        self.selectedMediaItem = globals.selectedMediaItem.master
-                        
-                        if globals.search.active && !globals.search.complete { // && globals.search.transcripts
-                            self.updateSearchResults(globals.search.text,completion: {
-                                DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-                                    DispatchQueue.main.async(execute: { () -> Void in
-                                        self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)
-                                    })
-                                })
-                            })
-                        } else {
-                            // Reload the table
-                            self.tableView.reloadData()
-
-                            DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-                                DispatchQueue.main.async(execute: { () -> Void in
-                                    self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)
-                                })
-                            })
-                        }
-                    }
-
-                    self.tableView.isHidden = false
-                }
-                break
-            }
-        }
+        // in didBecomeActive
+//        if globals.mediaRepository.list == nil {
+//            //            disableBarButtons()
+//            
+//            loadCategories()
+//            
+//            // Download or Load
+//            
+//            switch jsonSource {
+//            case .download:
+////                downloadJSON()
+//                break
+//                
+//            case .direct:
+//                tableView.isHidden = true
+//
+//                loadMediaItems()
+//                {
+//                    if globals.mediaRepository.list == nil {
+//                        let alert = UIAlertController(title: "No media available.",
+//                                                      message: "Please check your network connection and try again.",
+//                                                      preferredStyle: UIAlertControllerStyle.alert)
+//                        
+//                        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+//                            self.setupListActivityIndicator()
+//                        })
+//                        alert.addAction(action)
+//                        
+//                        self.present(alert, animated: true, completion: nil)
+//                    } else {
+//                        self.selectedMediaItem = globals.selectedMediaItem.master
+//                        
+//                        if globals.search.active && !globals.search.complete { // && globals.search.transcripts
+//                            self.updateSearchResults(globals.search.text,completion: {
+//                                DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+//                                    DispatchQueue.main.async(execute: { () -> Void in
+//                                        self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)
+//                                    })
+//                                })
+//                            })
+//                        } else {
+//                            // Reload the table
+//                            self.tableView.reloadData()
+//
+//                            DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+//                                DispatchQueue.main.async(execute: { () -> Void in
+//                                    self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)
+//                                })
+//                            })
+//                        }
+//                    }
+//
+//                    self.tableView.isHidden = false
+//                }
+//                break
+//            }
+//        }
         
         //Eliminates blank cells at end.
         tableView.tableFooterView = UIView()
@@ -1878,62 +1896,108 @@ class MediaTableViewController : UIViewController
             return
         }
         
-        tableView.isHidden = true
+//        tableView.isHidden = true
         
-        loadMediaItems()
-            {
-                if globals.mediaRepository.list == nil {
-                    let alert = UIAlertController(title: "No media available.",
-                                                  message: "Please check your network connection and try again.",
-                                                  preferredStyle: UIAlertControllerStyle.alert)
-                    
-                    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
-                        self.setupListActivityIndicator()
-                    })
-                    alert.addAction(action)
-                    
-                    self.present(alert, animated: true, completion: nil)
-                } else {
-                    self.selectedMediaItem = globals.selectedMediaItem.master
-                    
-                    if globals.search.active && !globals.search.complete { // && globals.search.transcripts
-                        self.updateSearchResults(globals.search.text,completion: {
+        //            disableBarButtons()
+        
+        loadCategories()
+        
+        // Download or Load
+        
+        switch jsonSource {
+        case .download:
+            //                downloadJSON()
+            break
+            
+        case .direct:
+            tableView.isHidden = true
+            
+            loadMediaItems()
+                {
+                    if globals.mediaRepository.list == nil {
+                        let alert = UIAlertController(title: "No media available.",
+                                                      message: "Please check your network connection and try again.",
+                                                      preferredStyle: UIAlertControllerStyle.alert)
+                        
+                        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+                            self.setupListActivityIndicator()
+                        })
+                        alert.addAction(action)
+                        
+                        self.present(alert, animated: true, completion: nil)
+                    } else {
+                        self.selectedMediaItem = globals.selectedMediaItem.master
+                        
+                        if globals.search.active && !globals.search.complete { // && globals.search.transcripts
+                            self.updateSearchResults(globals.search.text,completion: {
+                                DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+                                    DispatchQueue.main.async(execute: { () -> Void in
+                                        self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)
+                                    })
+                                })
+                            })
+                        } else {
+                            // Reload the table
+                            self.tableView.reloadData()
+                            
                             DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
                                 DispatchQueue.main.async(execute: { () -> Void in
                                     self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)
                                 })
                             })
-                        })
-                    } else {
-                        // Reload the table
-                        self.tableView.reloadData()
-                        
-                        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-                            DispatchQueue.main.async(execute: { () -> Void in
-                                self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)
-                            })
-                        })
+                        }
                     }
-                }
-                
-                self.tableView.isHidden = false
+                    
+                    self.tableView.isHidden = false
+            }
+            break
         }
+
+//        loadMediaItems()
+//            {
+//                if globals.mediaRepository.list == nil {
+//                    let alert = UIAlertController(title: "No media available.",
+//                                                  message: "Please check your network connection and try again.",
+//                                                  preferredStyle: UIAlertControllerStyle.alert)
+//                    
+//                    let action = UIAlertAction(title: Constants.Cancel, style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
+//                        self.setupListActivityIndicator()
+//                    })
+//                    alert.addAction(action)
+//                    
+//                    self.present(alert, animated: true, completion: nil)
+//                } else {
+//                    self.selectedMediaItem = globals.selectedMediaItem.master
+//                    
+//                    if globals.search.active && !globals.search.complete { // && globals.search.transcripts
+//                        self.updateSearchResults(globals.search.text,completion: {
+//                            DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+//                                DispatchQueue.main.async(execute: { () -> Void in
+//                                    self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)
+//                                })
+//                            })
+//                        })
+//                    } else {
+//                        // Reload the table
+//                        self.tableView.reloadData()
+//                        
+//                        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+//                            DispatchQueue.main.async(execute: { () -> Void in
+//                                self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)
+//                            })
+//                        })
+//                    }
+//                }
+//                
+//                self.tableView.isHidden = false
+//        }
     }
     
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.menuButtonAction(tap:)), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MENU), object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.updateList), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.updateSearch), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_SEARCH), object: nil)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.liveView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.LIVE_VIEW), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.playerView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PLAYER_VIEW), object: nil)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.willEnterForeground), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewController.didBecomeActive), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)
+        addNotifications()
 
         updateUI()
     }
