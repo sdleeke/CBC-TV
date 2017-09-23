@@ -41,9 +41,7 @@ class AboutViewController: UIViewController
         
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(Constants.CBC.FULL_ADDRESS, completionHandler:{(placemarks, error) -> Void in
-            if let placemark = placemarks?[0] {
-                let coordinates:CLLocationCoordinate2D = placemark.location!.coordinate
-                
+            if let placemark = placemarks?[0], let coordinates:CLLocationCoordinate2D = placemark.location?.coordinate {
                 let pointAnnotation:MKPointAnnotation = MKPointAnnotation()
                 pointAnnotation.coordinate = coordinates
                 pointAnnotation.title = Constants.CBC.LONG
@@ -56,7 +54,7 @@ class AboutViewController: UIViewController
                 let mkPlacemark = MKPlacemark(coordinate: coordinates, addressDictionary: nil)
                 self.item = MKMapItem(placemark: mkPlacemark)
                 
-                let viewRegion = MKCoordinateRegionMakeWithDistance(coordinates, 10000, 10000)
+                let viewRegion = MKCoordinateRegionMakeWithDistance(coordinates, 50000, 50000)
                 let adjustedRegion = self.mapView?.regionThatFits(viewRegion)
                 self.mapView?.setRegion(adjustedRegion!, animated: false)
             }

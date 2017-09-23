@@ -11,7 +11,7 @@ import MediaPlayer
 import AVKit
 
 extension Thread {
-    static func onMainThread(block:((Void)->(Void))?)
+    static func onMainThread(block:(()->(Void))?)
     {
         if Thread.isMainThread {
             block?()
@@ -77,17 +77,17 @@ struct MediaRepository {
                 globals.groupingTitles = Constants.GroupingTitles
 
                 if classes?.count > 0 {
-                    globals.groupings.append(Grouping.CLASS)
+                    globals.groupings.append(GROUPING.CLASS)
                     globals.groupingTitles.append(Grouping.Class)
                 }
                 
                 if events?.count > 0 {
-                    globals.groupings.append(Grouping.EVENT)
+                    globals.groupings.append(GROUPING.EVENT)
                     globals.groupingTitles.append(Grouping.Event)
                 }
                 
                 if let grouping = globals.grouping, !globals.groupings.contains(grouping) {
-                    globals.grouping = Grouping.YEAR
+                    globals.grouping = GROUPING.YEAR
                 }
             }
         }
@@ -110,13 +110,15 @@ struct Tags {
             return globals.mediaCategory.tag
         }
         set {
-            if (newValue != nil) {
-                if (globals.media.tagged[newValue!] == nil) {
+            if let newValue = newValue {
+                if (globals.media.tagged[newValue] == nil) {
                     if globals.media.all == nil {
                         //This is filtering, i.e. searching all mediaItems => s/b in background
-                        globals.media.tagged[newValue!] = MediaListGroupSort(mediaItems: mediaItemsWithTag(globals.mediaRepository.list, tag: newValue))
+                        globals.media.tagged[newValue] = MediaListGroupSort(mediaItems: mediaItemsWithTag(globals.mediaRepository.list, tag: newValue))
                     } else {
-                        globals.media.tagged[newValue!] = MediaListGroupSort(mediaItems: globals.media.all?.tagMediaItems?[stringWithoutPrefixes(newValue!)!])
+                        if let tag = stringWithoutPrefixes(newValue) {
+                            globals.media.tagged[newValue] = MediaListGroupSort(mediaItems: globals.media.all?.tagMediaItems?[tag])
+                        }
                     }
                 }
             } else {
@@ -141,11 +143,17 @@ struct Media {
     
     var toSearch:MediaListGroupSort? {
         get {
+            guard let showing = tags.showing else {
+                return nil
+            }
+            
             var mediaItems:MediaListGroupSort?
             
-            switch tags.showing! {
+            switch showing {
             case Constants.TAGGED:
-                mediaItems = tagged[tags.selected!]
+                if let selected = tags.selected {
+                    mediaItems = tagged[selected]
+                }
                 break
                 
             case Constants.ALL:
@@ -162,11 +170,17 @@ struct Media {
     
     var active:MediaListGroupSort? {
         get {
+            guard let showing = tags.showing else {
+                return nil
+            }
+            
             var mediaItems:MediaListGroupSort?
             
-            switch tags.showing! {
+            switch showing {
             case Constants.TAGGED:
-                mediaItems = tagged[tags.selected!]
+                if let selected = tags.selected {
+                    mediaItems = tagged[selected]
+                }
                 break
                 
             case Constants.ALL:
@@ -228,11 +242,11 @@ struct MediaCategory {
     
     var selectedID:String? {
         get {
-            guard dicts?[selected!] != nil else {
+            guard let selected = selected, dicts?[selected] != nil else {
                 return "1"
             }
             
-            return dicts?[selected!]
+            return dicts?[selected]
         }
     }
 
@@ -263,14 +277,14 @@ struct MediaCategory {
     
     subscript(key:String) -> String? {
         get {
-            if (selected != nil) {
-                return settings?[selected!]?[key]
+            if let selected = selected {
+                return settings?[selected]?[key]
             } else {
                 return nil
             }
         }
         set {
-            guard (selected != nil) else {
+            guard let selected = selected else {
                 print("selected == nil!")
                 return
             }
@@ -284,12 +298,12 @@ struct MediaCategory {
                 return
             }
 
-            if (settings?[selected!] == nil) {
-                settings?[selected!] = [String:String]()
+            if (settings?[selected] == nil) {
+                settings?[selected] = [String:String]()
             }
-            if (settings?[selected!]?[key] != newValue) {
-                settings?[selected!]?[key] = newValue
-                
+            if (settings?[selected]?[key] != newValue) {
+                settings?[selected]?[key] = newValue
+
                 // For a high volume of activity this can be very expensive.
                 saveSettingsBackground()
             }
@@ -490,7 +504,11 @@ class StreamEntry {
     
     var text : String? {
         get {
-            return "\(name!)\nStart: \(startDate!.mdyhm)\nEnd: \(endDate!.mdyhm)"
+            if let name = name,let startDate = startDate?.mdyhm,let endDate = endDate?.mdyhm {
+                return "\(name)\nStart: \(startDate)\nEnd: \(endDate)"
+            } else {
+                return nil
+            }
         }
     }
 }
@@ -607,7 +625,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
     var groupings = Constants.groupings
     var groupingTitles = Constants.GroupingTitles
     
-    var grouping:String? = Grouping.YEAR {
+    var grouping:String? = GROUPING.YEAR {
         willSet {
             
         }
@@ -629,7 +647,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         }
     }
     
-    var sorting:String? = Sorting.REVERSE_CHRONOLOGICAL {
+    var sorting:String? = SORTING.REVERSE_CHRONOLOGICAL {
         willSet {
             
         }
@@ -781,7 +799,11 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
             return streamEntries?.filter({ (dict:[String : Any]) -> Bool in
                 return StreamEntry(dict)?.startDate > Date()
             }).map({ (dict:[String : Any]) -> String in
-                return StreamEntry(dict)!.text!
+                if let string = StreamEntry(dict)?.text {
+                    return string
+                } else {
+                    return "ERROR"
+                }
             })
         }
     }
@@ -1098,13 +1120,13 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
                 if let sortingString = defaults.string(forKey: Constants.SETTINGS.KEY.SORTING) {
                     sorting = sortingString
                 } else {
-                    sorting = Sorting.REVERSE_CHRONOLOGICAL
+                    sorting = SORTING.REVERSE_CHRONOLOGICAL
                 }
                 
                 if let groupingString = defaults.string(forKey: Constants.SETTINGS.KEY.GROUPING) {
                     grouping = groupingString
                 } else {
-                    grouping = Grouping.YEAR
+                    grouping = GROUPING.YEAR
                 }
                 
 //                media.tags.selected = mediaCategory.tag
@@ -1113,19 +1135,27 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
                     media.tags.selected = nil
                 }
 
-                if media.tags.showing == Constants.TAGGED, media.tagged[mediaCategory.tag!] == nil {
-                    if media.all == nil {
-                        //This is filtering, i.e. searching all mediaItems => s/b in background
-                        media.tagged[mediaCategory.tag!] = MediaListGroupSort(mediaItems: mediaItemsWithTag(mediaRepository.list, tag: media.tags.selected))
-                    } else {
-                        media.tagged[mediaCategory.tag!] = MediaListGroupSort(mediaItems: media.all?.tagMediaItems?[stringWithoutPrefixes(media.tags.selected!)!])
+                if let tag = mediaCategory.tag {
+                    if media.tags.showing == Constants.TAGGED, media.tagged[tag] == nil {
+                        if media.all == nil {
+                            //This is filtering, i.e. searching all mediaItems => s/b in background
+                            media.tagged[tag] = MediaListGroupSort(mediaItems: mediaItemsWithTag(mediaRepository.list, tag: media.tags.selected))
+                        } else {
+                            if let tag = stringWithoutPrefixes(media.tags.selected) {
+                                media.tagged[tag] = MediaListGroupSort(mediaItems: media.all?.tagMediaItems?[tag])
+                            }
+                        }
                     }
                 }
                 
                 search.text = defaults.string(forKey: Constants.SEARCH_TEXT) // ?.uppercased()
                 search.active = search.text != nil
 
-                mediaPlayer.mediaItem = mediaCategory.playing != nil ? mediaRepository.index?[mediaCategory.playing!] : nil
+                if let playing = mediaCategory.playing {
+                    mediaPlayer.mediaItem = mediaRepository.index?[playing]
+                } else {
+                    mediaPlayer.mediaItem = nil
+                }
 
                 if let historyArray = defaults.array(forKey: Constants.HISTORY) {
                     //        print("\(settingsDictionary)")
@@ -1178,13 +1208,18 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
     
     func addToHistory(_ mediaItem:MediaItem?)
     {
-        guard (mediaItem != nil) else {
+        guard let mediaItem = mediaItem else {
             print("mediaItem NIL!")
             return
         }
-
-        let entry = "\(Date())" + Constants.TAGS_SEPARATOR + mediaItem!.id!
         
+        guard let id = mediaItem.id else {
+            print("mediaItem ID NIL!")
+            return
+        }
+        
+        let entry = "\(Date())" + Constants.TAGS_SEPARATOR + id
+
         if history == nil {
             history = [entry]
         } else {
@@ -1248,16 +1283,24 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
 //        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [15]
         MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget (handler: { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
             print("RemoteControlSkipBackward")
-            self.mediaPlayer.seek(to: self.mediaPlayer.currentTime!.seconds - Constants.SKIP_TIME_INTERVAL)
-            return MPRemoteCommandHandlerStatus.success
+            if let seconds = self.mediaPlayer.currentTime?.seconds {
+                self.mediaPlayer.seek(to: seconds - Constants.SKIP_TIME_INTERVAL)
+                return MPRemoteCommandHandlerStatus.success
+            } else {
+                return MPRemoteCommandHandlerStatus.commandFailed
+            }
         })
         
         MPRemoteCommandCenter.shared().skipForwardCommand.isEnabled = true
         //        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [15]
         MPRemoteCommandCenter.shared().skipForwardCommand.addTarget (handler: { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
             print("RemoteControlSkipForward")
-            self.mediaPlayer.seek(to: self.mediaPlayer.currentTime!.seconds + Constants.SKIP_TIME_INTERVAL)
-            return MPRemoteCommandHandlerStatus.success
+            if let seconds = self.mediaPlayer.currentTime?.seconds {
+                self.mediaPlayer.seek(to: seconds + Constants.SKIP_TIME_INTERVAL)
+                return MPRemoteCommandHandlerStatus.success
+            } else {
+                return MPRemoteCommandHandlerStatus.commandFailed
+            }
         })
         
         if #available(iOS 9.1, *) {

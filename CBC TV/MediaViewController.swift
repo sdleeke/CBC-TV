@@ -94,13 +94,15 @@ class MediaViewController: UIViewController
     
     func playerURL(url: URL?)
     {
+        guard let url = url else {
+            return
+        }
+        
         removePlayerObserver()
         
-        if url != nil {
-            player = AVPlayer(url: url!)
-            
-            addPlayerObserver()
-        }
+        player = AVPlayer(url: url)
+        
+        addPlayerObserver()
     }
     
     var selectedMediaItem:MediaItem? {
@@ -169,78 +171,83 @@ class MediaViewController: UIViewController
         
         switch sender.selectedSegmentIndex {
         case Constants.AV_SEGMENT_INDEX.AUDIO:
-            switch selectedMediaItem!.playing! {
-            case Playing.audio:
-                //Do nothing, already selected
-                break
-                
-            case Playing.video:
-                if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
-                    globals.mediaPlayer.stop() // IfPlaying
+            if let playing = selectedMediaItem?.playing {
+                switch playing {
+                case Playing.audio:
+                    //Do nothing, already selected
+                    break
                     
-                    globals.mediaPlayer.view?.isHidden = true
+                case Playing.video:
+                    if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
+                        globals.mediaPlayer.stop() // IfPlaying
+                        
+                        globals.mediaPlayer.view?.isHidden = true
+                        
+                        setupSpinner()
+                        
+                        removeProgressObserver()
+                        
+                        setupPlayPauseButton()
+                        setupProgressAndTimes()
+                    }
                     
-                    setupSpinner()
+                    selectedMediaItem?.playing = Playing.audio // Must come before setupNoteAndSlides()
                     
-                    removeProgressObserver()
+                    // Unlike CBC on iOS, don't load the player.
+                    //                if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
+                    //                    globals.setupPlayer(selectedMediaItem, playOnLoad: false)
+                    //                }
                     
-                    setupPlayPauseButton()
+                    playerURL(url: selectedMediaItem?.playingURL)
+                    
                     setupProgressAndTimes()
+                    
+                    setupVideo()
+                    break
+                    
+                default:
+                    break
                 }
-                
-                selectedMediaItem?.playing = Playing.audio // Must come before setupNoteAndSlides()
-                
-                // Unlike CBC on iOS, don't load the player.
-//                if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
-//                    globals.setupPlayer(selectedMediaItem, playOnLoad: false)
-//                }
-                
-                playerURL(url: selectedMediaItem?.playingURL)
-                
-                setupProgressAndTimes()
-                
-                setupVideo()
-                break
-                
-            default:
-                break
             }
             break
             
         case Constants.AV_SEGMENT_INDEX.VIDEO:
-            switch selectedMediaItem!.playing! {
-            case Playing.audio:
-                if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
-                    globals.mediaPlayer.stop() // IfPlaying
+            if let playing = selectedMediaItem?.playing {
+                switch playing {
+                case Playing.audio:
+                    if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
+                        globals.mediaPlayer.stop() // IfPlaying
+                        
+                        setupSpinner()
+                        
+                        removeProgressObserver()
+                        
+                        setupPlayPauseButton()
+                        setupProgressAndTimes()
+                    }
                     
-                    setupSpinner()
+                    selectedMediaItem?.playing = Playing.video // Must come before setupNoteAndSlides()
                     
-                    removeProgressObserver()
+                    // Unlike CBC on iOS, don't load the player.
+                    //                if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
+                    //                    globals.setupPlayer(selectedMediaItem, playOnLoad: false)
+                    //                }
                     
-                    setupPlayPauseButton()
+                    playerURL(url: selectedMediaItem?.playingURL)
+                    
                     setupProgressAndTimes()
+                    break
+                    
+                case Playing.video:
+                    //Do nothing, already selected
+                    break
+                    
+                default:
+                    break
                 }
-                
-                selectedMediaItem?.playing = Playing.video // Must come before setupNoteAndSlides()
-                
-                // Unlike CBC on iOS, don't load the player.
-//                if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
-//                    globals.setupPlayer(selectedMediaItem, playOnLoad: false)
-//                }
-
-                playerURL(url: selectedMediaItem?.playingURL)
-                
-                setupProgressAndTimes()
-                break
-                
-            case Playing.video:
-                //Do nothing, already selected
-                break
-                
-            default:
-                break
             }
             break
+            
         default:
             print("oops!")
             break
@@ -276,7 +283,11 @@ class MediaViewController: UIViewController
             return
         }
         
-        globals.mediaPlayer.seek(to: globals.mediaPlayer.currentTime!.seconds - Constants.SKIP_TIME_INTERVAL)
+        guard let currentTime = globals.mediaPlayer.currentTime else {
+            return
+        }
+        
+        globals.mediaPlayer.seek(to: currentTime.seconds - Constants.SKIP_TIME_INTERVAL)
     }
     
     @IBOutlet weak var fastForwardButton: UIButton!
@@ -291,7 +302,11 @@ class MediaViewController: UIViewController
             return
         }
         
-        globals.mediaPlayer.seek(to: globals.mediaPlayer.currentTime!.seconds + Constants.SKIP_TIME_INTERVAL)
+        guard let currentTime = globals.mediaPlayer.currentTime else {
+            return
+        }
+        
+        globals.mediaPlayer.seek(to: currentTime.seconds + Constants.SKIP_TIME_INTERVAL)
     }
     
     
@@ -418,11 +433,11 @@ class MediaViewController: UIViewController
 
     fileprivate func setupPlayerView(_ view:UIView?)
     {
-        guard (view != nil) else {
+        guard let view = view else {
             return
         }
         
-        guard (mediaItemNotesAndSlides != nil) else {
+        guard let mediaItemNotesAndSlides = mediaItemNotesAndSlides else {
             return
         }
         
@@ -430,46 +445,46 @@ class MediaViewController: UIViewController
             return
         }
         
-        guard (splitViewController != nil) else {
+        guard let splitViewController = splitViewController else {
             return
         }
         
         var parentView : UIView!
 
-        parentView = mediaItemNotesAndSlides!
+        parentView = mediaItemNotesAndSlides
         tableView.isScrollEnabled = true
 
         if globals.mediaPlayer.isZoomed {
-            parentView = splitViewController!.view
+            parentView = splitViewController.view
         }
         
-        view?.isHidden = true
-        view?.removeFromSuperview()
+        view.isHidden = true
+        view.removeFromSuperview()
         
-        view?.frame = parentView.bounds
+        view.frame = parentView.bounds
         
-        view?.translatesAutoresizingMaskIntoConstraints = false //This will fail without this
+        view.translatesAutoresizingMaskIntoConstraints = false //This will fail without this
         
-        if let contain = parentView?.subviews.contains(view!), !contain {
-            parentView.addSubview(view!)
+        if let contain = parentView?.subviews.contains(view), !contain {
+            parentView.addSubview(view)
         }
         
         //            print(view)
         //            print(view?.superview)
         
-        let centerX = NSLayoutConstraint(item: view!, attribute: NSLayoutAttribute.centerX, relatedBy: NSLayoutRelation.equal, toItem: view!.superview, attribute: NSLayoutAttribute.centerX, multiplier: 1.0, constant: 0.0)
-        view?.superview?.addConstraint(centerX)
+        let centerX = NSLayoutConstraint(item: view, attribute: NSLayoutAttribute.centerX, relatedBy: NSLayoutRelation.equal, toItem: view.superview, attribute: NSLayoutAttribute.centerX, multiplier: 1.0, constant: 0.0)
+        view.superview?.addConstraint(centerX)
         
-        let centerY = NSLayoutConstraint(item: view!, attribute: NSLayoutAttribute.centerY, relatedBy: NSLayoutRelation.equal, toItem: view!.superview, attribute: NSLayoutAttribute.centerY, multiplier: 1.0, constant: 0.0)
-        view?.superview?.addConstraint(centerY)
+        let centerY = NSLayoutConstraint(item: view, attribute: NSLayoutAttribute.centerY, relatedBy: NSLayoutRelation.equal, toItem: view.superview, attribute: NSLayoutAttribute.centerY, multiplier: 1.0, constant: 0.0)
+        view.superview?.addConstraint(centerY)
         
-        let width = NSLayoutConstraint(item: view!, attribute: NSLayoutAttribute.width, relatedBy: NSLayoutRelation.equal, toItem: view!.superview, attribute: NSLayoutAttribute.width, multiplier: 1.0, constant: 0.0)
-        view?.superview?.addConstraint(width)
+        let width = NSLayoutConstraint(item: view, attribute: NSLayoutAttribute.width, relatedBy: NSLayoutRelation.equal, toItem: view.superview, attribute: NSLayoutAttribute.width, multiplier: 1.0, constant: 0.0)
+        view.superview?.addConstraint(width)
         
-        let height = NSLayoutConstraint(item: view!, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.equal, toItem: view!.superview, attribute: NSLayoutAttribute.height, multiplier: 1.0, constant: 0.0)
-        view?.superview?.addConstraint(height)
+        let height = NSLayoutConstraint(item: view, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.equal, toItem: view.superview, attribute: NSLayoutAttribute.height, multiplier: 1.0, constant: 0.0)
+        view.superview?.addConstraint(height)
         
-        view?.superview?.setNeedsLayout()
+        view.superview?.setNeedsLayout()
     }
     
     func readyToPlay()
@@ -499,12 +514,14 @@ class MediaViewController: UIViewController
         if (selectedMediaItem?.playing == Playing.video) && (selectedMediaItem?.showing == Showing.video) {
             globals.mediaPlayer.view?.isHidden = false
             
-            mediaItemNotesAndSlides.bringSubview(toFront: globals.mediaPlayer.view!)
+            if let view = globals.mediaPlayer.view {
+                mediaItemNotesAndSlides.bringSubview(toFront: view)
+            }
         }
 
         if globals.mediaPlayer.playOnLoad {
-            if globals.mediaPlayer.mediaItem!.atEnd {
-                globals.mediaPlayer.mediaItem!.currentTime = Constants.ZERO
+            if let atEnd = globals.mediaPlayer.mediaItem?.atEnd, atEnd {
+                globals.mediaPlayer.mediaItem?.currentTime = Constants.ZERO
                 globals.mediaPlayer.seek(to: 0)
                 globals.mediaPlayer.mediaItem?.atEnd = false
             }
@@ -566,7 +583,7 @@ class MediaViewController: UIViewController
             return
         }
         
-        if (globals.mediaPlayer.mediaItem != nil) && (selectedMediaItem?.multiPartMediaItems?.index(of: globals.mediaPlayer.mediaItem!) != nil) {
+        if let mediaItem = globals.mediaPlayer.mediaItem, (selectedMediaItem?.multiPartMediaItems?.index(of: mediaItem) != nil) {
             selectedMediaItem = globals.mediaPlayer.mediaItem
             scrollToMediaItem(selectedMediaItem, select: true, position: UITableViewScrollPosition.none)
         } else {
@@ -680,7 +697,7 @@ class MediaViewController: UIViewController
             return
         }
         
-        guard (selectedMediaItem != nil) else {
+        guard let selectedMediaItem = selectedMediaItem, let showing = selectedMediaItem.showing, let playing = selectedMediaItem.playing else {
             globals.mediaPlayer.view?.isHidden = true
             
             logo.isHidden = !shouldShowLogo() // && roomForLogo()
@@ -703,19 +720,19 @@ class MediaViewController: UIViewController
         
         // Check whether they can or should show what they claim to show!
         
-        switch selectedMediaItem!.showing! {
+        switch showing {
         case Showing.video:
-            if !selectedMediaItem!.hasVideo {
-                selectedMediaItem!.showing = Showing.none
+            if !selectedMediaItem.hasVideo {
+                selectedMediaItem.showing = Showing.none
             }
             break
             
         default:
-            selectedMediaItem!.showing = Showing.none
+            selectedMediaItem.showing = Showing.none
             break
         }
         
-        switch selectedMediaItem!.showing! {
+        switch showing {
         case Showing.notes:
             // Should never happen
             break
@@ -726,7 +743,7 @@ class MediaViewController: UIViewController
             
         case Showing.video:
             //This should not happen unless it is playing video.
-            switch selectedMediaItem!.playing! {
+            switch playing {
             case Playing.audio:
                 logo.isHidden = false
                 mediaItemNotesAndSlides.bringSubview(toFront: logo)
@@ -738,7 +755,7 @@ class MediaViewController: UIViewController
                     logo.isHidden = globals.mediaPlayer.loaded
                     globals.mediaPlayer.view?.isHidden = !globals.mediaPlayer.loaded
                     
-                    selectedMediaItem?.showing = Showing.video
+                    selectedMediaItem.showing = Showing.video
                     
                     if (globals.mediaPlayer.player != nil) {
                         // Why is this commented out?
@@ -765,7 +782,7 @@ class MediaViewController: UIViewController
             activityIndicator.stopAnimating()
             activityIndicator.isHidden = true
             
-            switch selectedMediaItem!.playing! {
+            switch playing {
             case Playing.audio:
                 globals.mediaPlayer.view?.isHidden = true
                 logo.isHidden = false
@@ -773,15 +790,16 @@ class MediaViewController: UIViewController
                 
             case Playing.video:
                 if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
-                    if (globals.mediaPlayer.mediaItem!.hasVideo && (globals.mediaPlayer.mediaItem!.playing == Playing.video)) {
+                    if let hasVideo = globals.mediaPlayer.mediaItem?.hasVideo, hasVideo, globals.mediaPlayer.mediaItem?.playing == Playing.video {
                         if globals.mediaPlayer.loaded {
                             globals.mediaPlayer.view?.isHidden = false
-                            mediaItemNotesAndSlides.bringSubview(toFront: globals.mediaPlayer.view!)
                         }
-                        mediaItemNotesAndSlides.bringSubview(toFront: globals.mediaPlayer.view!)
-                        selectedMediaItem?.showing = Showing.video
+                        if let view = globals.mediaPlayer.view {
+                            mediaItemNotesAndSlides.bringSubview(toFront: view)
+                        }
+                        selectedMediaItem.showing = Showing.video
                     } else {
-                        selectedMediaItem?.showing = Showing.none
+                        selectedMediaItem.showing = Showing.none
                         globals.mediaPlayer.view?.isHidden = true
                         logo.isHidden = false
                         mediaItemNotesAndSlides.bringSubview(toFront: logo)
@@ -805,13 +823,13 @@ class MediaViewController: UIViewController
     
     func scrollToMediaItem(_ mediaItem:MediaItem?,select:Bool,position:UITableViewScrollPosition)
     {
-        guard (mediaItem != nil) else {
+        guard let mediaItem = mediaItem else {
             return
         }
 
         var indexPath = IndexPath(row: 0, section: 0)
         
-        if mediaItems?.count > 0, let mediaItemIndex = mediaItems?.index(of: mediaItem!) {
+        if mediaItems?.count > 0, let mediaItemIndex = mediaItems?.index(of: mediaItem) {
             //                    print("\(mediaItemIndex)")
             indexPath = IndexPath(row: mediaItemIndex, section: 0)
         }
@@ -957,13 +975,13 @@ class MediaViewController: UIViewController
     
     fileprivate func setupAudioOrVideo()
     {
-        guard (selectedMediaItem != nil) else {
+        guard let selectedMediaItem = selectedMediaItem else {
             audioOrVideoControl.isEnabled = false
             audioOrVideoControl.isHidden = true
             return
         }
         
-        if (selectedMediaItem!.hasAudio && selectedMediaItem!.hasVideo) {
+        if (selectedMediaItem.hasAudio && selectedMediaItem.hasVideo) {
             audioOrVideoControl.isEnabled = true
             audioOrVideoControl.isHidden = false
             audioOrVideoWidthConstraint.constant = Constants.AUDIO_VIDEO_MAX_WIDTH
@@ -974,17 +992,19 @@ class MediaViewController: UIViewController
             
 //                print(selectedMediaItem!.playing!)
             
-            switch selectedMediaItem!.playing! {
-            case Playing.audio:
-                audioOrVideoControl.selectedSegmentIndex = Constants.AV_SEGMENT_INDEX.AUDIO
-                break
-                
-            case Playing.video:
-                audioOrVideoControl.selectedSegmentIndex = Constants.AV_SEGMENT_INDEX.VIDEO
-                break
-                
-            default:
-                break
+            if let playing = selectedMediaItem.playing {
+                switch playing {
+                case Playing.audio:
+                    audioOrVideoControl.selectedSegmentIndex = Constants.AV_SEGMENT_INDEX.AUDIO
+                    break
+                    
+                case Playing.video:
+                    audioOrVideoControl.selectedSegmentIndex = Constants.AV_SEGMENT_INDEX.VIDEO
+                    break
+                    
+                default:
+                    break
+                }
             }
 
             audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: UIFont(name: "FontAwesome", size: 24.0)! ], for: .normal) // Constants.FA.Fonts.Attributes.icons
@@ -1071,8 +1091,10 @@ class MediaViewController: UIViewController
             NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.clearView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
         }
 
-        if (selectedMediaItem != nil) && (globals.mediaPlayer.mediaItem == selectedMediaItem) && globals.mediaPlayer.isPaused && globals.mediaPlayer.mediaItem!.hasCurrentTime() {
-            globals.mediaPlayer.seek(to: Double(globals.mediaPlayer.mediaItem!.currentTime!))
+        if selectedMediaItem != nil, globals.mediaPlayer.mediaItem == selectedMediaItem, globals.mediaPlayer.isPaused,
+            let hasCurrentTime = globals.mediaPlayer.mediaItem?.hasCurrentTime, hasCurrentTime,
+            let currentTime = globals.mediaPlayer.mediaItem?.currentTime {
+            globals.mediaPlayer.seek(to: Double(currentTime))
         }
 
         updateUI()
@@ -1316,27 +1338,23 @@ class MediaViewController: UIViewController
                 progressView.isHidden = true
             }
         } else {
-            if (player?.currentItem?.status == .readyToPlay) {
-                if let length = player?.currentItem?.duration.seconds {
-                    let timeNow = Double(selectedMediaItem!.currentTime!)!
-                    let progress = timeNow / length
+            if  (player?.currentItem?.status == .readyToPlay),
+                let length = player?.currentItem?.duration.seconds,
+                let currentTime = selectedMediaItem?.currentTime,
+                let timeNow = Double(currentTime) {
+                let progress = timeNow / length
 
-                    progressView.progress = Float(progress)
-
-                    //                        print("timeNow",timeNow)
-                    //                        print("progress",progress)
-                    //                        print("length",length)
-
-                    setTimes(timeNow: timeNow,length: length)
-                    
-                    elapsed.isHidden = false
-                    remaining.isHidden = false
-                    progressView.isHidden = false
-                } else {
-                    elapsed.isHidden = true
-                    remaining.isHidden = true
-                    progressView.isHidden = true
-                }
+                progressView.progress = Float(progress)
+                
+                //                        print("timeNow",timeNow)
+                //                        print("progress",progress)
+                //                        print("length",length)
+                
+                setTimes(timeNow: timeNow,length: length)
+                
+                elapsed.isHidden = false
+                remaining.isHidden = false
+                progressView.isHidden = false
             } else {
                 elapsed.isHidden = true
                 remaining.isHidden = true
@@ -1469,32 +1487,46 @@ class MediaViewController: UIViewController
 
     func playCurrentMediaItem(_ mediaItem:MediaItem?)
     {
+        guard let mediaItem = mediaItem else {
+            return
+        }
+        
         assert(globals.mediaPlayer.mediaItem == mediaItem)
         
         var seekToTime:CMTime?
 
-        if mediaItem!.hasCurrentTime() {
-            if mediaItem!.atEnd {
+        if mediaItem.hasCurrentTime {
+            if mediaItem.atEnd {
                 print("playPause globals.mediaPlayer.currentTime and globals.player.playing!.currentTime reset to 0!")
-                mediaItem?.currentTime = Constants.ZERO
+                mediaItem.currentTime = Constants.ZERO
                 seekToTime = CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution)
-                mediaItem?.atEnd = false
+                mediaItem.atEnd = false
             } else {
-                seekToTime = CMTimeMakeWithSeconds(Double(mediaItem!.currentTime!)!,Constants.CMTime_Resolution)
+                if let currentTime = mediaItem.currentTime, let seconds = Double(currentTime) {
+                    seekToTime = CMTimeMakeWithSeconds(seconds,Constants.CMTime_Resolution)
+                }
             }
         } else {
             print("playPause selectedMediaItem has NO currentTime!")
-            mediaItem!.currentTime = Constants.ZERO
+            mediaItem.currentTime = Constants.ZERO
             seekToTime = CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution)
         }
 
         if seekToTime != nil {
             let loadedTimeRanges = (globals.mediaPlayer.player?.currentItem?.loadedTimeRanges as? [CMTimeRange])?.filter({ (cmTimeRange:CMTimeRange) -> Bool in
-                return cmTimeRange.containsTime(seekToTime!)
+                if let seekToTime = seekToTime {
+                    return cmTimeRange.containsTime(seekToTime)
+                } else {
+                    return false
+                }
             })
 
             let seekableTimeRanges = (globals.mediaPlayer.player?.currentItem?.seekableTimeRanges as? [CMTimeRange])?.filter({ (cmTimeRange:CMTimeRange) -> Bool in
-                return cmTimeRange.containsTime(seekToTime!)
+                if let seekToTime = seekToTime {
+                    return cmTimeRange.containsTime(seekToTime)
+                } else {
+                    return false
+                }
             })
 
             if (loadedTimeRanges != nil) || (seekableTimeRanges != nil) {
@@ -1511,13 +1543,13 @@ class MediaViewController: UIViewController
 
     fileprivate func playNewMediaItem(_ mediaItem:MediaItem?)
     {
+        guard let mediaItem = mediaItem, mediaItem.hasVideo || mediaItem.hasAudio else {
+            return
+        }
+        
         globals.mediaPlayer.stop() // IfPlaying
         
         globals.mediaPlayer.view?.removeFromSuperview()
-        
-        guard (mediaItem != nil) && (mediaItem!.hasVideo || mediaItem!.hasAudio) else {
-            return
-        }
         
         globals.mediaPlayer.mediaItem = mediaItem
         
@@ -1530,7 +1562,7 @@ class MediaViewController: UIViewController
         //This guarantees a fresh start.
         globals.mediaPlayer.setup(mediaItem, playOnLoad: true)
         
-        if (mediaItem!.hasVideo && (mediaItem!.playing == Playing.video)) {
+        if (mediaItem.hasVideo && (mediaItem.playing == Playing.video)) {
             setupPlayerView(globals.mediaPlayer.view)
         }
         
@@ -1572,7 +1604,7 @@ class MediaViewController: UIViewController
             }
         } else {
             if globals.mediaPlayer.isPlaying {
-                if (globals.mediaPlayer.currentTime!.seconds > Double(globals.mediaPlayer.mediaItem!.currentTime!)!) {
+                if let currentTime = globals.mediaPlayer.mediaItem?.currentTime, let seconds = Double(currentTime), globals.mediaPlayer.currentTime?.seconds > seconds {
                     if spinner.isAnimating {
                         spinner.isHidden = true
                         spinner.stopAnimating()
@@ -1597,16 +1629,26 @@ extension MediaViewController : UITableViewDataSource
 {
     // MARK: UITableViewDataSource
     
-    func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int
+    {
         // #warning Potentially incomplete method implementation.
         // Return the number of sections.
         return 1
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
+    {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
-        return selectedMediaItem != nil ? (mediaItems != nil ? mediaItems!.count : 0) : 0
+        guard selectedMediaItem != nil else {
+            return 0
+        }
+        
+        guard let mediaItems = mediaItems else {
+            return 0
+        }
+        
+        return mediaItems.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell

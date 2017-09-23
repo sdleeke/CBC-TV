@@ -66,16 +66,20 @@ func cachesURL() -> URL?
 
 func filesOfTypeInCache(_ fileType:String) -> [String]?
 {
+    guard let path = cachesURL()?.path else {
+        return nil
+    }
+    
     var files = [String]()
     
     let fileManager = FileManager.default
-    let path = cachesURL()?.path
+    
     do {
-        let array = try fileManager.contentsOfDirectory(atPath: path!)
+        let array = try fileManager.contentsOfDirectory(atPath: path)
         
         for string in array {
-            if string.range(of: fileType) != nil {
-                if fileType == string.substring(from: string.range(of: fileType)!.lowerBound) {
+            if let range = string.range(of: fileType) {
+                if fileType == string.substring(from: range.lowerBound) {
                     files.append(string)
                 }
             }
@@ -100,26 +104,26 @@ func removeJSONFromFileSystemDirectory()
 
 func jsonToFileSystemDirectory(key:String)
 {
-    let fileManager = FileManager.default
+    guard let jsonBundlePath = Bundle.main.path(forResource: key, ofType: Constants.JSON.TYPE) else {
+        return
+    }
     
-    let jsonBundlePath = Bundle.main.path(forResource: key, ofType: Constants.JSON.TYPE)
+    let fileManager = FileManager.default
     
     if let filename = globals.mediaCategory.filename, let jsonFileURL = cachesURL()?.appendingPathComponent(filename) {
         // Check if file exist
         if (!fileManager.fileExists(atPath: jsonFileURL.path)){
-            if (jsonBundlePath != nil) {
-                do {
-                    // Copy File From Bundle To Documents Directory
-                    try fileManager.copyItem(atPath: jsonBundlePath!,toPath: jsonFileURL.path)
-                } catch _ {
-                    print("failed to copy mediaItems.json")
-                }
+            do {
+                // Copy File From Bundle To Documents Directory
+                try fileManager.copyItem(atPath: jsonBundlePath,toPath: jsonFileURL.path)
+            } catch _ {
+                print("failed to copy mediaItems.json")
             }
         } else {
             //    fileManager.removeItemAtPath(destination)
             // Which is newer, the bundle file or the file in the Documents folder?
             do {
-                let jsonBundleAttributes = try fileManager.attributesOfItem(atPath: jsonBundlePath!)
+                let jsonBundleAttributes = try fileManager.attributesOfItem(atPath: jsonBundlePath)
                 
                 let jsonDocumentsAttributes = try fileManager.attributesOfItem(atPath: jsonFileURL.path)
                 
@@ -151,7 +155,7 @@ func jsonToFileSystemDirectory(key:String)
                     do {
                         // Copy File From Bundle To Documents Directory
                         try fileManager.removeItem(atPath: jsonFileURL.path)
-                        try fileManager.copyItem(atPath: jsonBundlePath!,toPath: jsonFileURL.path)
+                        try fileManager.copyItem(atPath: jsonBundlePath,toPath: jsonFileURL.path)
                     } catch _ {
                         print("failed to copy mediaItems.json")
                     }
@@ -197,6 +201,10 @@ func jsonFromURL(url:String) -> Any?
 
 func jsonFromURL(url:String,filename:String) -> Any?
 {
+    guard let url = URL(string: url) else {
+        return nil
+    }
+    
     guard let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) else {
         return nil
     }
@@ -210,7 +218,7 @@ func jsonFromURL(url:String,filename:String) -> Any?
     }
     
     do {
-        let data = try Data(contentsOf: URL(string: url)!) // , options: NSData.ReadingOptions.mappedIfSafe
+        let data = try Data(contentsOf: url) // , options: NSData.ReadingOptions.mappedIfSafe
         print("able to read json from the URL.")
         
         do {
@@ -446,7 +454,7 @@ func stringWithoutPrefixes(_ fromString:String?) -> String?
     
     for prefix in prefixes {
         if (sourceString?.endIndex >= prefix.endIndex) && (sourceString?.substring(to: prefix.endIndex).lowercased() == prefix.lowercased()) {
-            sortString = sourceString!.substring(from: prefix.endIndex)
+            sortString = sourceString?.substring(from: prefix.endIndex)
             break
         }
     }
@@ -460,28 +468,32 @@ func stringWithoutPrefixes(_ fromString:String?) -> String?
 
 func mediaItemSections(_ mediaItems:[MediaItem]?,sorting:String?,grouping:String?) -> [String]?
 {
+    guard let sorting = sorting, let grouping = grouping else {
+        return nil
+    }
+    
     var strings:[String]?
     
-    switch grouping! {
-    case Grouping.YEAR:
+    switch grouping {
+    case GROUPING.YEAR:
         strings = yearsFromMediaItems(mediaItems, sorting: sorting)?.map() { (year) in
             return "\(year)"
         }
         break
         
-    case Grouping.TITLE:
+    case GROUPING.TITLE:
         strings = seriesSectionsFromMediaItems(mediaItems,withTitles: true)
         break
         
-    case Grouping.BOOK:
+    case GROUPING.BOOK:
         strings = bookSectionsFromMediaItems(mediaItems)
         break
         
-    case Grouping.SPEAKER:
+    case GROUPING.SPEAKER:
         strings = speakerSectionsFromMediaItems(mediaItems)
         break
         
-    case Grouping.CLASS:
+    case GROUPING.CLASS:
         strings = classSectionsFromMediaItems(mediaItems)
         break
         
@@ -496,10 +508,17 @@ func mediaItemSections(_ mediaItems:[MediaItem]?,sorting:String?,grouping:String
 
 func yearsFromMediaItems(_ mediaItems:[MediaItem]?, sorting: String?) -> [Int]?
 {
-    return mediaItems != nil ?
-        Array(
+    guard let mediaItems = mediaItems else {
+        return nil
+    }
+    
+    guard let sorting = sorting else {
+        return nil
+    }
+    
+    return Array(
             Set(
-                mediaItems!.filter({ (mediaItem:MediaItem) -> Bool in
+                mediaItems.filter({ (mediaItem:MediaItem) -> Bool in
                     assert(mediaItem.fullDate != nil) // We're assuming this gets ALL mediaItems.
                     return mediaItem.fullDate != nil
                 }).map({ (mediaItem:MediaItem) -> Int in
@@ -509,11 +528,11 @@ func yearsFromMediaItems(_ mediaItems:[MediaItem]?, sorting: String?) -> [Int]?
                 })
             )
             ).sorted(by: { (first:Int, second:Int) -> Bool in
-                switch sorting! {
-                case Sorting.CHRONOLOGICAL:
+                switch sorting {
+                case SORTING.CHRONOLOGICAL:
                     return first < second
                     
-                case Sorting.REVERSE_CHRONOLOGICAL:
+                case SORTING.REVERSE_CHRONOLOGICAL:
                     return first > second
                     
                 default:
@@ -522,7 +541,6 @@ func yearsFromMediaItems(_ mediaItems:[MediaItem]?, sorting: String?) -> [Int]?
                 
                 return false
             })
-        : nil
 }
 
 func testament(_ book:String) -> String
@@ -537,101 +555,101 @@ func testament(_ book:String) -> String
     return Constants.EMPTY_STRING
 }
 
-func versessFromScripture(_ scripture:String?) -> [Int]?
+func versesFromScripture(_ scripture:String?) -> [Int]?
 {
-    var verses = [Int]()
-
-    if (scripture != nil) {
-        var string = scripture?.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.EMPTY_STRING)
-        
-        if (string == Constants.EMPTY_STRING) {
-            return []
-        }
-        
-        let colon = string?.range(of: ":")
-//        let hyphen = string?.range(of: "-")
-//        let comma = string?.range(of: ",")
-        
-        //Is not correct for books with only one chapter
-        // e.g. ["Philemon","Jude","2 John","3 John"]
-        if colon == nil {
-            return []
-        }
-
-        string = string?.substring(from: colon!.upperBound)
-        
-        var chars = Constants.EMPTY_STRING
-        
-        var seenHyphen = false
-        var seenComma = false
-        
-        var startVerse = 0
-        var endVerse = 0
-        
-        var breakOut = false
-        
-        for character in string!.characters {
-            if breakOut {
-                break
-            }
-            switch character {
-            case "–":
-                fallthrough
-            case "-":
-                seenHyphen = true
-                if (startVerse == 0) {
-                    if Int(chars) != nil {
-                        startVerse = Int(chars)!
-                    }
-                }
-                chars = Constants.EMPTY_STRING
-                break
-                
-            case "(":
-                breakOut = true
-                break
-                
-            case ",":
-                seenComma = true
-                if (Int(chars) != nil) {
-                    verses.append(Int(chars)!)
-                }
-                chars = Constants.EMPTY_STRING
-                break
-                
-            default:
-                chars.append(character)
-//                print(chars)
-                break
-            }
-        }
-        if !seenHyphen {
-            if Int(chars) != nil {
-                startVerse = Int(chars)!
-            }
-        }
-        if (startVerse != 0) {
-            if (endVerse == 0) {
-                if (Int(chars) != nil) {
-                    endVerse = Int(chars)!
-                }
-                chars = Constants.EMPTY_STRING
-            }
-            if (endVerse != 0) {
-                for verse in startVerse...endVerse {
-                    verses.append(verse)
-                }
-            } else {
-                verses.append(startVerse)
-            }
-        }
-        if seenComma {
-            if Int(chars) != nil {
-                verses.append(Int(chars)!)
-            }
-        }
+    guard let scripture = scripture else {
+        return nil
     }
     
+    var verses = [Int]()
+
+    var string = scripture.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.EMPTY_STRING)
+    
+    if string.isEmpty {
+        return []
+    }
+    
+    //Is not correct for books with only one chapter
+    // e.g. ["Philemon","Jude","2 John","3 John"]
+    guard let colon = string.range(of: ":") else {
+        return []
+    }
+    
+    //        let hyphen = string?.range(of: "-")
+    //        let comma = string?.range(of: ",")
+    
+    string = string.substring(from: colon.upperBound)
+    
+    var chars = Constants.EMPTY_STRING
+    
+    var seenHyphen = false
+    var seenComma = false
+    
+    var startVerse = 0
+    var endVerse = 0
+    
+    var breakOut = false
+    
+    for character in string.characters {
+        if breakOut {
+            break
+        }
+        switch character {
+        case "–":
+            fallthrough
+        case "-":
+            seenHyphen = true
+            if (startVerse == 0) {
+                if Int(chars) != nil {
+                    startVerse = Int(chars)!
+                }
+            }
+            chars = Constants.EMPTY_STRING
+            break
+            
+        case "(":
+            breakOut = true
+            break
+            
+        case ",":
+            seenComma = true
+            if let num = Int(chars) {
+                verses.append(num)
+            }
+            chars = Constants.EMPTY_STRING
+            break
+            
+        default:
+            chars.append(character)
+            //                print(chars)
+            break
+        }
+    }
+    if !seenHyphen {
+        if Int(chars) != nil {
+            startVerse = Int(chars)!
+        }
+    }
+    if (startVerse != 0) {
+        if (endVerse == 0) {
+            if (Int(chars) != nil) {
+                endVerse = Int(chars)!
+            }
+            chars = Constants.EMPTY_STRING
+        }
+        if (endVerse != 0) {
+            for verse in startVerse...endVerse {
+                verses.append(verse)
+            }
+        } else {
+            verses.append(startVerse)
+        }
+    }
+    if seenComma {
+        if let num = Int(chars) {
+            verses.append(num)
+        }
+    }
     return verses.count > 0 ? verses : nil
 }
 
@@ -642,7 +660,7 @@ func debug(_ string:String)
 
 func chaptersAndVersesForBook(_ book:String?) -> [Int:[Int]]?
 {
-    guard (book != nil) else {
+    guard let book = book else {
         return nil
     }
     
@@ -655,13 +673,17 @@ func chaptersAndVersesForBook(_ book:String?) -> [Int:[Int]]?
 
     startChapter = 1
     
-    switch testament(book!) {
+    switch testament(book) {
     case Constants.Old_Testament:
-        endChapter = Constants.OLD_TESTAMENT_CHAPTERS[Constants.OLD_TESTAMENT_BOOKS.index(of: book!)!]
+        if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book) {
+            endChapter = Constants.OLD_TESTAMENT_CHAPTERS[index]
+        }
         break
         
     case Constants.New_Testament:
-        endChapter = Constants.NEW_TESTAMENT_CHAPTERS[Constants.NEW_TESTAMENT_BOOKS.index(of: book!)!]
+        if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book) {
+            endChapter = Constants.NEW_TESTAMENT_CHAPTERS[index]
+        }
         break
         
     default:
@@ -671,13 +693,17 @@ func chaptersAndVersesForBook(_ book:String?) -> [Int:[Int]]?
     for chapter in startChapter...endChapter {
         startVerse = 1
         
-        switch testament(book!) {
+        switch testament(book) {
         case Constants.Old_Testament:
-            endVerse = Constants.OLD_TESTAMENT_VERSES[Constants.OLD_TESTAMENT_BOOKS.index(of: book!)!][chapter - 1]
+            if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book) {
+                endVerse = Constants.OLD_TESTAMENT_VERSES[index][chapter - 1]
+            }
             break
             
         case Constants.New_Testament:
-            endVerse = Constants.NEW_TESTAMENT_VERSES[Constants.NEW_TESTAMENT_BOOKS.index(of: book!)!][chapter - 1]
+            if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book) {
+                endVerse = Constants.NEW_TESTAMENT_VERSES[index][chapter - 1]
+            }
             break
             
         default:
@@ -698,7 +724,7 @@ func chaptersAndVersesForBook(_ book:String?) -> [Int:[Int]]?
 
 func versesForBookChapter(_ book:String?,_ chapter:Int) -> [Int]?
 {
-    guard book != nil else {
+    guard let book = book else {
         return nil
     }
  
@@ -707,16 +733,16 @@ func versesForBookChapter(_ book:String?,_ chapter:Int) -> [Int]?
     let startVerse = 1
     var endVerse = 0
     
-    switch testament(book!) {
+    switch testament(book) {
     case Constants.Old_Testament:
-        if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book!),
+        if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book),
             index < Constants.OLD_TESTAMENT_VERSES.count,
             chapter <= Constants.OLD_TESTAMENT_VERSES[index].count {
             endVerse = Constants.OLD_TESTAMENT_VERSES[index][chapter - 1]
         }
         break
     case Constants.New_Testament:
-        if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book!),
+        if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book),
             index < Constants.NEW_TESTAMENT_VERSES.count,
             chapter <= Constants.NEW_TESTAMENT_VERSES[index].count {
             endVerse = Constants.NEW_TESTAMENT_VERSES[index][chapter - 1]
@@ -761,7 +787,7 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
 //    if (book == "Mark") && (reference == " 2:23-3:6") {
 //        print(book,reference)
 //    }
-    guard (book != nil) else {
+    guard let book = book else {
         return nil
     }
     
@@ -773,6 +799,15 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
         return nil
     }
     
+    guard let string = reference?.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.EMPTY_STRING), !string.isEmpty else {
+        //        print(book,reference)
+        
+        // Now we have a book w/ no chapter or verse references
+        // FILL in all chapters and all verses and return
+        
+        return chaptersAndVersesForBook(book)
+    }
+
     var chaptersAndVerses = [Int:[Int]]()
     
     var tokens = [String]()
@@ -785,29 +820,18 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
     
     //        print(book!,reference!)
     
-    let string = reference?.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.EMPTY_STRING)
-    
-    if (string == nil) || (string == Constants.EMPTY_STRING) {
-//        print(book,reference)
-        
-        // Now we have a book w/ no chapter or verse references
-        // FILL in all chapters and all verses and return
-        
-        return chaptersAndVersesForBook(book)
-    }
-    
 //    print(string)
     
     var token = Constants.EMPTY_STRING
     
-    for char in string!.characters {
-        if CharacterSet(charactersIn: ":,-").contains(UnicodeScalar(String(char))!) {
+    for char in string.characters {
+        if let unicodeScalar = UnicodeScalar(String(char)), CharacterSet(charactersIn: ":,-").contains(unicodeScalar) {
             tokens.append(token)
             token = Constants.EMPTY_STRING
             
             tokens.append(String(char))
         } else {
-            if CharacterSet(charactersIn: "0123456789").contains(UnicodeScalar(String(char))!) {
+            if let unicodeScalar = UnicodeScalar(String(char)), CharacterSet(charactersIn: "0123456789").contains(unicodeScalar) {
                 token.append(char)
             }
         }
@@ -820,11 +844,11 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
     debug("Done w/ parsing and creating tokens")
     
     if tokens.count > 0 {
-        var startVerses = Constants.NO_CHAPTER_BOOKS.contains(book!)
+        var startVerses = Constants.NO_CHAPTER_BOOKS.contains(book)
         
         if let first = tokens.first, let number = Int(first) {
             tokens.remove(at: 0)
-            if Constants.NO_CHAPTER_BOOKS.contains(book!) {
+            if Constants.NO_CHAPTER_BOOKS.contains(book) {
                 currentChapter = 1
                 startVerse = number
             } else {
@@ -908,16 +932,16 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                                             for chapter in startChapter...endChapter {
                                                 startVerse = 1
                                                 
-                                                switch testament(book!) {
+                                                switch testament(book) {
                                                 case Constants.Old_Testament:
-                                                    if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book!),
+                                                    if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book),
                                                         index < Constants.OLD_TESTAMENT_VERSES.count,
                                                         chapter <= Constants.OLD_TESTAMENT_VERSES[index].count {
                                                         endVerse = Constants.OLD_TESTAMENT_VERSES[index][chapter - 1]
                                                     }
                                                     break
                                                 case Constants.New_Testament:
-                                                    if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book!),
+                                                    if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book),
                                                         index < Constants.NEW_TESTAMENT_VERSES.count,
                                                         chapter <= Constants.NEW_TESTAMENT_VERSES[index].count {
                                                         endVerse = Constants.NEW_TESTAMENT_VERSES[index][chapter - 1]
@@ -1010,16 +1034,16 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                             
                             startVerse = 1
                             
-                            switch testament(book!) {
+                            switch testament(book) {
                             case Constants.Old_Testament:
-                                if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book!),
+                                if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book),
                                     index < Constants.OLD_TESTAMENT_VERSES.count,
                                     startChapter <= Constants.OLD_TESTAMENT_VERSES[index].count {
                                     endVerse = Constants.OLD_TESTAMENT_VERSES[index][startChapter - 1]
                                 }
                                 break
                             case Constants.New_Testament:
-                                if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book!),
+                                if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book),
                                     index < Constants.NEW_TESTAMENT_VERSES.count,
                                     startChapter <= Constants.NEW_TESTAMENT_VERSES[index].count {
                                     endVerse = Constants.NEW_TESTAMENT_VERSES[index][startChapter - 1]
@@ -1058,16 +1082,16 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                                 for chapter in start...end {
                                     startVerse = 1
                                     
-                                    switch testament(book!) {
+                                    switch testament(book) {
                                     case Constants.Old_Testament:
-                                        if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book!),
+                                        if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book),
                                             index < Constants.OLD_TESTAMENT_VERSES.count,
                                             chapter <= Constants.OLD_TESTAMENT_VERSES[index].count {
                                             endVerse = Constants.OLD_TESTAMENT_VERSES[index][chapter - 1]
                                         }
                                         break
                                     case Constants.New_Testament:
-                                        if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book!),
+                                        if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book),
                                             index < Constants.NEW_TESTAMENT_VERSES.count,
                                             chapter <= Constants.NEW_TESTAMENT_VERSES[index].count {
                                             endVerse = Constants.NEW_TESTAMENT_VERSES[index][chapter - 1]
@@ -1127,16 +1151,16 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                         } else {
                             startVerse = 1
                             
-                            switch testament(book!) {
+                            switch testament(book) {
                             case Constants.Old_Testament:
-                                if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book!),
+                                if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book),
                                     index < Constants.OLD_TESTAMENT_VERSES.count,
                                     startChapter <= Constants.OLD_TESTAMENT_VERSES[index].count {
                                     endVerse = Constants.OLD_TESTAMENT_VERSES[index][startChapter - 1]
                                 }
                                 break
                             case Constants.New_Testament:
-                                if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book!),
+                                if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book),
                                     index < Constants.NEW_TESTAMENT_VERSES.count,
                                     startChapter <= Constants.NEW_TESTAMENT_VERSES[index].count {
                                     endVerse = Constants.NEW_TESTAMENT_VERSES[index][startChapter - 1]
@@ -1175,16 +1199,16 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                                 for chapter in start...end {
                                     startVerse = 1
                                     
-                                    switch testament(book!) {
+                                    switch testament(book) {
                                     case Constants.Old_Testament:
-                                        if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book!),
+                                        if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book),
                                             index < Constants.OLD_TESTAMENT_VERSES.count,
                                             chapter <= Constants.OLD_TESTAMENT_VERSES[index].count {
                                             endVerse = Constants.OLD_TESTAMENT_VERSES[index][chapter - 1]
                                         }
                                         break
                                     case Constants.New_Testament:
-                                        if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book!),
+                                        if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book),
                                             index < Constants.NEW_TESTAMENT_VERSES.count,
                                             chapter <= Constants.NEW_TESTAMENT_VERSES[index].count {
                                                 endVerse = Constants.NEW_TESTAMENT_VERSES[index][chapter - 1]
@@ -1215,16 +1239,16 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                             
                             startVerse = 1
                             
-                            switch testament(book!) {
+                            switch testament(book) {
                             case Constants.Old_Testament:
-                                if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book!),
+                                if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book),
                                     index < Constants.OLD_TESTAMENT_VERSES.count,
                                     endChapter <= Constants.OLD_TESTAMENT_VERSES[index].count {
                                     endVerse = Constants.OLD_TESTAMENT_VERSES[index][endChapter - 1]
                                 }
                                 break
                             case Constants.New_Testament:
-                                if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book!),
+                                if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book),
                                     index < Constants.NEW_TESTAMENT_VERSES.count,
                                     endChapter <= Constants.NEW_TESTAMENT_VERSES[index].count {
                                     endVerse = Constants.NEW_TESTAMENT_VERSES[index][endChapter - 1]
@@ -1275,12 +1299,16 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                                 debug("Reference is split across chapters")
                                 debug("First get the endVerse for the first chapter in the reference")
                                 
-                                switch testament(book!) {
+                                switch testament(book) {
                                 case Constants.Old_Testament:
-                                    endVerse = Constants.OLD_TESTAMENT_VERSES[Constants.OLD_TESTAMENT_BOOKS.index(of: book!)!][currentChapter - 1]
+                                    if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book) {
+                                        endVerse = Constants.OLD_TESTAMENT_VERSES[index][currentChapter - 1]
+                                    }
                                     break
                                 case Constants.New_Testament:
-                                    endVerse = Constants.NEW_TESTAMENT_VERSES[Constants.NEW_TESTAMENT_BOOKS.index(of: book!)!][currentChapter - 1]
+                                    if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book) {
+                                        endVerse = Constants.NEW_TESTAMENT_VERSES[index][currentChapter - 1]
+                                    }
                                     break
                                 default:
                                     break
@@ -1318,16 +1346,16 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                                     for chapter in start...end {
                                         startVerse = 1
                                         
-                                        switch testament(book!) {
+                                        switch testament(book) {
                                         case Constants.Old_Testament:
-                                            if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book!),
+                                            if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book),
                                                 index < Constants.OLD_TESTAMENT_VERSES.count,
                                                 chapter <= Constants.OLD_TESTAMENT_VERSES[index].count {
                                                 endVerse = Constants.OLD_TESTAMENT_VERSES[index][chapter - 1]
                                             }
                                             break
                                         case Constants.New_Testament:
-                                            if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book!),
+                                            if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book),
                                                 index < Constants.NEW_TESTAMENT_VERSES.count,
                                                 chapter <= Constants.NEW_TESTAMENT_VERSES[index].count {
                                                 endVerse = Constants.NEW_TESTAMENT_VERSES[index][chapter - 1]
@@ -1499,131 +1527,135 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
 func chaptersFromScriptureReference(_ scriptureReference:String?) -> [Int]?
 {
     // This can only comprehend a range of chapters or a range of verses from a single book.
+
+    guard let scriptureReference = scriptureReference else {
+        return nil
+    }
     
     var chapters = [Int]()
     
     var colonCount = 0
     
-    if (scriptureReference != nil) {
-        let string = scriptureReference?.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.EMPTY_STRING)
-        
-        if (string == Constants.EMPTY_STRING) {
-            return nil
+    let string = scriptureReference.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.EMPTY_STRING)
+    
+    if (string == Constants.EMPTY_STRING) {
+        return nil
+    }
+    
+    //        print("\(string!)")
+    
+    let colon = string.range(of: ":")
+    let hyphen = string.range(of: "-")
+    let comma = string.range(of: ",")
+    
+    //        print(scripture,string)
+    
+    if (colon == nil) && (hyphen == nil) &&  (comma == nil) {
+        if let number = Int(string) {
+            chapters = [number]
         }
+    } else {
+        var chars = Constants.EMPTY_STRING
         
-        //        print("\(string!)")
+        var seenColon = false
+        var seenHyphen = false
+        var seenComma = false
         
-        let colon = string!.range(of: ":")
-        let hyphen = string!.range(of: "-")
-        let comma = string!.range(of: ",")
+        var startChapter = 0
+        var endChapter = 0
         
-        //        print(scripture,string)
+        var breakOut = false
         
-        if (colon == nil) && (hyphen == nil) &&  (comma == nil) {
-            if (Int(string!) != nil) {
-                chapters = [Int(string!)!]
+        for character in string.characters {
+            if breakOut {
+                break
             }
-        } else {
-            var chars = Constants.EMPTY_STRING
-            
-            var seenColon = false
-            var seenHyphen = false
-            var seenComma = false
-            
-            var startChapter = 0
-            var endChapter = 0
-            
-            var breakOut = false
-            
-            for character in string!.characters {
-                if breakOut {
-                    break
-                }
-                switch character {
-                case ":":
-                    if !seenColon {
-                        seenColon = true
-                        if (Int(chars) != nil) {
-                            if (startChapter == 0) {
-                                startChapter = Int(chars)!
-                            } else {
-                                endChapter = Int(chars)!
-                            }
-                        }
-                    } else {
-                        if (seenHyphen) {
-                            if (Int(chars) != nil) {
-                                endChapter = Int(chars)!
-                            }
-                        } else {
-                            //Error
-                        }
-                    }
-                    colonCount += 1
-                    chars = Constants.EMPTY_STRING
-                    break
-                    
-                case "–":
-                    fallthrough
-                case "-":
-                    seenHyphen = true
-                    if colonCount == 0 {
-                        // This is a chapter not a verse
+            switch character {
+            case ":":
+                if !seenColon {
+                    seenColon = true
+                    if (Int(chars) != nil) {
                         if (startChapter == 0) {
-                            if Int(chars) != nil {
-                                startChapter = Int(chars)!
-                            }
+                            startChapter = Int(chars)!
+                        } else {
+                            endChapter = Int(chars)!
                         }
                     }
-                    chars = Constants.EMPTY_STRING
-                    break
-                    
-                case "(":
-                    breakOut = true
-                    break
-                    
-                case ",":
-                    seenComma = true
-                    if !seenColon {
-                        // This is a chapter not a verse
-                        if (Int(chars) != nil) {
-                            chapters.append(Int(chars)!)
-                        }
-                        chars = Constants.EMPTY_STRING
-                    } else {
-                        // Could be chapter or a verse
-                        chars = Constants.EMPTY_STRING
-                    }
-                    break
-                    
-                default:
-                    chars.append(character)
-                    //                    print(chars)
-                    break
-                }
-            }
-            if (startChapter != 0) {
-                if (endChapter == 0) {
-                    if (colonCount == 0) {
+                } else {
+                    if (seenHyphen) {
                         if (Int(chars) != nil) {
                             endChapter = Int(chars)!
                         }
-                        chars = Constants.EMPTY_STRING
+                    } else {
+                        //Error
                     }
                 }
-                if (endChapter != 0) {
-                    for chapter in startChapter...endChapter {
-                        chapters.append(chapter)
+                colonCount += 1
+                chars = Constants.EMPTY_STRING
+                break
+                
+            case "–":
+                fallthrough
+            case "-":
+                seenHyphen = true
+                if colonCount == 0 {
+                    // This is a chapter not a verse
+                    if (startChapter == 0) {
+                        if Int(chars) != nil {
+                            startChapter = Int(chars)!
+                        }
                     }
+                }
+                chars = Constants.EMPTY_STRING
+                break
+                
+            case "(":
+                breakOut = true
+                break
+                
+            case ",":
+                seenComma = true
+                if !seenColon {
+                    // This is a chapter not a verse
+                    if let num = Int(chars) {
+                        chapters.append(num)
+                    }
+                    chars = Constants.EMPTY_STRING
                 } else {
-                    chapters.append(startChapter)
+                    // Could be chapter or a verse
+                    chars = Constants.EMPTY_STRING
+                }
+                break
+                
+            default:
+                chars.append(character)
+                //                    print(chars)
+                break
+            }
+        }
+        if (startChapter != 0) {
+            if (endChapter == 0) {
+                if (colonCount == 0) {
+                    if (Int(chars) != nil) {
+                        endChapter = Int(chars)!
+                    }
+                    chars = Constants.EMPTY_STRING
                 }
             }
-            if seenComma {
-                if Int(chars) != nil {
-                    if !seenColon {
-                        // This is a chapter not a verse
-                        chapters.append(Int(chars)!)
+            if (endChapter != 0) {
+                for chapter in startChapter...endChapter {
+                    chapters.append(chapter)
+                }
+            } else {
+                chapters.append(startChapter)
+            }
+        }
+        if seenComma {
+            if Int(chars) != nil {
+                if !seenColon {
+                    // This is a chapter not a verse
+                    if let num = Int(chars) {
+                        chapters.append(num)
                     }
                 }
             }
@@ -1638,87 +1670,88 @@ func chaptersFromScriptureReference(_ scriptureReference:String?) -> [Int]?
 
 func booksFromScriptureReference(_ scriptureReference:String?) -> [String]?
 {
+    guard let scriptureReference = scriptureReference else {
+        return nil
+    }
+
     var books = [String]()
+
+    var string = scriptureReference
     
-    if (scriptureReference != nil) {
-        var string:String?
-        
-        string = scriptureReference
-//        print(string)
-        
-        var otBooks = [String]()
-        
-        for book in Constants.OLD_TESTAMENT_BOOKS {
-            if string?.range(of: book) != nil {
-                otBooks.append(book)
-                string = string!.substring(to: string!.range(of: book)!.lowerBound) + Constants.SINGLE_SPACE + string!.substring(from: string!.range(of: book)!.upperBound)
-            }
+    //        print(string)
+    
+    var otBooks = [String]()
+    
+    for book in Constants.OLD_TESTAMENT_BOOKS {
+        if let range = string.range(of: book) {
+            otBooks.append(book)
+            string = string.substring(to: range.lowerBound) + Constants.SINGLE_SPACE + string.substring(from: range.upperBound)
         }
-        
-        for book in Constants.NEW_TESTAMENT_BOOKS.reversed() {
-            if string?.range(of: book) != nil {
-                books.append(book)
-                string = string!.substring(to: string!.range(of: book)!.lowerBound) + Constants.SINGLE_SPACE + string!.substring(from: string!.range(of: book)!.upperBound)
-            }
+    }
+    
+    for book in Constants.NEW_TESTAMENT_BOOKS.reversed() {
+        if let range = string.range(of: book) {
+            books.append(book)
+            string = string.substring(to: range.lowerBound) + Constants.SINGLE_SPACE + string.substring(from: range.upperBound)
         }
-        
-        let ntBooks = books.reversed()
-
-        books = otBooks
-        books.append(contentsOf: ntBooks)
-        
-        string = string?.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.EMPTY_STRING)
-
-//        print(string)
-        
-        // Only works for "<book> - <book>"
-        
-        if (string == "-") {
-            if books.count == 2 {
-                let book1 = scriptureReference?.range(of: books[0])
-                let book2 = scriptureReference?.range(of: books[1])
-                let hyphen = scriptureReference?.range(of: "-")
-
-                if ((book1?.upperBound < hyphen?.lowerBound) && (hyphen?.upperBound < book2?.lowerBound)) ||
-                    ((book2?.upperBound < hyphen?.lowerBound) && (hyphen?.upperBound < book1?.lowerBound)) {
-                    //                print(first)
-                    //                print(last)
-                    
-                    books = [String]()
-                    
-                    let first = books[0]
-                    let last = books[1]
-                    
-                    if Constants.OLD_TESTAMENT_BOOKS.contains(first) && Constants.OLD_TESTAMENT_BOOKS.contains(last) {
-                        if let firstIndex = Constants.OLD_TESTAMENT_BOOKS.index(of: first),
-                            let lastIndex = Constants.OLD_TESTAMENT_BOOKS.index(of: last) {
-                            for index in firstIndex...lastIndex {
-                                books.append(Constants.OLD_TESTAMENT_BOOKS[index])
-                            }
+    }
+    
+    let ntBooks = books.reversed()
+    
+    books = otBooks
+    books.append(contentsOf: ntBooks)
+    
+    string = string.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.EMPTY_STRING)
+    
+    //        print(string)
+    
+    // Only works for "<book> - <book>"
+    
+    if (string == "-") {
+        if books.count == 2 {
+            let book1 = scriptureReference.range(of: books[0])
+            let book2 = scriptureReference.range(of: books[1])
+            let hyphen = scriptureReference.range(of: "-")
+            
+            if ((book1?.upperBound < hyphen?.lowerBound) && (hyphen?.upperBound < book2?.lowerBound)) ||
+                ((book2?.upperBound < hyphen?.lowerBound) && (hyphen?.upperBound < book1?.lowerBound)) {
+                //                print(first)
+                //                print(last)
+                
+                books = [String]()
+                
+                let first = books[0]
+                let last = books[1]
+                
+                if Constants.OLD_TESTAMENT_BOOKS.contains(first) && Constants.OLD_TESTAMENT_BOOKS.contains(last) {
+                    if let firstIndex = Constants.OLD_TESTAMENT_BOOKS.index(of: first),
+                        let lastIndex = Constants.OLD_TESTAMENT_BOOKS.index(of: last) {
+                        for index in firstIndex...lastIndex {
+                            books.append(Constants.OLD_TESTAMENT_BOOKS[index])
                         }
                     }
-                    
-                    if Constants.OLD_TESTAMENT_BOOKS.contains(first) && Constants.NEW_TESTAMENT_BOOKS.contains(last) {
-                        if let firstIndex = Constants.OLD_TESTAMENT_BOOKS.index(of: first) {
-                            let lastIndex = Constants.OLD_TESTAMENT_BOOKS.count - 1
-                            for index in firstIndex...lastIndex {
-                                books.append(Constants.OLD_TESTAMENT_BOOKS[index])
-                            }
-                        }
-                        let firstIndex = 0
-                        if let lastIndex = Constants.NEW_TESTAMENT_BOOKS.index(of: last) {
-                            for index in firstIndex...lastIndex {
-                                books.append(Constants.NEW_TESTAMENT_BOOKS[index])
-                            }
+                }
+                
+                if Constants.OLD_TESTAMENT_BOOKS.contains(first) && Constants.NEW_TESTAMENT_BOOKS.contains(last) {
+                    if let firstIndex = Constants.OLD_TESTAMENT_BOOKS.index(of: first) {
+                        let lastIndex = Constants.OLD_TESTAMENT_BOOKS.count - 1
+                        for index in firstIndex...lastIndex {
+                            books.append(Constants.OLD_TESTAMENT_BOOKS[index])
                         }
                     }
-                    
-                    if Constants.NEW_TESTAMENT_BOOKS.contains(first) && Constants.NEW_TESTAMENT_BOOKS.contains(last) {
-                        if let firstIndex = Constants.NEW_TESTAMENT_BOOKS.index(of: first),
-                            let lastIndex = Constants.NEW_TESTAMENT_BOOKS.index(of: last) {
-                            for index in firstIndex...lastIndex {
-                                books.append(Constants.NEW_TESTAMENT_BOOKS[index])
-                            }
+                    let firstIndex = 0
+                    if let lastIndex = Constants.NEW_TESTAMENT_BOOKS.index(of: last) {
+                        for index in firstIndex...lastIndex {
+                            books.append(Constants.NEW_TESTAMENT_BOOKS[index])
+                        }
+                    }
+                }
+                
+                if Constants.NEW_TESTAMENT_BOOKS.contains(first) && Constants.NEW_TESTAMENT_BOOKS.contains(last) {
+                    if let firstIndex = Constants.NEW_TESTAMENT_BOOKS.index(of: first),
+                        let lastIndex = Constants.NEW_TESTAMENT_BOOKS.index(of: last) {
+                        for index in firstIndex...lastIndex {
+                            books.append(Constants.NEW_TESTAMENT_BOOKS[index])
                         }
                     }
                 }
@@ -1727,48 +1760,57 @@ func booksFromScriptureReference(_ scriptureReference:String?) -> [String]?
     }
     
 //    print(books)
-    return books.count > 0 ? books.sorted() { scriptureReference?.range(of: $0)?.lowerBound < scriptureReference?.range(of: $1)?.lowerBound } : nil // redundant
+    
+    return books.count > 0 ? books.sorted() { scriptureReference.range(of: $0)?.lowerBound < scriptureReference.range(of: $1)?.lowerBound } : nil // redundant
 }
 
 func multiPartMediaItems(_ mediaItem:MediaItem?) -> [MediaItem]?
 {
-    var multiPartMediaItems:[MediaItem]?
-    
-    if (mediaItem != nil) {
-        if (mediaItem!.hasMultipleParts) {
-            if (globals.media.all?.groupSort?[Grouping.TITLE]?[mediaItem!.multiPartSort!]?[Sorting.CHRONOLOGICAL] == nil) {
-                let seriesMediaItems = globals.mediaRepository.list?.filter({ (testMediaItem:MediaItem) -> Bool in
-                    return mediaItem!.hasMultipleParts ? (testMediaItem.multiPartName == mediaItem!.multiPartName) : (testMediaItem.id == mediaItem!.id)
-                })
-                multiPartMediaItems = sortMediaItemsByYear(seriesMediaItems, sorting: Sorting.CHRONOLOGICAL)
-            } else {
-                multiPartMediaItems = globals.media.all?.groupSort?[Grouping.TITLE]?[mediaItem!.multiPartSort!]?[Sorting.CHRONOLOGICAL]
-            }
-        } else {
-            multiPartMediaItems = [mediaItem!]
-        }
+    guard let mediaItem = mediaItem else {
+        return nil
     }
     
+    var multiPartMediaItems:[MediaItem]?
+    
+    if mediaItem.hasMultipleParts, let multiPartSort = mediaItem.multiPartSort {
+        if (globals.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL] == nil) {
+            let seriesMediaItems = globals.mediaRepository.list?.filter({ (testMediaItem:MediaItem) -> Bool in
+                return mediaItem.hasMultipleParts ? (testMediaItem.multiPartName == mediaItem.multiPartName) : (testMediaItem.id == mediaItem.id)
+            })
+            multiPartMediaItems = sortMediaItemsByYear(seriesMediaItems, sorting: SORTING.CHRONOLOGICAL)
+        } else {
+            if let multiPartSort = mediaItem.multiPartSort {
+                multiPartMediaItems = globals.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL]
+            }
+        }
+    } else {
+        multiPartMediaItems = [mediaItem]
+    }
+
     return multiPartMediaItems
 }
 
 func mediaItemsInBook(_ mediaItems:[MediaItem]?,book:String?) -> [MediaItem]?
 {
-    guard (book != nil) else {
+    guard let book = book else {
         return nil
     }
     
     return mediaItems?.filter({ (mediaItem:MediaItem) -> Bool in
         if let books = mediaItem.books {
-            return books.contains(book!)
+            return books.contains(book)
         } else {
             return false
         }
     }).sorted(by: { (first:MediaItem, second:MediaItem) -> Bool in
-        if (first.fullDate!.isEqualTo(second.fullDate!)) {
-            return first.service < second.service
+        if let firstDate = first.fullDate, let secondDate = second.fullDate {
+            if (firstDate.isEqualTo(secondDate)) {
+                return first.service < second.service
+            } else {
+                return firstDate.isOlderThan(secondDate)
+            }
         } else {
-            return first.fullDate!.isOlderThan(second.fullDate!)
+            return false
         }
     })
 }
@@ -1851,10 +1893,13 @@ func bookSectionsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
 
 func seriesFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
 {
-    return mediaItems != nil ?
-        Array(
+    guard let mediaItems = mediaItems else {
+        return nil
+    }
+    
+    return Array(
             Set(
-                mediaItems!.filter({ (mediaItem:MediaItem) -> Bool in
+                mediaItems.filter({ (mediaItem:MediaItem) -> Bool in
                     return mediaItem.hasMultipleParts
                 }).map({ (mediaItem:MediaItem) -> String in
                     return mediaItem.multiPartName!
@@ -1863,30 +1908,34 @@ func seriesFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
             ).sorted(by: { (first:String, second:String) -> Bool in
                 return stringWithoutPrefixes(first) < stringWithoutPrefixes(second)
             })
-        : nil
 }
 
 func seriesSectionsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
 {
-    return mediaItems != nil ?
-        Array(
+    guard let mediaItems = mediaItems else {
+        return nil
+    }
+    
+    return Array(
             Set(
-                mediaItems!.map({ (mediaItem:MediaItem) -> String in
+                mediaItems.map({ (mediaItem:MediaItem) -> String in
                     return mediaItem.multiPartSection!
                 })
             )
             ).sorted(by: { (first:String, second:String) -> Bool in
                 return stringWithoutPrefixes(first) < stringWithoutPrefixes(second)
             })
-        : nil
 }
 
 func seriesSectionsFromMediaItems(_ mediaItems:[MediaItem]?,withTitles:Bool) -> [String]?
 {
-    return mediaItems != nil ?
-        Array(
+    guard let mediaItems = mediaItems else {
+        return nil
+    }
+    
+    return Array(
             Set(
-                mediaItems!.map({ (mediaItem:MediaItem) -> String in
+                mediaItems.map({ (mediaItem:MediaItem) -> String in
                     if (mediaItem.hasMultipleParts) {
                         return mediaItem.multiPartName!
                     } else {
@@ -1897,20 +1946,19 @@ func seriesSectionsFromMediaItems(_ mediaItems:[MediaItem]?,withTitles:Bool) -> 
             ).sorted(by: { (first:String, second:String) -> Bool in
                 return stringWithoutPrefixes(first) < stringWithoutPrefixes(second)
             })
-        : nil
 }
 
 func bookNumberInBible(_ book:String?) -> Int?
 {
-    guard (book != nil) else {
+    guard let book = book else {
         return nil
     }
 
-    if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book!) {
+    if let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book) {
         return index
     }
     
-    if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book!) {
+    if let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book) {
         return Constants.OLD_TESTAMENT_BOOKS.count + index
     }
     
@@ -1940,16 +1988,16 @@ func tokenCountsFromString(_ string:String?) -> [(String,Int)]?
 
 func tokensFromString(_ string:String?) -> [String]?
 {
-    guard (string != nil) else {
+    guard let string = string else {
         return nil
     }
     
     var tokens = Set<String>()
     
-    var str = string?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+    var str = string.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     
-    if let range = str?.range(of: Constants.PART_INDICATOR_SINGULAR) {
-        str = str?.substring(to: range.lowerBound)
+    if let range = str.range(of: Constants.PART_INDICATOR_SINGULAR) {
+        str = str.substring(to: range.lowerBound)
     }
     
     //        print(name)
@@ -1995,16 +2043,16 @@ func tokensFromString(_ string:String?) -> [String]?
         }
     }
     
-    for char in str!.characters {
+    for char in str.characters {
         //        print(char)
         
         if UnicodeScalar(String(char)) != nil {
-            if CharacterSet(charactersIn: breakChars).contains(UnicodeScalar(String(char))!) {
+            if let unicodeScalar = UnicodeScalar(String(char)), CharacterSet(charactersIn: breakChars).contains(unicodeScalar) {
                 //                print(token)
                 processToken()
             } else {
-                if !CharacterSet(charactersIn: "$0123456789").contains(UnicodeScalar(String(char))!) {
-                    if !CharacterSet(charactersIn: trimChars).contains(UnicodeScalar(String(char))!) || (token != Constants.EMPTY_STRING) {
+                if let unicodeScalar = UnicodeScalar(String(char)), !CharacterSet(charactersIn: "$0123456789").contains(unicodeScalar) {
+                    if !CharacterSet(charactersIn: trimChars).contains(unicodeScalar) || (token != Constants.EMPTY_STRING) {
                         // DO NOT WANT LEADING CHARS IN SET
                         //                        print(token)
                         token.append(char)
@@ -2015,7 +2063,7 @@ func tokensFromString(_ string:String?) -> [String]?
         }
     }
     
-    if token != Constants.EMPTY_STRING {
+    if !token.isEmpty {
         processToken()
     }
     
@@ -2026,17 +2074,17 @@ func tokensFromString(_ string:String?) -> [String]?
 
 func tokensAndCountsFromString(_ string:String?) -> [String:Int]?
 {
-    guard (string != nil) else {
+    guard let string = string else {
         return nil
     }
     
     var tokens = [String:Int]()
     
-    var str = string?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+    var str = string.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     
     // TOKENIZING A TITLE RATHER THAN THE BODY, THIS MAY CAUSE PROBLEMS FOR BODY TEXT.
-    if let range = str?.range(of: Constants.PART_INDICATOR_SINGULAR) {
-        str = str?.substring(to: range.lowerBound)
+    if let range = str.range(of: Constants.PART_INDICATOR_SINGULAR) {
+        str = str.substring(to: range.lowerBound)
     }
     
     //        print(name)
@@ -2087,16 +2135,16 @@ func tokensAndCountsFromString(_ string:String?) -> [String:Int]?
         }
     }
     
-    for char in str!.characters {
+    for char in str.characters {
         //        print(char)
         
         if UnicodeScalar(String(char)) != nil {
-            if CharacterSet(charactersIn: breakChars).contains(UnicodeScalar(String(char))!) {
+            if let unicodeScalar = UnicodeScalar(String(char)), CharacterSet(charactersIn: breakChars).contains(unicodeScalar) {
 //                print(token)
                 processToken()
             } else {
-                if !CharacterSet(charactersIn: "$0123456789").contains(UnicodeScalar(String(char))!) {
-                    if !CharacterSet(charactersIn: trimChars).contains(UnicodeScalar(String(char))!) || (token != Constants.EMPTY_STRING) {
+                if let unicodeScalar = UnicodeScalar(String(char)), !CharacterSet(charactersIn: "$0123456789").contains(unicodeScalar) {
+                    if !CharacterSet(charactersIn: trimChars).contains(unicodeScalar) || (token != Constants.EMPTY_STRING) {
                         // DO NOT WANT LEADING CHARS IN SET
 //                        print(token)
                         token.append(char)
@@ -2107,7 +2155,7 @@ func tokensAndCountsFromString(_ string:String?) -> [String:Int]?
         }
     }
     
-    if token != Constants.EMPTY_STRING {
+    if !token.isEmpty {
         processToken()
     }
     
@@ -2125,42 +2173,48 @@ func lastNameFromName(_ name:String?) -> String?
 
 func firstNameFromName(_ name:String?) -> String?
 {
+    guard let name = name else {
+        return nil
+    }
+
     var firstName:String?
     
-    var string:String?
+    var string:String
     
-    if (name != nil) {
-        if let title = titleFromName(name) {
-            string = name?.substring(from: title.endIndex)
-        } else {
-            string = name
-        }
-        
-        string = string?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-    
-//        print(name)
-//        print(string)
-        
-        var newString = Constants.EMPTY_STRING
-        
-        for char in string!.characters {
-            if String(char) == Constants.SINGLE_SPACE {
-                firstName = newString
-                break
-            }
-            newString.append(char)
-        }
+    if let title = titleFromName(name) {
+        string = name.substring(from: title.endIndex)
+    } else {
+        string = name
     }
     
+    string = string.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+    
+    //        print(name)
+    //        print(string)
+    
+    var newString = Constants.EMPTY_STRING
+    
+    for char in string.characters {
+        if String(char) == Constants.SINGLE_SPACE {
+            firstName = newString
+            break
+        }
+        newString.append(char)
+    }
+
     return firstName
 }
 
 func titleFromName(_ name:String?) -> String?
 {
+    guard let name = name else {
+        return nil
+    }
+    
     var title = Constants.EMPTY_STRING
     
-    if (name != nil) && (name?.range(of: ". ") != nil) {
-        for char in name!.characters {
+    if name.range(of: ". ") != nil {
+        for char in name.characters {
             title.append(char)
             if String(char) == "." {
                 break
@@ -2173,35 +2227,42 @@ func titleFromName(_ name:String?) -> String?
 
 func classSectionsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
 {
-    return mediaItems != nil ?
-        Array(
-            Set(mediaItems!.map({ (mediaItem:MediaItem) -> String in
+    guard let mediaItems = mediaItems else {
+        return nil
+    }
+    
+    return Array(
+            Set(mediaItems.map({ (mediaItem:MediaItem) -> String in
                 return mediaItem.classSection!
             })
             )
             ).sorted()
-        : nil
 }
 
 func speakerSectionsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
 {
-    return mediaItems != nil ?
-        Array(
-            Set(mediaItems!.map({ (mediaItem:MediaItem) -> String in
+    guard let mediaItems = mediaItems else {
+        return nil
+    }
+    
+    return Array(
+            Set(mediaItems.map({ (mediaItem:MediaItem) -> String in
                 return mediaItem.speakerSection!
             })
             )
             ).sorted(by: { (first:String, second:String) -> Bool in
                 return lastNameFromName(first) < lastNameFromName(second)
             })
-        : nil
 }
 
 func speakersFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
 {
-    return mediaItems != nil ?
-        Array(
-            Set(mediaItems!.filter({ (mediaItem:MediaItem) -> Bool in
+    guard let mediaItems = mediaItems else {
+        return nil
+    }
+    
+    return Array(
+            Set(mediaItems.filter({ (mediaItem:MediaItem) -> Bool in
                 return mediaItem.hasSpeaker
             }).map({ (mediaItem:MediaItem) -> String in
                 return mediaItem.speaker!
@@ -2210,23 +2271,26 @@ func speakersFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
             ).sorted(by: { (first:String, second:String) -> Bool in
                 return lastNameFromName(first) < lastNameFromName(second)
             })
-        : nil
 }
 
 func sortMediaItemsChronologically(_ mediaItems:[MediaItem]?) -> [MediaItem]?
 {
     return mediaItems?.sorted() {
-        if ($0.fullDate!.isEqualTo($1.fullDate!)) {
-            if ($0.service == $1.service) {
-//                print($0)
-//                print($1)
-                
-                return $0.id < $1.id
+        if let firstDate = $0.fullDate, let secondDate = $1.fullDate {
+            if (firstDate.isEqualTo(secondDate)) {
+                if ($0.service == $1.service) {
+                    //                print($0)
+                    //                print($1)
+                    
+                    return $0.id < $1.id
+                } else {
+                    return $0.service < $1.service
+                }
             } else {
-                 return $0.service < $1.service
+                return firstDate.isOlderThan(secondDate)
             }
         } else {
-            return $0.fullDate!.isOlderThan($1.fullDate!)
+            return false
         }
     }
 }
@@ -2234,31 +2298,39 @@ func sortMediaItemsChronologically(_ mediaItems:[MediaItem]?) -> [MediaItem]?
 func sortMediaItemsReverseChronologically(_ mediaItems:[MediaItem]?) -> [MediaItem]?
 {
     return mediaItems?.sorted() {
-        if ($0.fullDate!.isEqualTo($1.fullDate!)) {
-            if ($0.service == $1.service) {
-//                print($0)
-//                print($1)
-                
-                return $0.id > $1.id
+        if let firstDate = $0.fullDate, let secondDate = $1.fullDate {
+            if (firstDate.isEqualTo(secondDate)) {
+                if ($0.service == $1.service) {
+    //                print($0)
+    //                print($1)
+                    
+                    return $0.id > $1.id
+                } else {
+                    return $0.service > $1.service
+                }
             } else {
-                return $0.service > $1.service
+                return firstDate.isNewerThan(secondDate)
             }
         } else {
-            return $0.fullDate!.isNewerThan($1.fullDate!)
+            return false
         }
     }
 }
 
 func sortMediaItemsByYear(_ mediaItems:[MediaItem]?,sorting:String?) -> [MediaItem]?
 {
+    guard let sorting = sorting else {
+        return nil
+    }
+    
     var sortedMediaItems:[MediaItem]?
 
-    switch sorting! {
-    case Sorting.CHRONOLOGICAL:
+    switch sorting {
+    case SORTING.CHRONOLOGICAL:
         sortedMediaItems = sortMediaItemsChronologically(mediaItems)
         break
         
-    case Sorting.REVERSE_CHRONOLOGICAL:
+    case SORTING.REVERSE_CHRONOLOGICAL:
         sortedMediaItems = sortMediaItemsReverseChronologically(mediaItems)
         break
         
@@ -2271,22 +2343,34 @@ func sortMediaItemsByYear(_ mediaItems:[MediaItem]?,sorting:String?) -> [MediaIt
 
 func compareMediaItemDates(first:MediaItem, second:MediaItem, sorting:String?) -> Bool
 {
+    guard let firstDate = first.fullDate else {
+        return false
+    }
+    
+    guard let secondDate = second.fullDate else {
+        return true
+    }
+    
+    guard let sorting = sorting else {
+        return false
+    }
+    
     var result = false
 
-    switch sorting! {
-    case Sorting.CHRONOLOGICAL:
-        if (first.fullDate!.isEqualTo(second.fullDate!)) {
+    switch sorting {
+    case SORTING.CHRONOLOGICAL:
+        if (firstDate.isEqualTo(secondDate)) {
             result = (first.service < second.service)
         } else {
-            result = first.fullDate!.isOlderThan(second.fullDate!)
+            result = firstDate.isOlderThan(secondDate)
         }
         break
     
-    case Sorting.REVERSE_CHRONOLOGICAL:
-        if (first.fullDate!.isEqualTo(second.fullDate!)) {
+    case SORTING.REVERSE_CHRONOLOGICAL:
+        if (firstDate.isEqualTo(secondDate)) {
             result = (first.service > second.service)
         } else {
-            result = first.fullDate!.isNewerThan(second.fullDate!)
+            result = firstDate.isNewerThan(secondDate)
         }
         break
         
@@ -2411,18 +2495,21 @@ func testMediaItemsForSeries()
 
 func tagsSetFromTagsString(_ tagsString:String?) -> Set<String>?
 {
-    var tags = tagsString
-    var tag:String
-    var setOfTags = Set<String>()
-    
-    while (tags?.range(of: Constants.TAGS_SEPARATOR) != nil) {
-        tag = tags!.substring(to: tags!.range(of: Constants.TAGS_SEPARATOR)!.lowerBound)
-        setOfTags.insert(tag)
-        tags = tags!.substring(from: tags!.range(of: Constants.TAGS_SEPARATOR)!.upperBound)
+    guard let tagsString = tagsString else {
+        return nil
     }
     
-    if (tags != nil) {
-        setOfTags.insert(tags!)
+    var tags = tagsString
+    var setOfTags = Set<String>()
+    
+    while let range = tags.range(of: Constants.TAGS_SEPARATOR) {
+        let tag = tags.substring(to: range.lowerBound)
+        setOfTags.insert(tag)
+        tags = tags.substring(from: range.upperBound)
+    }
+    
+    if !tags.isEmpty {
+        setOfTags.insert(tags)
     }
     
     return setOfTags.count > 0 ? setOfTags : nil
@@ -2456,14 +2543,21 @@ func tagsArrayFromTagsString(_ tagsString:String?) -> [String]?
 
 func mediaItemsWithTag(_ mediaItems:[MediaItem]?,tag:String?) -> [MediaItem]?
 {
-    return tag != nil ?
-        mediaItems?.filter({ (mediaItem:MediaItem) -> Bool in
+    guard let mediaItems = mediaItems else {
+        return nil
+    }
+    
+    guard let tag = tag else {
+        return nil
+    }
+
+    return mediaItems.filter({ (mediaItem:MediaItem) -> Bool in
             if let tagSet = mediaItem.tagsSet {
-                return tagSet.contains(tag!)
+                return tagSet.contains(tag)
             } else {
                 return false
             }
-        }) : nil
+        })
 }
 
 func tagsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
@@ -2624,30 +2718,30 @@ func translateTestament(_ testament:String) -> String
 
 func translate(_ string:String?) -> String?
 {
-    guard (string != nil) else {
+    guard let string = string else {
         return nil
     }
     
-    switch string! {
-    case Sorting.CHRONOLOGICAL:
+    switch string {
+    case SORTING.CHRONOLOGICAL:
         return Sorting.Oldest_to_Newest
         
-    case Sorting.REVERSE_CHRONOLOGICAL:
+    case SORTING.REVERSE_CHRONOLOGICAL:
         return Sorting.Newest_to_Oldest
 
-    case Grouping.YEAR:
+    case GROUPING.YEAR:
         return Grouping.Year
         
-    case Grouping.TITLE:
+    case GROUPING.TITLE:
         return Grouping.Title
         
-    case Grouping.BOOK:
+    case GROUPING.BOOK:
         return Grouping.Book
         
-    case Grouping.SPEAKER:
+    case GROUPING.SPEAKER:
         return Grouping.Speaker
         
-    case Grouping.CLASS:
+    case GROUPING.CLASS:
         return Grouping.Class
         
     default:

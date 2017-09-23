@@ -109,25 +109,27 @@ class LiveViewController: UIViewController
             
             view.translatesAutoresizingMaskIntoConstraints = false //This will fail without this
             
-            self.view.addSubview(globals.mediaPlayer.view!)
-            
-            let centerX = NSLayoutConstraint(item: globals.mediaPlayer.view!, attribute: NSLayoutAttribute.centerX, relatedBy: NSLayoutRelation.equal, toItem: globals.mediaPlayer.view!.superview, attribute: NSLayoutAttribute.centerX, multiplier: 1.0, constant: 0.0)
-            globals.mediaPlayer.view!.superview!.addConstraint(centerX)
-            
-            let centerY = NSLayoutConstraint(item: globals.mediaPlayer.view!, attribute: NSLayoutAttribute.centerY, relatedBy: NSLayoutRelation.equal, toItem: globals.mediaPlayer.view!.superview, attribute: NSLayoutAttribute.centerY, multiplier: 1.0, constant: 0.0)
-            globals.mediaPlayer.view!.superview!.addConstraint(centerY)
-            
-            let width = NSLayoutConstraint(item: globals.mediaPlayer.view!, attribute: NSLayoutAttribute.width, relatedBy: NSLayoutRelation.greaterThanOrEqual, toItem: globals.mediaPlayer.view!.superview, attribute: NSLayoutAttribute.width, multiplier: 1.0, constant: 0.0)
-            globals.mediaPlayer.view!.superview!.addConstraint(width)
-            
-            let height = NSLayoutConstraint(item: globals.mediaPlayer.view!, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.greaterThanOrEqual, toItem: globals.mediaPlayer.view!.superview, attribute: NSLayoutAttribute.height, multiplier: 1.0, constant: 0.0)
-            globals.mediaPlayer.view!.superview!.addConstraint(height)
+            if let view = globals.mediaPlayer.view {
+                self.view.addSubview(view)
+                
+                let centerX = NSLayoutConstraint(item: view, attribute: NSLayoutAttribute.centerX, relatedBy: NSLayoutRelation.equal, toItem: view.superview, attribute: NSLayoutAttribute.centerX, multiplier: 1.0, constant: 0.0)
+                view.superview?.addConstraint(centerX)
+                
+                let centerY = NSLayoutConstraint(item: view, attribute: NSLayoutAttribute.centerY, relatedBy: NSLayoutRelation.equal, toItem: view.superview, attribute: NSLayoutAttribute.centerY, multiplier: 1.0, constant: 0.0)
+                view.superview?.addConstraint(centerY)
+                
+                let width = NSLayoutConstraint(item: view, attribute: NSLayoutAttribute.width, relatedBy: NSLayoutRelation.greaterThanOrEqual, toItem: view.superview, attribute: NSLayoutAttribute.width, multiplier: 1.0, constant: 0.0)
+                view.superview?.addConstraint(width)
+                
+                let height = NSLayoutConstraint(item: view, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.greaterThanOrEqual, toItem: view.superview, attribute: NSLayoutAttribute.height, multiplier: 1.0, constant: 0.0)
+                view.superview?.addConstraint(height)
 
-            view.setNeedsLayout()
+                self.view.setNeedsLayout()
 
-            view.bringSubview(toFront: globals.mediaPlayer.view!)
-
-            globals.mediaPlayer.view?.isHidden = false
+                self.view.bringSubview(toFront: view)
+                
+                view.isHidden = false
+            }
 
             DispatchQueue.global(qos: .background).async {
                 Thread.sleep(forTimeInterval: 0.1)

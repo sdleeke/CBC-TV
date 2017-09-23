@@ -113,7 +113,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                 
                 
                 if globals.streamEntries?.count > 0, globals.reachability.currentReachabilityStatus != .notReachable, //globals.streamEntries?.count > 0,
-                    let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
+                    let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
                     let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
                     navigationController.modalPresentationStyle = .fullScreen
                     
@@ -300,7 +300,9 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
             break
             
         case .selectingSorting:
-            globals.sorting = Constants.sortings[Constants.SortingTitles.index(of: string)!]
+            if let sorting = Constants.SortingTitles.index(of: string) {
+                globals.sorting = Constants.sortings[sorting]
+            }
             
             if (globals.media.need.sorting) {
                 globals.clearDisplay()
@@ -332,7 +334,9 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
             break
             
         case .selectingGrouping:
-            globals.grouping = globals.groupings[globals.groupingTitles.index(of: string)!]
+            if let grouping = globals.groupingTitles.index(of: string) {
+                globals.grouping = globals.groupings[grouping]
+            }
             
             if globals.media.need.grouping {
                 globals.clearDisplay()
@@ -503,7 +507,7 @@ class MediaTableViewController : UIViewController
             print("NOT MAIN THREAD")
         }
         
-        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
+        if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
             let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
             navigationController.modalPresentationStyle = .fullScreen
             
@@ -538,7 +542,7 @@ class MediaTableViewController : UIViewController
             print("NOT MAIN THREAD")
         }
         
-        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
+        if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
             let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
             navigationController.modalPresentationStyle = .fullScreen
             
@@ -563,7 +567,7 @@ class MediaTableViewController : UIViewController
             print("NOT MAIN THREAD")
         }
         
-        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
+        if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
             let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
             navigationController.modalPresentationStyle = .fullScreen
             
@@ -590,7 +594,7 @@ class MediaTableViewController : UIViewController
         
 //        startAnimating()
         
-        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
+        if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
             let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
             navigationController.modalPresentationStyle = .fullScreen
             
@@ -600,7 +604,7 @@ class MediaTableViewController : UIViewController
             
             popover.purpose = .selectingSection
             
-            popover.section.strings = globals.media.active?.section?.indexStrings
+            popover.section.strings = globals.media.active?.section?.headerStrings
             
             popover.section.showIndex = false
             popover.section.showHeaders = false
@@ -947,7 +951,7 @@ class MediaTableViewController : UIViewController
         return jsonFromURL(url: "https://api.countrysidebible.org/cache/streamEntries.json") as? [String:Any]
     }
     
-    func loadLive(completion:((Void)->(Void))?)
+    func loadLive(completion:(()->(Void))?)
     {
         DispatchQueue.global(qos: .background).async() {
             Thread.sleep(forTimeInterval: 0.25)
@@ -977,7 +981,9 @@ class MediaTableViewController : UIViewController
             var mediaCategoryDicts = [String:String]()
             
             for categoriesDict in categoriesDicts {
-                mediaCategoryDicts[categoriesDict["category_name"]!] = categoriesDict["id"]
+                if let category = categoriesDict["category_name"] {
+                    mediaCategoryDicts[category] = categoriesDict["id"]
+                }
             }
             
             globals.mediaCategory.dicts = mediaCategoryDicts
@@ -1439,21 +1445,21 @@ class MediaTableViewController : UIViewController
             
             var searchMediaItems:[MediaItem]?
             
-            if globals.media.toSearch?.list != nil {
-                for mediaItem in globals.media.toSearch!.list! {
+            if let mediaItems = globals.media.toSearch?.list {
+                for mediaItem in mediaItems {
                     globals.search.complete = false
                     
                     self.setupListActivityIndicator()
                     
                     let searchHit = mediaItem.search(searchText)
-                        if searchHit {
-                            if searchMediaItems == nil {
-                                searchMediaItems = [mediaItem]
-                            } else {
-                                searchMediaItems?.append(mediaItem)
-                            }
+                    if searchHit {
+                        if searchMediaItems == nil {
+                            searchMediaItems = [mediaItem]
+                        } else {
+                            searchMediaItems?.append(mediaItem)
                         }
                     }
+                }
             }
             
             // Final search update since we're only doing them in batches of Constants.SEARCH_RESULTS_BETWEEN_UPDATES
@@ -1480,11 +1486,24 @@ class MediaTableViewController : UIViewController
             return
         }
         
-        guard mediaItem != nil else {
+        guard let mediaItem = mediaItem else {
             return
         }
         
-        guard globals.media.active?.mediaItems?.index(of: mediaItem!) != nil else {
+        guard let grouping = globals.grouping else {
+            return
+        }
+        
+        guard let indexStrings = globals.media.active?.section?.indexStrings else {
+            return
+        }
+        
+        guard let mediaItems = globals.media.active?.mediaItems else {
+            return
+        }
+        
+        guard let index = mediaItems.index(of: mediaItem) else {
+            //            print(mediaItem)
             return
         }
         
@@ -1493,42 +1512,46 @@ class MediaTableViewController : UIViewController
         var section:Int = -1
         var row:Int = -1
         
-        let mediaItems = globals.media.active?.mediaItems
+        var sectionIndex : String?
         
-        if let index = mediaItems!.index(of: mediaItem!) {
-            switch globals.grouping! {
-            case Grouping.YEAR:
-                section = globals.media.active!.section!.indexStrings!.index(of: mediaItem!.yearSection!)!
-                break
-                
-            case Grouping.TITLE:
-                section = globals.media.active!.section!.indexStrings!.index(of: mediaItem!.multiPartSectionSort!)!
-                break
-                
-            case Grouping.BOOK:
-                // For mediaItem.books.count > 1 this arbitrarily selects the first one, which may not be correct.
-                section = globals.media.active!.section!.indexStrings!.index(of: mediaItem!.bookSections.first!)!
-                break
-                
-            case Grouping.SPEAKER:
-                section = globals.media.active!.section!.indexStrings!.index(of: mediaItem!.speakerSection!)!
-                break
-                
-            case Grouping.CLASS:
-                section = globals.media.active!.section!.indexStrings!.index(of: mediaItem!.classSection!)!
-                break
-                
-            case Grouping.EVENT:
-                section = globals.media.active!.section!.indexStrings!.index(of: mediaItem!.eventSection!)!
-                break
-                
-            default:
-                break
-            }
+        switch grouping {
+        case GROUPING.YEAR:
+            sectionIndex = mediaItem.yearSection
+            break
             
-            row = index - globals.media.active!.sectionIndexes![section]
+        case GROUPING.TITLE:
+            sectionIndex = mediaItem.multiPartSectionSort
+            break
+            
+        case GROUPING.BOOK:
+            // For mediaItem.books.count > 1 this arbitrarily selects the first one, which may not be correct.
+            sectionIndex = mediaItem.bookSections.first
+            break
+            
+        case GROUPING.SPEAKER:
+            sectionIndex = mediaItem.speakerSectionSort
+            break
+            
+        case GROUPING.CLASS:
+            sectionIndex = mediaItem.classSectionSort
+            break
+            
+        case GROUPING.EVENT:
+            sectionIndex = mediaItem.eventSectionSort
+            break
+            
+        default:
+            break
         }
         
+        if let sectionIndex = sectionIndex, let stringIndex = indexStrings.index(of: sectionIndex) {
+            section = stringIndex
+        }
+        
+        if let sectionIndexes = globals.media.active?.sectionIndexes {
+            row = index - sectionIndexes[section]
+        }
+
         //            print(section)
         
         if (section > -1) && (row > -1) {
@@ -1741,7 +1764,7 @@ class MediaTableViewController : UIViewController
             strings.append(contentsOf: mediaItemTags)
         }
         
-        if let navigationController = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
+        if let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
             let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
             navigationController.modalPresentationStyle = .fullScreen
             
@@ -1774,7 +1797,7 @@ class MediaTableViewController : UIViewController
 
         setNeedsFocusUpdate()
         
-        globals.popoverNavCon = self.storyboard!.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController
+        globals.popoverNavCon = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController
         
         if globals.popoverNavCon != nil, let popover = globals.popoverNavCon?.viewControllers[0] as? PopoverTableViewController {
             globals.popoverNavCon?.modalPresentationStyle = .fullScreen
@@ -1796,7 +1819,7 @@ class MediaTableViewController : UIViewController
                         strings.append("About")
                     } else {
                         if (globals.mediaPlayer.mediaItem != nil) {
-                            if let nvc = self.splitViewController!.viewControllers[splitViewController!.viewControllers.count - 1] as? UINavigationController {
+                            if let count = splitViewController?.viewControllers.count, let nvc = self.splitViewController?.viewControllers[count - 1] as? UINavigationController {
                                 if let myvc = nvc.topViewController as? MediaViewController {
                                     if (myvc.selectedMediaItem != nil) {
                                         if (myvc.selectedMediaItem != globals.mediaPlayer.mediaItem) {
@@ -2152,13 +2175,17 @@ extension MediaTableViewController : UITableViewDataSource
 {
     // MARK: UITableViewDataSource
 
-    func numberOfSections(in tableView: UITableView) -> Int {
-        //#warning Incomplete method implementation -- Return the number of sections
-        //return series.count
-        return globals.display.section.headers != nil ? globals.display.section.headers!.count : 0
+    func numberOfSections(in tableView: UITableView) -> Int
+    {
+        guard let headers = globals.display.section.headers else {
+            return 0
+        }
+        
+        return headers.count
     }
 
-    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+    func sectionIndexTitles(for tableView: UITableView) -> [String]?
+    {
         return nil
     }
     
@@ -2169,12 +2196,12 @@ extension MediaTableViewController : UITableViewDataSource
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String?
     {
-        if globals.display.section.headers != nil {
-            if section < globals.display.section.headers!.count {
-                return globals.display.section.headers![section]
-            } else {
-                return nil
-            }
+        guard let headers = globals.display.section.headers else {
+            return nil
+        }
+        
+        if section < headers.count {
+            return headers[section]
         } else {
             return nil
         }
@@ -2182,13 +2209,12 @@ extension MediaTableViewController : UITableViewDataSource
     
     func tableView(_ TableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
-        //#warning Incomplete method implementation -- Return the number of items in the section
-        if globals.display.section.counts != nil {
-            if section < globals.display.section.counts!.count {
-                return globals.display.section.counts![section]
-            } else {
-                return 0
-            }
+        guard let counts = globals.display.section.counts else {
+            return 0
+        }
+
+        if section < counts.count {
+            return counts[section]
         } else {
             return 0
         }
@@ -2203,14 +2229,11 @@ extension MediaTableViewController : UITableViewDataSource
         cell.searchText = globals.search.active ? globals.search.text : nil
         
         // Configure the cell
-        if (globals.display.section.indexes != nil) && (globals.display.mediaItems != nil) {
-            if indexPath.section < globals.display.section.indexes!.count {
-                if let section = globals.display.section.indexes?[indexPath.section] {
-                    if section + indexPath.row < globals.display.mediaItems!.count {
-                        cell.mediaItem = globals.display.mediaItems?[section + indexPath.row]
-                    } else {
-                        print("No mediaItem for cell!")
-                    }
+        if let indexes = globals.display.section.indexes, let mediaItems = globals.display.mediaItems {
+            if indexPath.section < indexes.count {
+                let section = indexes[indexPath.section]
+                if section + indexPath.row < mediaItems.count {
+                    cell.mediaItem = mediaItems[section + indexPath.row]
                 } else {
                     print("No mediaItem for cell!")
                 }
@@ -2260,17 +2283,19 @@ extension MediaTableViewController : UITableViewDataSource
             view?.contentView.backgroundColor = UIColor(red: 200/255, green: 200/255, blue: 200/255, alpha: 1.0)
             
             if view?.label == nil {
-                view?.label = UILabel()
+                let label = UILabel()
                 
-                view?.label?.numberOfLines = 0
-                view?.label?.lineBreakMode = .byWordWrapping
+                label.numberOfLines = 0
+                label.lineBreakMode = .byWordWrapping
                 
-                view?.label?.translatesAutoresizingMaskIntoConstraints = false
+                label.translatesAutoresizingMaskIntoConstraints = false
                 
-                view?.addSubview(view!.label!)
+                view?.addSubview(label)
                 
-                view?.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-10-[label]-10-|", options: [.alignAllCenterY], metrics: nil, views: ["label":view!.label!]))
-                view?.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-10-[label]-10-|", options: [.alignAllCenterX], metrics: nil, views: ["label":view!.label!]))
+                view?.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-10-[label]-10-|", options: [.alignAllCenterY], metrics: nil, views: ["label":label]))
+                view?.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-10-[label]-10-|", options: [.alignAllCenterX], metrics: nil, views: ["label":label]))
+            
+                view?.label = label
             }
             
             view?.label?.attributedText = NSAttributedString(string: title,   attributes: Constants.Fonts.Attributes.bold)
@@ -2331,7 +2356,11 @@ extension MediaTableViewController : UITableViewDelegate
     
     func authentication()
     {
-        var request = URLRequest(url: URL(string: "https://17iPVurdk9fn2ZKLVnnfqN4HKKIb9WXMKzN0l5K5:@bibles.org/v2/eng-NASB/passages.js?q[]=")!)
+        guard let url = URL(string: "https://17iPVurdk9fn2ZKLVnnfqN4HKKIb9WXMKzN0l5K5:@bibles.org/v2/eng-NASB/passages.js?q[]=") else {
+            return
+        }
+        
+        var request = URLRequest(url: url)
         request.httpMethod = "GET"
         
         let task = URLSession.shared.dataTask(with: request) {

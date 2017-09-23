@@ -47,12 +47,12 @@ class MediaTableViewCell: UITableViewCell
 
         let titleString = NSMutableAttributedString()
         
-        if let searchHit = mediaItem?.searchHit(searchText).formattedDate, searchHit, let formattedDate = mediaItem?.formattedDate {
+        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText).formattedDate, searchHit, let formattedDate = mediaItem?.formattedDate {
             var string:String?
             var before:String?
             var after:String?
             
-            if let range = formattedDate.lowercased().range(of: searchText!.lowercased()) {
+            if let range = formattedDate.lowercased().range(of: searchText.lowercased()) {
                 before = formattedDate.substring(to: range.lowerBound)
                 string = formattedDate.substring(with: range)
                 after = formattedDate.substring(from: range.upperBound)
@@ -68,20 +68,24 @@ class MediaTableViewCell: UITableViewCell
                 }
             }
         } else {
-            titleString.append(NSAttributedString(string:mediaItem!.formattedDate!, attributes: Constants.Fonts.Attributes.normal))
+            if let formattedDate = mediaItem?.formattedDate {
+                titleString.append(NSAttributedString(string:formattedDate, attributes: Constants.Fonts.Attributes.normal))
+            }
         }
         
         if !titleString.string.isEmpty {
             titleString.append(NSAttributedString(string: Constants.SINGLE_SPACE))
         }
-        titleString.append(NSAttributedString(string: mediaItem!.service!, attributes: Constants.Fonts.Attributes.normal))
+        if let service = mediaItem?.service {
+            titleString.append(NSAttributedString(string: service, attributes: Constants.Fonts.Attributes.normal))
+        }
         
-        if let searchHit = mediaItem?.searchHit(searchText).speaker, searchHit, let speaker = mediaItem?.speaker {
+        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText).speaker, searchHit, let speaker = mediaItem?.speaker {
             var string:String?
             var before:String?
             var after:String?
             
-            if let range = speaker.lowercased().range(of: searchText!.lowercased()) {
+            if let range = speaker.lowercased().range(of: searchText.lowercased()) {
                 before = speaker.substring(to: range.lowerBound)
                 string = speaker.substring(with: range)
                 after = speaker.substring(from: range.upperBound)
@@ -104,7 +108,9 @@ class MediaTableViewCell: UITableViewCell
             if !titleString.string.isEmpty {
                 titleString.append(NSAttributedString(string: Constants.SINGLE_SPACE))
             }
-            titleString.append(NSAttributedString(string:mediaItem!.speaker!, attributes: Constants.Fonts.Attributes.normal))
+            if let speaker = mediaItem?.speaker {
+                titleString.append(NSAttributedString(string:speaker, attributes: Constants.Fonts.Attributes.normal))
+            }
         }
         
         DispatchQueue.main.async {
@@ -116,21 +122,24 @@ class MediaTableViewCell: UITableViewCell
         
         var title:String?
         
-        if (searchText == nil) && (mediaItem?.title?.range(of: " (Part ") != nil) {
+        if searchText != nil {
             // This causes searching for "(Part " to present a blank title.
-            let first = mediaItem!.title!.substring(to: (mediaItem!.title!.range(of: " (Part")?.upperBound)!)
-            let second = mediaItem!.title!.substring(from: (mediaItem!.title!.range(of: " (Part ")?.upperBound)!)
-            title = first + Constants.UNBREAKABLE_SPACE + second // replace the space with an unbreakable one
+            if  let rangeBefore = mediaItem?.title?.range(of: " (Part"),
+                let rangeAfter = mediaItem?.title?.range(of: " (Part "),
+                let first = mediaItem?.title?.substring(to: rangeBefore.upperBound),
+                let second = mediaItem?.title?.substring(from: rangeAfter.upperBound) {
+                title = first + Constants.UNBREAKABLE_SPACE + second // replace the space with an unbreakable one
+            }
         } else {
             title = mediaItem?.title
         }
         
-        if let searchHit = mediaItem?.searchHit(searchText).title, searchHit {
+        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText).title, searchHit {
             var string:String?
             var before:String?
             var after:String?
             
-            if let range = title?.lowercased().range(of: searchText!.lowercased()) {
+            if let range = title?.lowercased().range(of: searchText.lowercased()) {
                 before = title?.substring(to: range.lowerBound)
                 string = title?.substring(with: range)
                 after = title?.substring(from: range.upperBound)
@@ -156,7 +165,7 @@ class MediaTableViewCell: UITableViewCell
             var before:String?
             var after:String?
             
-            if let range = scriptureReference.lowercased().range(of: searchText!.lowercased()) {
+            if let searchText = searchText, let range = scriptureReference.lowercased().range(of: searchText.lowercased()) {
                 before = scriptureReference.substring(to: range.lowerBound)
                 string = scriptureReference.substring(with: range)
                 after = scriptureReference.substring(from: range.upperBound)
@@ -183,12 +192,12 @@ class MediaTableViewCell: UITableViewCell
             }
         }
         
-        if mediaItem!.searchHit(searchText).className {
+        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText), searchHit.className {
             var string:String?
             var before:String?
             var after:String?
             
-            if let range = mediaItem?.className?.lowercased().range(of: searchText!.lowercased()) {
+            if let range = mediaItem?.className?.lowercased().range(of: searchText.lowercased()) {
                 before = mediaItem?.className?.substring(to: range.lowerBound)
                 string = mediaItem?.className?.substring(with: range)
                 after = mediaItem?.className?.substring(from: range.upperBound)
@@ -215,12 +224,12 @@ class MediaTableViewCell: UITableViewCell
             }
         }
         
-        if mediaItem!.searchHit(searchText).eventName {
+        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText), searchHit.eventName {
             var string:String?
             var before:String?
             var after:String?
             
-            if let range = mediaItem?.eventName?.lowercased().range(of: searchText!.lowercased()) {
+            if let range = mediaItem?.eventName?.lowercased().range(of: searchText.lowercased()) {
                 before = mediaItem?.eventName?.substring(to: range.lowerBound)
                 string = mediaItem?.eventName?.substring(with: range)
                 after = mediaItem?.eventName?.substring(from: range.upperBound)
@@ -335,7 +344,7 @@ class MediaTableViewCell: UITableViewCell
             return
         }
         
-        guard mediaItem != nil else {
+        guard let mediaItem = mediaItem else {
             return
         }
         
@@ -365,15 +374,15 @@ class MediaTableViewCell: UITableViewCell
                 }
             }
             
-            if (mediaItem!.hasTags) {
-                if (mediaItem?.tagsSet?.count > 1) {
-                    if mediaItem!.searchHit(searchText).tags {
+            if (mediaItem.hasTags) {
+                if (mediaItem.tagsSet?.count > 1) {
+                    if mediaItem.searchHit(searchText).tags {
                         attrString.append(NSAttributedString(string: Constants.SINGLE_SPACE + Constants.FA.TAGS, attributes: Constants.FA.Fonts.Attributes.highlightedIcons))
                     } else {
                         attrString.append(NSAttributedString(string: Constants.SINGLE_SPACE + Constants.FA.TAGS, attributes: Constants.FA.Fonts.Attributes.icons))
                     }
                 } else {
-                    if mediaItem!.searchHit(searchText).tags {
+                    if mediaItem.searchHit(searchText).tags {
                         attrString.append(NSAttributedString(string: Constants.SINGLE_SPACE + Constants.FA.TAG, attributes: Constants.FA.Fonts.Attributes.highlightedIcons))
                     } else {
                         attrString.append(NSAttributedString(string: Constants.SINGLE_SPACE + Constants.FA.TAG, attributes: Constants.FA.Fonts.Attributes.icons))
@@ -381,11 +390,11 @@ class MediaTableViewCell: UITableViewCell
                 }
             }
 
-            if (mediaItem!.hasVideo) {
+            if (mediaItem.hasVideo) {
                 attrString.append(NSAttributedString(string: Constants.SINGLE_SPACE + Constants.FA.VIDEO, attributes: Constants.FA.Fonts.Attributes.icons))
             }
             
-            if (mediaItem!.hasAudio) {
+            if (mediaItem.hasAudio) {
                 attrString.append(NSAttributedString(string: Constants.SINGLE_SPACE + Constants.FA.AUDIO, attributes: Constants.FA.Fonts.Attributes.icons))
             }
             
@@ -418,19 +427,19 @@ class MediaTableViewCell: UITableViewCell
                 }
             }
             
-            if (mediaItem!.hasTags) {
-                if (mediaItem?.tagsSet?.count > 1) {
+            if (mediaItem.hasTags) {
+                if (mediaItem.tagsSet?.count > 1) {
                     string = string + Constants.SINGLE_SPACE + Constants.FA.TAGS
                 } else {
                     string = string + Constants.SINGLE_SPACE + Constants.FA.TAG
                 }
             }
             
-            if (mediaItem!.hasVideo) {
+            if (mediaItem.hasVideo) {
                 string = string + Constants.SINGLE_SPACE + Constants.FA.VIDEO
             }
             
-            if (mediaItem!.hasAudio) {
+            if (mediaItem.hasAudio) {
                 string = string + Constants.SINGLE_SPACE + Constants.FA.AUDIO
             }
             

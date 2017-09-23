@@ -98,7 +98,7 @@ class Section
             
         }
         didSet {
-            guard strings != nil else {
+            guard let strings = strings else {
                 self.counts = nil
                 self.indexes = nil
                 self.headerStrings = nil
@@ -106,12 +106,12 @@ class Section
             }
             
             guard showIndex else {
-                self.counts = [strings!.count]
+                self.counts = [strings.count]
                 self.indexes = [0]
                 return
             }
             
-            indexStrings = strings?.map({ (string:String) -> String in
+            indexStrings = strings.map({ (string:String) -> String in
                 return indexStringsTransform != nil ? indexStringsTransform!(string.uppercased())! : string.uppercased()
             })
         }
@@ -134,7 +134,7 @@ class Section
                 return
             }
             
-            guard strings?.count > 0 else {
+            guard let strings = strings, strings.count > 0 else {
                 indexHeaders = nil
                 counts = nil
                 indexes = nil
@@ -142,7 +142,7 @@ class Section
                 return
             }
             
-            guard indexStrings?.count > 0 else {
+            guard let indexStrings = indexStrings, indexStrings.count > 0 else {
                 indexHeaders = nil
                 counts = nil
                 indexes = nil
@@ -153,7 +153,7 @@ class Section
             let a = "A"
             
             if indexHeadersTransform == nil {
-                indexHeaders = Array(Set(indexStrings!
+                indexHeaders = Array(Set(indexStrings
                     .map({ (string:String) -> String in
                         if string.endIndex >= a.endIndex {
                             return string.substring(to: a.endIndex).uppercased()
@@ -164,7 +164,7 @@ class Section
                 )) // .sorted()
             } else {
                 indexHeaders = Array(Set(
-                    indexStrings!.map({ (string:String) -> String in
+                    indexStrings.map({ (string:String) -> String in
                         return indexHeadersTransform!(string)!
                     })
                 )) // .sorted()
@@ -185,7 +185,7 @@ class Section
             } else {
                 var stringIndex = [String:[String]]()
                 
-                for indexString in indexStrings! {
+                for indexString in indexStrings {
                     var header : String?
                     
                     if indexHeadersTransform == nil {
@@ -224,10 +224,12 @@ class Section
                 for key in keys {
                     //                print(stringIndex[key]!)
                     
-                    indexes.append(counter)
-                    counts.append(stringIndex[key]!.count)
-                    
-                    counter += stringIndex[key]!.count
+                    if let count = stringIndex[key]?.count {
+                        indexes.append(counter)
+                        counts.append(count)
+                        
+                        counter += count
+                    }
                 }
                 
                 self.counts = counts.count > 0 ? counts : nil

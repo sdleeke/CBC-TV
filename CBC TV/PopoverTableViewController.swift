@@ -132,7 +132,9 @@ class PopoverTableViewController : UIViewController
         
         if self.section.showIndex {
             width += indexSpace
-            height += self.tableView.sectionHeaderHeight * CGFloat(self.section.indexStrings!.count)
+            if let count = self.section.indexStrings?.count {
+                height += self.tableView.sectionHeaderHeight * CGFloat(count)
+            }
         }
         
 //        print(height)
@@ -178,14 +180,18 @@ class PopoverTableViewController : UIViewController
     
     func selectString(_ string:String?,scroll:Bool,select:Bool)
     {
-        guard (string != nil) else {
+        guard let string = string else {
             return
         }
         
         selectedText = string
         
         if let selectedText = selectedText,  let index = section.strings?.index(where: { (string:String) -> Bool in
-            return selectedText.uppercased() == string.substring(to: string.range(of: " (")!.lowerBound).uppercased()
+            if let range = string.range(of: " (") {
+                return selectedText.uppercased() == string.substring(to: range.lowerBound).uppercased()
+            } else {
+                return false
+            }
         }) {
             var i = 0
             
@@ -215,7 +221,9 @@ class PopoverTableViewController : UIViewController
                 }
             }
         } else {
-            userAlert(title:"String not found!",message:"Search is active and the string \(selectedText!) is not in the results.")
+            if let selectedText = selectedText {
+                userAlert(title:"String not found!",message:"Search is active and the string \(selectedText) is not in the results.")
+            }
         }
     }
     
@@ -285,7 +293,11 @@ extension PopoverTableViewController : UITableViewDataSource
         // Return the number of sections.
         if section.showIndex || section.showHeaders {
             //        if let active = self.searchController?.isActive, active {
-            return section.counts != nil ? section.counts!.count : 0
+            if let counts = section.counts {
+                return counts.count
+            } else {
+                return 1
+            }
         } else {
             return 1
         }
@@ -297,9 +309,21 @@ extension PopoverTableViewController : UITableViewDataSource
         // Return the number of rows in the section.
         if self.section.showIndex || self.section.showHeaders {
             //        if let active = self.searchController?.isActive, active {
-            return self.section.counts != nil ? ((section < self.section.counts?.count) ? self.section.counts![section] : 0) : 0
+            if let counts = self.section.counts {
+                if section < counts.count {
+                    return counts[section]
+                } else {
+                    return 0
+                }
+            } else {
+                return 0
+            }
         } else {
-            return self.section.strings != nil ? self.section.strings!.count : 0
+            if let strings = self.section.strings {
+                return strings.count
+            } else {
+                return 0
+            }
         }
     }
     
@@ -359,19 +383,21 @@ extension PopoverTableViewController : UITableViewDataSource
             view?.contentView.backgroundColor = UIColor(red: 200/255, green: 200/255, blue: 200/255, alpha: 1.0)
             
             if view?.label == nil {
-                view?.label = UILabel()
+                let label = UILabel()
                 
-                view?.label?.numberOfLines = 0
-                view?.label?.lineBreakMode = .byWordWrapping
+                label.numberOfLines = 0
+                label.lineBreakMode = .byWordWrapping
                 
-                view?.label?.textAlignment = .center
+                label.textAlignment = .center
                 
-                view?.label?.translatesAutoresizingMaskIntoConstraints = false
+                label.translatesAutoresizingMaskIntoConstraints = false
                 
-                view?.addSubview(view!.label!)
+                view?.addSubview(label)
                 
-                view?.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-[label]-|", options: [.alignAllCenterY], metrics: nil, views: ["label":view!.label!]))
-                view?.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-[label]-|", options: [.alignAllCenterX], metrics: nil, views: ["label":view!.label!]))
+                view?.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-[label]-|", options: [.alignAllCenterY], metrics: nil, views: ["label":label]))
+                view?.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-[label]-|", options: [.alignAllCenterX], metrics: nil, views: ["label":label]))
+                
+                view?.label = label
             }
             
             view?.label?.attributedText = NSAttributedString(string: title,   attributes: Constants.Fonts.Attributes.bold)
@@ -441,7 +467,7 @@ extension PopoverTableViewController : UITableViewDataSource
         case .selectingTags:
             switch globals.media.tags.showing! {
             case Constants.TAGGED:
-                if (tagsArrayFromTagsString(globals.media.tags.selected)!.index(of: string) != nil) {
+                if let tagsArray = tagsArrayFromTagsString(globals.media.tags.selected), tagsArray.index(of: string) != nil {
                     cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.boldGrey)
                 } else {
                     cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.bold)
@@ -539,7 +565,9 @@ extension PopoverTableViewController : UITableViewDelegate
         
         //        print(index,strings![index])
         
-        delegate?.rowClickedAtIndex(index, strings: section.strings, purpose: purpose!)
+        if let purpose = purpose {
+            delegate?.rowClickedAtIndex(index, strings: section.strings, purpose: purpose)
+        }
     }
     
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool

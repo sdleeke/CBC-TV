@@ -184,74 +184,74 @@ class MediaItem : NSObject {
     
     var multiPartMediaItems:[MediaItem]? {
         get {
-            if (hasMultipleParts) {
-                var mediaItemParts:[MediaItem]?
-//                print(multiPartSort)
-                if (globals.media.all?.groupSort?[Grouping.TITLE]?[multiPartSort!]?[Sorting.CHRONOLOGICAL] == nil) {
-                    mediaItemParts = globals.mediaRepository.list?.filter({ (testMediaItem:MediaItem) -> Bool in
-                        if testMediaItem.hasMultipleParts {
-                            return (testMediaItem.category == category) && (testMediaItem.multiPartName == multiPartName)
-                        } else {
-                            return false
-                        }
-                    })
-                } else {
-                    mediaItemParts = globals.media.all?.groupSort?[Grouping.TITLE]?[multiPartSort!]?[Sorting.CHRONOLOGICAL]?.filter({ (testMediaItem:MediaItem) -> Bool in
-                        return (testMediaItem.multiPartName == multiPartName) && (testMediaItem.category == category)
-                    })
-                }
-
-//                print(id)
-//                print(id.range(of: "s")?.lowerBound)
-//                print("flYYMMDD".endIndex)
-                
-//                print(mediaItemParts)
-                
-                // Filter for conference series
-                
-                if conferenceCode != nil {
-                    mediaItemParts = sortMediaItemsByYear(mediaItemParts?.filter({ (testMediaItem:MediaItem) -> Bool in
-                        return testMediaItem.conferenceCode == conferenceCode
-                    }),sorting: Sorting.CHRONOLOGICAL)
-                } else {
-                    if hasClassName {
-                        mediaItemParts = sortMediaItemsByYear(mediaItemParts?.filter({ (testMediaItem:MediaItem) -> Bool in
-                            //                        print(classCode,testMediaItem.classCode)
-                            return testMediaItem.classCode == classCode
-                        }),sorting: Sorting.CHRONOLOGICAL)
+            guard hasMultipleParts, let multiPartSort = multiPartSort else {
+                return [self]
+            }
+            
+            var mediaItemParts:[MediaItem]?
+            //                print(multiPartSort)
+            if (globals.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL] == nil) {
+                mediaItemParts = globals.mediaRepository.list?.filter({ (testMediaItem:MediaItem) -> Bool in
+                    if testMediaItem.hasMultipleParts {
+                        return (testMediaItem.category == category) && (testMediaItem.multiPartName == multiPartName)
                     } else {
-                        mediaItemParts = sortMediaItemsByYear(mediaItemParts,sorting: Sorting.CHRONOLOGICAL)
+                        return false
                     }
+                })
+            } else {
+                mediaItemParts = globals.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL]?.filter({ (testMediaItem:MediaItem) -> Bool in
+                    return (testMediaItem.multiPartName == multiPartName) && (testMediaItem.category == category)
+                })
+            }
+            
+            //                print(id)
+            //                print(id.range(of: "s")?.lowerBound)
+            //                print("flYYMMDD".endIndex)
+            
+            //                print(mediaItemParts)
+            
+            // Filter for conference series
+            
+            if conferenceCode != nil {
+                mediaItemParts = sortMediaItemsByYear(mediaItemParts?.filter({ (testMediaItem:MediaItem) -> Bool in
+                    return testMediaItem.conferenceCode == conferenceCode
+                }),sorting: SORTING.CHRONOLOGICAL)
+            } else {
+                if hasClassName {
+                    mediaItemParts = sortMediaItemsByYear(mediaItemParts?.filter({ (testMediaItem:MediaItem) -> Bool in
+                        //                        print(classCode,testMediaItem.classCode)
+                        return testMediaItem.classCode == classCode
+                    }),sorting: SORTING.CHRONOLOGICAL)
+                } else {
+                    mediaItemParts = sortMediaItemsByYear(mediaItemParts,sorting: SORTING.CHRONOLOGICAL)
                 }
+            }
+            
+            // Filter for multiple series of the same name
+            var mediaList = [MediaItem]()
+            
+            if mediaItemParts?.count > 1 {
+                var number = 0
                 
-                // Filter for multiple series of the same name
-                var mediaList = [MediaItem]()
-                
-                if mediaItemParts?.count > 1 {
-                    var number = 0
-                    
-                    for mediaItem in mediaItemParts! {
-                        if let part = mediaItem.part, let partNumber = Int(part) {
-                            if partNumber > number {
-                                mediaList.append(mediaItem)
-                                number = partNumber
+                for mediaItem in mediaItemParts! {
+                    if let part = mediaItem.part, let partNumber = Int(part) {
+                        if partNumber > number {
+                            mediaList.append(mediaItem)
+                            number = partNumber
+                        } else {
+                            if (mediaList.count > 0) && mediaList.contains(self) {
+                                break
                             } else {
-                                if (mediaList.count > 0) && mediaList.contains(self) {
-                                    break
-                                } else {
-                                    mediaList = [mediaItem]
-                                    number = partNumber
-                                }
+                                mediaList = [mediaItem]
+                                number = partNumber
                             }
                         }
                     }
-                    
-                    return mediaList.count > 0 ? mediaList : nil
-                } else {
-                    return mediaItemParts
                 }
+                
+                return mediaList.count > 0 ? mediaList : nil
             } else {
-                return [self]
+                return mediaItemParts
             }
         }
     }
@@ -260,18 +260,20 @@ class MediaItem : NSObject {
     {
         var array = [String]()
         
-        if hasSpeaker {
-            array.append(speaker!)
+        if hasSpeaker, let speaker = speaker {
+            array.append(speaker)
         }
         
-        if hasMultipleParts {
-            array.append(multiPartName!)
+        if hasMultipleParts, let multiPartName = multiPartName {
+            array.append(multiPartName)
         } else {
-            array.append(title!)
+            if let title = title {
+                array.append(title)
+            }
         }
         
-        if books != nil {
-            array.append(contentsOf: books!)
+        if let books = books {
+            array.append(contentsOf: books)
         }
         
         if let titleTokens = tokensFromString(title) {
@@ -285,8 +287,8 @@ class MediaItem : NSObject {
     {
         var set = Set<String>()
 
-        if tagsArray != nil {
-            for tag in tagsArray! {
+        if let tagsArray = tagsArray {
+            for tag in tagsArray {
                 if let tokens = tokensFromString(tag) {
                     set = set.union(Set(tokens))
                 }
@@ -303,8 +305,8 @@ class MediaItem : NSObject {
             }
         }
         
-        if books != nil {
-            set = set.union(Set(books!))
+        if let books = books {
+            set = set.union(Set(books))
         }
         
         if let titleTokens = tokensFromString(title) {
@@ -335,9 +337,17 @@ class MediaItem : NSObject {
         
     func mediaItemsInCollection(_ tag:String) -> [MediaItem]?
     {
+        guard !tag.isEmpty else {
+            return nil
+        }
+        
+        guard let tagsSet = tagsSet else {
+            return nil
+        }
+        
         var mediaItems:[MediaItem]?
         
-        if (tagsSet != nil) && tagsSet!.contains(tag) {
+        if tagsSet.contains(tag) {
             mediaItems = globals.media.all?.tagMediaItems?[tag]
         }
         
@@ -444,17 +454,25 @@ class MediaItem : NSObject {
     
     var atEnd:Bool {
         get {
-            if let atEnd = mediaItemSettings?[Constants.SETTINGS.AT_END+playing!] {
-                dict![Constants.SETTINGS.AT_END+playing!] = atEnd
-            } else {
-                dict![Constants.SETTINGS.AT_END+playing!] = "NO"
+            guard let playing = playing else {
+                return false
             }
-            return dict![Constants.SETTINGS.AT_END+playing!] == "YES"
+            
+            if let atEnd = mediaItemSettings?[Constants.SETTINGS.AT_END+playing] {
+                dict![Constants.SETTINGS.AT_END+playing] = atEnd
+            } else {
+                dict![Constants.SETTINGS.AT_END+playing] = "NO"
+            }
+            return dict![Constants.SETTINGS.AT_END+playing] == "YES"
         }
         
         set {
-            dict![Constants.SETTINGS.AT_END+playing!] = newValue ? "YES" : "NO"
-            mediaItemSettings?[Constants.SETTINGS.AT_END+playing!] = newValue ? "YES" : "NO"
+            guard let playing = playing else {
+                return
+            }
+            
+            dict![Constants.SETTINGS.AT_END+playing] = newValue ? "YES" : "NO"
+            mediaItemSettings?[Constants.SETTINGS.AT_END+playing] = newValue ? "YES" : "NO"
         }
     }
     
@@ -464,35 +482,43 @@ class MediaItem : NSObject {
         }
     }
     
-    func hasCurrentTime() -> Bool
+    var hasCurrentTime : Bool
     {
         return (currentTime != nil) && (Float(currentTime!) != nil)
     }
     
     var currentTime:String? {
         get {
-            if let current_time = mediaItemSettings?[Constants.SETTINGS.CURRENT_TIME+playing!] {
-                dict![Constants.SETTINGS.CURRENT_TIME+playing!] = current_time
-            } else {
-                dict![Constants.SETTINGS.CURRENT_TIME+playing!] = "\(0)"
+            guard let playing = playing else {
+                return nil
             }
-//            print(dict![Constants.SETTINGS.CURRENT_TIME+playing!])
-            return dict![Constants.SETTINGS.CURRENT_TIME+playing!]
+            
+            if let current_time = mediaItemSettings?[Constants.SETTINGS.CURRENT_TIME+playing] {
+                dict![Constants.SETTINGS.CURRENT_TIME+playing] = current_time
+            } else {
+                dict![Constants.SETTINGS.CURRENT_TIME+playing] = "\(0)"
+            }
+//            print(dict![Constants.SETTINGS.CURRENT_TIME+playing])
+            return dict![Constants.SETTINGS.CURRENT_TIME+playing]
         }
         
         set {
-            dict![Constants.SETTINGS.CURRENT_TIME+playing!] = newValue
+            guard let playing = playing else {
+                return
+            }
             
-            if mediaItemSettings?[Constants.SETTINGS.CURRENT_TIME+playing!] != newValue {
-               mediaItemSettings?[Constants.SETTINGS.CURRENT_TIME+playing!] = newValue 
+            dict![Constants.SETTINGS.CURRENT_TIME+playing] = newValue
+            
+            if mediaItemSettings?[Constants.SETTINGS.CURRENT_TIME+playing] != newValue {
+               mediaItemSettings?[Constants.SETTINGS.CURRENT_TIME+playing] = newValue
             }
         }
     }
     
     var seriesID:String! {
         get {
-            if hasMultipleParts {
-                return (conferenceCode != nil ? conferenceCode! : classCode) + multiPartName!
+            if hasMultipleParts, let multiPartName = multiPartName {
+                return (conferenceCode != nil ? conferenceCode! : classCode) + multiPartName
             } else {
                 return id!
             }
@@ -501,10 +527,16 @@ class MediaItem : NSObject {
     
     var year:Int? {
         get {
-            if (fullDate != nil) {
-                return (Calendar.current as NSCalendar).components(.year, from: fullDate!).year
+            if let range = date?.range(of: "-"), let year = date?.substring(to: range.lowerBound) {
+                return Int(year)
+            } else {
+                return nil
             }
-            return nil
+
+//            if let fullDate = fullDate {
+//                return (Calendar.current as NSCalendar).components(.year, from: fullDate).year
+//            }
+//            return nil
         }
     }
     
@@ -517,11 +549,17 @@ class MediaItem : NSObject {
     
     var yearString:String! {
         get {
-            if (year != nil) {
-                return "\(year!)"
+            if let range = date?.range(of: "-"), let year = date?.substring(to: range.lowerBound) {
+                return year
             } else {
                 return "None"
             }
+
+//            if (year != nil) {
+//                return "\(year!)"
+//            } else {
+//                return "None"
+//            }
         }
     }
 
@@ -531,8 +569,12 @@ class MediaItem : NSObject {
             return nil
         }
         
+        guard let id = id, let url = URL(string: Constants.JSON.URL.SINGLE + id) else {
+            return nil
+        }
+        
         do {
-            let data = try Data(contentsOf: URL(string: Constants.JSON.URL.SINGLE + self.id!)!) // , options: NSData.ReadingOptions.mappedIfSafe
+            let data = try Data(contentsOf: url) // , options: NSData.ReadingOptions.mappedIfSafe
             
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: [])
@@ -637,15 +679,29 @@ class MediaItem : NSObject {
         }
     }
     
+    var dateService:String? {
+        get {
+            return dict![Field.date]
+        }
+    }
+    
     var date:String? {
         get {
-            return dict![Field.date]?.substring(to: dict![Field.date]!.range(of: Constants.SINGLE_SPACE)!.lowerBound) // last two characters // dict![Field.title]
+            if let range = dict![Field.date]?.range(of: Constants.SINGLE_SPACE) {
+                return dict![Field.date]?.substring(to: range.lowerBound) // last two characters // dict![Field.title]
+            } else {
+                return nil
+            }
         }
     }
     
     var service:String? {
         get {
-            return dict![Field.date]?.substring(from: dict![Field.date]!.range(of: Constants.SINGLE_SPACE)!.upperBound) // last two characters // dict![Field.title]
+            if let range = dict![Field.date]?.range(of: Constants.SINGLE_SPACE) {
+                return dict![Field.date]?.substring(from: range.upperBound) // last two characters // dict![Field.title]
+            } else {
+                return nil
+            }
         }
     }
     
@@ -705,7 +761,11 @@ class MediaItem : NSObject {
     
     var speakerSectionSort:String! {
         get {
-            return speakerSort!.lowercased()
+            if let speakerSort = speakerSort {
+                return speakerSort.lowercased()
+            } else {
+                return "ERROR"
+            }
         }
     }
     
@@ -732,8 +792,8 @@ class MediaItem : NSObject {
 
                     var speakerSort:String?
                     
-                    if hasSpeaker {
-                        if !speaker!.contains("Ministry Panel") {
+                    if hasSpeaker, let speaker = speaker {
+                        if !speaker.contains("Ministry Panel") {
                             if let lastName = lastNameFromName(speaker) {
                                 speakerSort = lastName
                             }
@@ -758,7 +818,15 @@ class MediaItem : NSObject {
     
     var multiPartSectionSort:String! {
         get {
-            return hasMultipleParts ? multiPartSort!.lowercased() : stringWithoutPrefixes(title)!.lowercased() // Constants.Individual_Media
+            if hasMultipleParts, let multiPartSort = multiPartSort {
+                return multiPartSort.lowercased()
+            } else {
+                if let title = stringWithoutPrefixes(title)?.lowercased() {
+                    return title
+                }
+            }
+
+            return "ERROR"
         }
     }
     
@@ -790,10 +858,10 @@ class MediaItem : NSObject {
     var multiPartName:String? {
         get {
             if (dict![Field.multi_part_name] == nil) {
-                if (title?.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil) {
-                    let seriesString = title!.substring(to: (title?.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)!.lowerBound)!).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-
-                    dict![Field.multi_part_name] = seriesString
+                if let range = title?.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) {
+                    if let seriesString = title?.substring(to: range.lowerBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) {
+                        dict![Field.multi_part_name] = seriesString
+                    }
                 }
             }
             
@@ -804,10 +872,11 @@ class MediaItem : NSObject {
     var part:String? {
         get {
             if hasMultipleParts && (dict![Field.part] == nil) {
-                if (title?.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil) {
-                    let partString = title!.substring(from: (title?.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil)!.upperBound)!)
-//                    print(partString)
-                    dict![Field.part] = partString.substring(to: partString.range(of: ")")!.lowerBound)
+                if let range = title?.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) {
+                    if let partString = title?.substring(from: range.upperBound), let range = partString.range(of: ")") {
+                        //                    print(partString)
+                        dict![Field.part] = partString.substring(to: range.lowerBound)
+                    }
                 }
             }
             
@@ -825,10 +894,8 @@ class MediaItem : NSObject {
                 var possibleTag = tag
                 
                 if possibleTag.range(of: "-") != nil {
-                    while possibleTag.range(of: "-") != nil {
-                        let range = possibleTag.range(of: "-")
-                        
-                        let candidate = possibleTag.substring(to: range!.lowerBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                    while let range = possibleTag.range(of: "-") {
+                        let candidate = possibleTag.substring(to: range.lowerBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                         
                         if (Int(candidate) == nil) && !tags.contains(candidate) {
                             if let count = possibleTags[candidate] {
@@ -838,7 +905,7 @@ class MediaItem : NSObject {
                             }
                         }
                         
-                        possibleTag = possibleTag.substring(from: range!.upperBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                        possibleTag = possibleTag.substring(from: range.upperBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                     }
                     
                     if !possibleTag.isEmpty {
@@ -927,61 +994,61 @@ class MediaItem : NSObject {
 //            let tags = tagsArrayFromTagsString(mediaItemSettings![Field.tags])
 //            print(tags)
 
-            let sortTag = stringWithoutPrefixes(tag)
-            
-            if globals.media.all!.tagMediaItems![sortTag!] != nil {
-                if globals.media.all!.tagMediaItems![sortTag!]!.index(of: self) == nil {
-                    globals.media.all!.tagMediaItems![sortTag!]!.append(self)
-                    globals.media.all!.tagNames![sortTag!] = tag
+            if let sortTag = stringWithoutPrefixes(tag) {
+                if globals.media.all?.tagMediaItems?[sortTag] != nil {
+                    if globals.media.all?.tagMediaItems?[sortTag]?.index(of: self) == nil {
+                        globals.media.all?.tagMediaItems?[sortTag]?.append(self)
+                        globals.media.all?.tagNames?[sortTag] = tag
+                    }
+                } else {
+                    globals.media.all?.tagMediaItems![sortTag] = [self]
+                    globals.media.all?.tagNames![sortTag] = tag
                 }
-            } else {
-                globals.media.all!.tagMediaItems![sortTag!] = [self]
-                globals.media.all!.tagNames![sortTag!] = tag
-            }
-            
-            if (globals.media.tags.selected == tag) {
-                globals.media.tagged[globals.media.tags.selected!] = MediaListGroupSort(mediaItems: globals.media.all?.tagMediaItems?[sortTag!])
                 
-                DispatchQueue.main.async(execute: { () -> Void in
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil) // globals.media.tagged
-                })
-            }
-            
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_UI), object: self)
+                if globals.media.tags.selected == tag, let selected = globals.media.tags.selected {
+                    globals.media.tagged[selected] = MediaListGroupSort(mediaItems: globals.media.all?.tagMediaItems?[sortTag])
+                    
+                    DispatchQueue.main.async(execute: { () -> Void in
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil) // globals.media.tagged
+                    })
+                }
+                
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_UI), object: self)
+                }
             }
         }
     }
     
     func removeTag(_ tag:String)
     {
-        if (mediaItemSettings?[Field.tags] != nil) {
-            var tags = tagsArrayFromTagsString(mediaItemSettings![Field.tags])
-            
+        guard (mediaItemSettings?[Field.tags] != nil) else {
+            return
+        }
+        
+        var tags = tagsArrayFromTagsString(mediaItemSettings?[Field.tags])
+        
 //            print(tags)
-            
-            while tags?.index(of: tag) != nil {
-                if let index = tags!.index(of: tag) {
-                    tags?.remove(at: index)
-                }
-            }
-            
+        
+        while let index = tags?.index(of: tag) {
+            tags?.remove(at: index)
+        }
+        
 //            print(tags)
-            
-            mediaItemSettings?[Field.tags] = tagsArrayToTagsString(tags)
-            
-            let sortTag = stringWithoutPrefixes(tag)
-            
-            if let index = globals.media.all?.tagMediaItems?[sortTag!]?.index(of: self) {
-                globals.media.all?.tagMediaItems?[sortTag!]?.remove(at: index)
+        
+        mediaItemSettings?[Field.tags] = tagsArrayToTagsString(tags)
+        
+        if let sortTag = stringWithoutPrefixes(tag) {
+            if let index = globals.media.all?.tagMediaItems?[sortTag]?.index(of: self) {
+                globals.media.all?.tagMediaItems?[sortTag]?.remove(at: index)
             }
             
-            if globals.media.all?.tagMediaItems?[sortTag!]?.count == 0 {
-                _ = globals.media.all?.tagMediaItems?.removeValue(forKey: sortTag!)
+            if globals.media.all?.tagMediaItems?[sortTag]?.count == 0 {
+                _ = globals.media.all?.tagMediaItems?.removeValue(forKey: sortTag)
             }
             
-            if (globals.media.tags.selected == tag) {
-                globals.media.tagged[globals.media.tags.selected!] = MediaListGroupSort(mediaItems: globals.media.all?.tagMediaItems?[sortTag!])
+            if globals.media.tags.selected == tag, let selected = globals.media.tags.selected {
+                globals.media.tagged[selected] = MediaListGroupSort(mediaItems: globals.media.all?.tagMediaItems?[sortTag])
                 
                 DispatchQueue.main.async(execute: { () -> Void in
                     NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil) // globals.media.tagged
@@ -1020,10 +1087,10 @@ class MediaItem : NSObject {
         var tag:String
         var tagsSet = Set<String>()
         
-        while (tags.range(of: Constants.TAGS_SEPARATOR) != nil) {
-            tag = tags.substring(to: tags.range(of: Constants.TAGS_SEPARATOR)!.lowerBound)
+        while let range = tags.range(of: Constants.TAGS_SEPARATOR) {
+            tag = tags.substring(to: range.lowerBound)
             tagsSet.insert(tag)
-            tags = tags.substring(from: tags.range(of: Constants.TAGS_SEPARATOR)!.upperBound)
+            tags = tags.substring(from: range.upperBound)
         }
         
         tagsSet.insert(tags)
@@ -1039,7 +1106,11 @@ class MediaItem : NSObject {
     
     var tagsArray:[String]? {
         get {
-            return tagsSet == nil ? nil : Array(tagsSet!).sorted() {
+            guard let tagsSet = tagsSet else {
+                return nil
+            }
+
+            return Array(tagsSet).sorted() {
                 return $0 < $1
             }
         }
@@ -1048,8 +1119,8 @@ class MediaItem : NSObject {
     var audio:String? {
         
         get {
-            if (dict?[Field.audio] == nil) && hasAudio {
-                dict![Field.audio] = Constants.BASE_URL.MEDIA + "\(year!)/\(id!)" + Constants.FILENAME_EXTENSION.MP3
+            if dict?[Field.audio] == nil, hasAudio, let year = year, let id = id {
+                dict![Field.audio] = Constants.BASE_URL.MEDIA + "\(year)/\(id)" + Constants.FILENAME_EXTENSION.MP3
             }
             
 //            print(dict![Field.audio])
@@ -1080,21 +1151,24 @@ class MediaItem : NSObject {
         get {
 //            print(video)
             
-            guard video != nil else {
+            guard let video = video else {
                 return nil
             }
             
-            guard video!.contains(Constants.BASE_URL.VIDEO_PREFIX) else {
+            guard video.contains(Constants.BASE_URL.VIDEO_PREFIX) else {
                 return nil
             }
             
-            let tail = video?.substring(from: Constants.BASE_URL.VIDEO_PREFIX.endIndex)
+            let tail = video.substring(from: Constants.BASE_URL.VIDEO_PREFIX.endIndex)
 //            print(tail)
             
-            let id = tail?.substring(to: tail!.range(of: ".m")!.lowerBound)
-//            print(id)
-
-            return id
+            if let range = tail.range(of: ".m") {
+                let id = tail.substring(to: range.lowerBound)
+                //            print(id)
+                return id
+            } else {
+                return nil
+            }
         }
     }
     
@@ -1135,20 +1209,36 @@ class MediaItem : NSObject {
     var audioURL:URL? {
         get {
 //            print(audio)
-            return audio != nil ? URL(string: audio!) : nil
+            guard let audio = audio else {
+                return nil
+            }
+            
+            return URL(string: audio)
         }
     }
     
     var videoURL:URL? {
         get {
-            return video != nil ? URL(string: video!) : nil
+            guard let video = video else {
+                return nil
+            }
+            
+            return URL(string: video)
         }
     }
     
     var bookSections:[String]
     {
         get {
-            return books != nil ? books! : (hasScripture ? [scriptureReference!.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)] : [Constants.None])
+            guard let books = books else {
+                if hasScripture, let scriptureReference = scriptureReference {
+                    return [scriptureReference.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)]
+                } else {
+                    return [Constants.None]
+                }
+            }
+            
+            return books
         }
     }
 
@@ -1160,8 +1250,8 @@ class MediaItem : NSObject {
     
     lazy var fullDate:Date?  = {
         [unowned self] in
-        if (self.hasDate()) {
-            return Date(dateString:self.date!)
+        if self.hasDate, let date = self.date {
+            return Date(dateString:date)
         } else {
             return nil
         }
@@ -1171,7 +1261,7 @@ class MediaItem : NSObject {
         get {
             var string:String?
             
-            if hasDate() {
+            if hasDate {
                 string = formattedDate
             } else {
                 string = "No Date"
@@ -1185,27 +1275,27 @@ class MediaItem : NSObject {
                 string = string! + " \(speaker)"
             }
             
-            if hasTitle() {
-                if (title!.range(of: " (Part ") != nil) {
-                    let first = title!.substring(to: (title!.range(of: " (Part")?.upperBound)!)
-                    let second = title!.substring(from: (title!.range(of: " (Part ")?.upperBound)!)
+            if hasTitle, let title = title {
+                if let range = title.range(of: " (Part ") {
+                    let first = title.substring(to: range.upperBound)
+                    let second = title.substring(from: range.upperBound)
                     let combined = first + Constants.UNBREAKABLE_SPACE + second // replace the space with an unbreakable one
                     string = string! + "\n\(combined)"
                 } else {
-                    string = string! + "\n\(title!)"
+                    string = string! + "\n\(title)"
                 }
             }
             
-            if hasScripture {
-                string = string! + "\n\(scriptureReference!)"
+            if hasScripture, let scriptureReference = scriptureReference {
+                string = string! + "\n\(scriptureReference)"
             }
             
-            if hasClassName {
-                string = string! + "\n\(className!)"
+            if hasClassName, let className = className {
+                string = string! + "\n\(className)"
             }
             
-            if hasEventName {
-                string = string! + "\n\(eventName!)"
+            if hasEventName, let eventName = eventName {
+                string = string! + "\n\(eventName)"
             }
             
             return string
@@ -1217,32 +1307,32 @@ class MediaItem : NSObject {
         
         var mediaItemString = "MediaItem: "
         
-        if (category != nil) {
-            mediaItemString = "\(mediaItemString) \(category!)"
+        if let category = category {
+            mediaItemString = "\(mediaItemString) \(category)"
         }
         
-        if (id != nil) {
-            mediaItemString = "\(mediaItemString) \(id!)"
+        if let id = id {
+            mediaItemString = "\(mediaItemString) \(id)"
         }
         
-        if (date != nil) {
-            mediaItemString = "\(mediaItemString) \(date!)"
+        if let date = date {
+            mediaItemString = "\(mediaItemString) \(date)"
         }
         
-        if (service != nil) {
-            mediaItemString = "\(mediaItemString) \(service!)"
+        if let service = service {
+            mediaItemString = "\(mediaItemString) \(service)"
         }
         
-        if (title != nil) {
-            mediaItemString = "\(mediaItemString) \(title!)"
+        if let title = title {
+            mediaItemString = "\(mediaItemString) \(title)"
         }
         
-        if (scriptureReference != nil) {
-            mediaItemString = "\(mediaItemString) \(scriptureReference!)"
+        if let scriptureReference = scriptureReference {
+            mediaItemString = "\(mediaItemString) \(scriptureReference)"
         }
         
-        if (speaker != nil) {
-            mediaItemString = "\(mediaItemString) \(speaker!)"
+        if let speaker = speaker {
+            mediaItemString = "\(mediaItemString) \(speaker)"
         }
         
         return mediaItemString
@@ -1260,29 +1350,34 @@ class MediaItem : NSObject {
         
         subscript(key:String) -> String? {
             get {
-                return globals.mediaItemSettings?[mediaItem!.id]?[key]
+                guard let mediaItem = mediaItem else {
+                    return nil
+                }
+                
+                return globals.mediaItemSettings?[mediaItem.id]?[key]
             }
             set {
-                if (mediaItem != nil) {
-                    if globals.mediaItemSettings == nil {
-                        globals.mediaItemSettings = [String:[String:String]]()
+                guard let mediaItem = mediaItem else {
+                    print("mediaItem == nil in Settings!")
+                    return
+                }
+                
+                if globals.mediaItemSettings == nil {
+                    globals.mediaItemSettings = [String:[String:String]]()
+                }
+                if (globals.mediaItemSettings != nil) {
+                    if (globals.mediaItemSettings?[mediaItem.id] == nil) {
+                        globals.mediaItemSettings?[mediaItem.id] = [String:String]()
                     }
-                    if (globals.mediaItemSettings != nil) {
-                        if (globals.mediaItemSettings?[mediaItem!.id] == nil) {
-                            globals.mediaItemSettings?[mediaItem!.id] = [String:String]()
-                        }
-                        if (globals.mediaItemSettings?[mediaItem!.id]?[key] != newValue) {
-                            //                        print("\(mediaItem)")
-                            globals.mediaItemSettings?[mediaItem!.id]?[key] = newValue
-                            
-                            // For a high volume of activity this can be very expensive.
-                            globals.saveSettingsBackground()
-                        }
-                    } else {
-                        print("globals.settings == nil in Settings!")
+                    if (globals.mediaItemSettings?[mediaItem.id]?[key] != newValue) {
+                        //                        print("\(mediaItem)")
+                        globals.mediaItemSettings?[mediaItem.id]?[key] = newValue
+                        
+                        // For a high volume of activity this can be very expensive.
+                        globals.saveSettingsBackground()
                     }
                 } else {
-                    print("mediaItem == nil in Settings!")
+                    print("globals.settings == nil in Settings!")
                 }
             }
         }
@@ -1305,11 +1400,16 @@ class MediaItem : NSObject {
         
         subscript(key:String) -> String? {
             get {
-                return globals.multiPartSettings?[mediaItem!.seriesID]?[key]
+                guard let mediaItem = mediaItem else {
+                    print("mediaItem == nil in MultiPartSettings!")
+                    return nil
+                }
+                
+                return globals.multiPartSettings?[mediaItem.seriesID]?[key]
             }
             set {
-                guard (mediaItem != nil) else {
-                    print("mediaItem == nil in SeriesSettings!")
+                guard let mediaItem = mediaItem else {
+                    print("mediaItem == nil in MultiPartSettings!")
                     return
                 }
 
@@ -1322,12 +1422,12 @@ class MediaItem : NSObject {
                     return
                 }
                 
-                if (globals.multiPartSettings?[mediaItem!.seriesID] == nil) {
-                    globals.multiPartSettings?[mediaItem!.seriesID] = [String:String]()
+                if (globals.multiPartSettings?[mediaItem.seriesID] == nil) {
+                    globals.multiPartSettings?[mediaItem.seriesID] = [String:String]()
                 }
-                if (globals.multiPartSettings?[mediaItem!.seriesID]?[key] != newValue) {
+                if (globals.multiPartSettings?[mediaItem.seriesID]?[key] != newValue) {
                     //                        print("\(mediaItem)")
-                    globals.multiPartSettings?[mediaItem!.seriesID]?[key] = newValue
+                    globals.multiPartSettings?[mediaItem.seriesID]?[key] = newValue
                     
                     // For a high volume of activity this can be very expensive.
                     globals.saveSettingsBackground()
@@ -1359,17 +1459,17 @@ class MediaItem : NSObject {
         }
     }
     
-    func hasDate() -> Bool
+    var hasDate:Bool
     {
         return (date != nil) && (date != Constants.EMPTY_STRING)
     }
     
-    func hasTitle() -> Bool
+    var hasTitle:Bool
     {
         return (title != nil) && (title != Constants.EMPTY_STRING)
     }
     
-    func playingAudio() -> Bool
+    var playingAudio:Bool
     {
         return (playing == Playing.audio)
     }
@@ -1486,7 +1586,11 @@ class MediaItem : NSObject {
     var hasFavoritesTag:Bool
     {
         get {
-            return hasTags ? tagsSet!.contains(Constants.Favorites) : false
+            if hasTags, let tagsSet = tagsSet {
+                return tagsSet.contains(Constants.Favorites)
+            } else {
+                return false
+            }
         }
     }
 }

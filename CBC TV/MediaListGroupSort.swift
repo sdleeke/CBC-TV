@@ -39,9 +39,13 @@ class StringNode {
         if isLeaf {
             return cumulative
         } else {
+            guard let stringNodes = stringNodes else {
+                return 0
+            }
+            
             var depthsBelow = [Int]()
             
-            for stringNode in stringNodes!.sorted(by: { $0.string < $1.string }) {
+            for stringNode in stringNodes.sorted(by: { $0.string < $1.string }) {
                 depthsBelow.append(stringNode.depthBelow(cumulative + 1))
             }
             
@@ -63,36 +67,36 @@ class StringNode {
         //        }
         
         if wordEnding {
-            if cumulativeString != nil {
-                if string != nil {
-                    print(cumulativeString!+string!)
+            if let cumulativeString = cumulativeString {
+                if let string = string {
+                    print(cumulativeString+string)
                 } else {
-                    print(cumulativeString!)
+                    print(cumulativeString)
                 }
             } else {
-                if string != nil {
-                    print(string!)
+                if let string = string {
+                    print(string)
                 }
             }
             
             //            print("\n")
         }
         
-        guard stringNodes != nil else {
+        guard let stringNodes = stringNodes else {
             return
         }
         
-        for stringNode in stringNodes!.sorted(by: { $0.string < $1.string }) {
+        for stringNode in stringNodes.sorted(by: { $0.string < $1.string }) {
             //            print(string!+"-")
             if cumulativeString != nil {
-                if string != nil {
-                    stringNode.printWords(cumulativeString!+string!+"-")
+                if let string = string {
+                    stringNode.printWords(cumulativeString!+string+"-")
                 } else {
                     stringNode.printWords(cumulativeString!+"-")
                 }
             } else {
-                if string != nil {
-                    stringNode.printWords(string!+"-")
+                if let string = string {
+                    stringNode.printWords(string+"-")
                 } else {
                     stringNode.printWords(nil)
                 }
@@ -164,7 +168,7 @@ class StringNode {
     
     func addStringNode(_ newString:String?)
     {
-        guard (newString != nil) else {
+        guard let newString = newString else {
             return
         }
 
@@ -180,13 +184,15 @@ class StringNode {
         
         var foundNode:StringNode?
         
-        var isEmpty = fragment!.isEmpty
+        var isEmpty = fragment.isEmpty
         
         while !isEmpty {
-            for stringNode in stringNodes!.sorted(by: { $0.string < $1.string }) {
-                if stringNode.string?.endIndex >= fragment!.endIndex, stringNode.string?.substring(to: fragment!.endIndex) == fragment {
-                    foundNode = stringNode
-                    break
+            if let stringNodes = stringNodes?.sorted(by: { $0.string < $1.string }) {
+                for stringNode in stringNodes {
+                    if stringNode.string?.endIndex >= fragment.endIndex, stringNode.string?.substring(to: fragment.endIndex) == fragment {
+                        foundNode = stringNode
+                        break
+                    }
                 }
             }
             
@@ -194,13 +200,9 @@ class StringNode {
                 break
             }
             
-            fragment = fragment!.substring(to: fragment!.index(before: fragment!.endIndex))
+            fragment = fragment.substring(to: fragment.index(before: fragment.endIndex))
             
-            if fragment != nil {
-                isEmpty = fragment!.isEmpty
-            } else {
-                isEmpty = true
-            }
+            isEmpty = fragment.isEmpty
         }
         
         if foundNode != nil {
@@ -215,7 +217,7 @@ class StringNode {
     
     func addString(_ newString:String?)
     {
-        guard let stringEmpty = newString?.isEmpty, !stringEmpty else {
+        guard let newString = newString, !newString.isEmpty else {
             return
         }
 
@@ -249,28 +251,20 @@ class StringNode {
         
         var fragment = newString
         
-        var isEmpty = fragment!.isEmpty
+        var isEmpty = fragment.isEmpty
         
         while !isEmpty {
-            if string?.endIndex >= fragment!.endIndex, string?.substring(to: fragment!.endIndex) == fragment {
+            if string?.endIndex >= fragment.endIndex, string?.substring(to: fragment.endIndex) == fragment {
                 break
             }
 
-            fragment = fragment!.substring(to: fragment!.index(before: fragment!.endIndex))
+            fragment = fragment.substring(to: fragment.index(before: fragment.endIndex))
 
-            if fragment != nil {
-                isEmpty = fragment!.isEmpty
-            } else {
-                isEmpty = true
-            }
+            isEmpty = fragment.isEmpty
         }
         
         if !isEmpty {
-            let stringRemainder = string?.substring(from: fragment!.endIndex)
-
-            let newStringRemainder = newString?.substring(from: fragment!.endIndex)
-            
-            if let isEmpty = stringRemainder?.isEmpty, !isEmpty {
+            if let stringRemainder = string?.substring(from: fragment.endIndex), !stringRemainder.isEmpty {
                 let newNode = StringNode(stringRemainder)
                 newNode.stringNodes = stringNodes
                 
@@ -288,7 +282,9 @@ class StringNode {
                 stringNodes = [newNode]
             }
             
-            if let isEmpty = newStringRemainder?.isEmpty, !isEmpty {
+            let newStringRemainder = newString.substring(from: fragment.endIndex)
+            
+            if !newStringRemainder.isEmpty {
                 addStringNode(newStringRemainder)
             } else {
                 wordEnding = true
@@ -341,26 +337,30 @@ class MediaListGroupSort {
             
         }
         didSet {
-            if (list != nil) {
-                index = [String:MediaItem]()
+            guard let list = list else {
+                return
+            }
+            
+            index = [String:MediaItem]()
+            
+            for mediaItem in list {
+                if let id = mediaItem.id {
+                    index?[id] = mediaItem
+                }
                 
-                for mediaItem in list! {
-                    index![mediaItem.id!] = mediaItem
-                    
-                    if let className = mediaItem.className {
-                        if classes == nil {
-                            classes = [className]
-                        } else {
-                            classes?.append(className)
-                        }
+                if let className = mediaItem.className {
+                    if classes == nil {
+                        classes = [className]
+                    } else {
+                        classes?.append(className)
                     }
-                    
-                    if let eventName = mediaItem.eventName {
-                        if events == nil {
-                            events = [eventName]
-                        } else {
-                            events?.append(eventName)
-                        }
+                }
+                
+                if let eventName = mediaItem.eventName {
+                    if events == nil {
+                        events = [eventName]
+                    } else {
+                        events?.append(eventName)
                     }
                 }
             }
@@ -388,10 +388,8 @@ class MediaListGroupSort {
                     var possibleTag = tag
                     
                     if possibleTag.range(of: "-") != nil {
-                        while possibleTag.range(of: "-") != nil {
-                            let range = possibleTag.range(of: "-")
-                            
-                            let candidate = possibleTag.substring(to: range!.lowerBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                        while let range = possibleTag.range(of: "-") {
+                            let candidate = possibleTag.substring(to: range.lowerBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                             
                             if (Int(candidate) == nil) && !tags.contains(candidate) {
                                 if let count = possibleTags[candidate] {
@@ -401,7 +399,7 @@ class MediaListGroupSort {
                                 }
                             }
 
-                            possibleTag = possibleTag.substring(from: range!.upperBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                            possibleTag = possibleTag.substring(from: range.upperBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                         }
                         
                         if !possibleTag.isEmpty {
@@ -442,25 +440,29 @@ class MediaListGroupSort {
     
     func sortGroup(_ grouping:String?)
     {
-        guard (list != nil) else {
+        guard let grouping = grouping else {
+            return
+        }
+        
+        guard let list = list else {
             return
         }
         
         var groupedMediaItems = [String:[String:[MediaItem]]]()
         
-        for mediaItem in list! {
+        for mediaItem in list {
             var entries:[(string:String,name:String)]?
             
-            switch grouping! {
-            case Grouping.YEAR:
+            switch grouping {
+            case GROUPING.YEAR:
                 entries = [(mediaItem.yearString,mediaItem.yearString)]
                 break
                 
-            case Grouping.TITLE:
+            case GROUPING.TITLE:
                 entries = [(mediaItem.multiPartSectionSort,mediaItem.multiPartSection)]
                 break
                 
-            case Grouping.BOOK:
+            case GROUPING.BOOK:
                 // Need to update this for the fact that mediaItems can have more than one book.
                 if let books = mediaItem.books {
                     for book in books {
@@ -483,15 +485,15 @@ class MediaListGroupSort {
                 //                }
                 break
                 
-            case Grouping.SPEAKER:
+            case GROUPING.SPEAKER:
                 entries = [(mediaItem.speakerSectionSort,mediaItem.speakerSection)]
                 break
                 
-            case Grouping.CLASS:
+            case GROUPING.CLASS:
                 entries = [(mediaItem.classSectionSort,mediaItem.classSection)]
                 break
                 
-            case Grouping.EVENT:
+            case GROUPING.EVENT:
                 entries = [(mediaItem.eventSectionSort,mediaItem.eventSection)]
                 break
                 
@@ -499,45 +501,45 @@ class MediaListGroupSort {
                 break
             }
             
-            if (groupNames?[grouping!] == nil) {
-                groupNames?[grouping!] = [String:String]()
+            if (groupNames?[grouping] == nil) {
+                groupNames?[grouping] = [String:String]()
             }
             
-            if entries != nil {
-                for entry in entries! {
-                    groupNames?[grouping!]?[entry.string] = entry.name
+            if let entries = entries {
+                for entry in entries {
+                    groupNames?[grouping]?[entry.string] = entry.name
                     
-                    if (groupedMediaItems[grouping!] == nil) {
-                        groupedMediaItems[grouping!] = [String:[MediaItem]]()
+                    if (groupedMediaItems[grouping] == nil) {
+                        groupedMediaItems[grouping] = [String:[MediaItem]]()
                     }
                     
-                    if groupedMediaItems[grouping!]?[entry.string] == nil {
-                        groupedMediaItems[grouping!]?[entry.string] = [mediaItem]
+                    if groupedMediaItems[grouping]?[entry.string] == nil {
+                        groupedMediaItems[grouping]?[entry.string] = [mediaItem]
                     } else {
-                        groupedMediaItems[grouping!]?[entry.string]?.append(mediaItem)
+                        groupedMediaItems[grouping]?[entry.string]?.append(mediaItem)
                     }
                 }
             }
         }
         
-        if (groupSort?[grouping!] == nil) {
-            groupSort?[grouping!] = [String:[String:[MediaItem]]]()
+        if (groupSort?[grouping] == nil) {
+            groupSort?[grouping] = [String:[String:[MediaItem]]]()
         }
-        if (groupedMediaItems[grouping!] != nil) {
-            for string in groupedMediaItems[grouping!]!.keys {
-                if (groupSort?[grouping!]?[string] == nil) {
-                    groupSort?[grouping!]?[string] = [String:[MediaItem]]()
+        if let keys = groupedMediaItems[grouping]?.keys {
+            for string in keys {
+                if (groupSort?[grouping]?[string] == nil) {
+                    groupSort?[grouping]?[string] = [String:[MediaItem]]()
                 }
                 for sort in Constants.sortings {
-                    let array = sortMediaItemsChronologically(groupedMediaItems[grouping!]?[string])
+                    let array = sortMediaItemsChronologically(groupedMediaItems[grouping]?[string])
                     
                     switch sort {
-                    case Sorting.CHRONOLOGICAL:
-                        groupSort?[grouping!]?[string]?[sort] = array
+                    case SORTING.CHRONOLOGICAL:
+                        groupSort?[grouping]?[string]?[sort] = array
                         break
                         
-                    case Sorting.REVERSE_CHRONOLOGICAL:
-                        groupSort?[grouping!]?[string]?[sort] = array?.reversed()
+                    case SORTING.REVERSE_CHRONOLOGICAL:
+                        groupSort?[grouping]?[string]?[sort] = array?.reversed()
                         break
                         
                     default:
@@ -550,27 +552,34 @@ class MediaListGroupSort {
     
     func mediaItems(grouping:String?,sorting:String?) -> [MediaItem]?
     {
+        guard let grouping = grouping else {
+            return nil
+        }
+        
+        guard let sorting = sorting else {
+            return nil
+        }
+        
         var groupedSortedMediaItems:[MediaItem]?
         
         if (groupSort == nil) {
             return nil
         }
         
-        if (groupSort?[grouping!] == nil) {
+        if (groupSort?[grouping] == nil) {
             sortGroup(grouping)
         }
         
         //        print("\(groupSort)")
-        if (groupSort![grouping!] != nil) {
-            for key in groupSort![grouping!]!.keys.sorted(
+        if let keys = groupSort?[grouping]?.keys.sorted(
                 by: {
-                    switch grouping! {
-                    case Grouping.YEAR:
-                        switch sorting! {
-                        case Sorting.CHRONOLOGICAL:
+                    switch grouping {
+                    case GROUPING.YEAR:
+                        switch sorting {
+                        case SORTING.CHRONOLOGICAL:
                             return $0 < $1
                             
-                        case Sorting.REVERSE_CHRONOLOGICAL:
+                        case SORTING.REVERSE_CHRONOLOGICAL:
                             return $1 < $0
                             
                         default:
@@ -578,7 +587,7 @@ class MediaListGroupSort {
                         }
                         break
                         
-                    case Grouping.BOOK:
+                    case GROUPING.BOOK:
                         if (bookNumberInBible($0) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) && (bookNumberInBible($1) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) {
                             return stringWithoutPrefixes($0) < stringWithoutPrefixes($1)
                         } else {
@@ -591,12 +600,13 @@ class MediaListGroupSort {
                     
                     return $0 < $1
             }) {
-                let mediaItems = groupSort?[grouping!]?[key]?[sorting!]
-                
-                if (groupedSortedMediaItems == nil) {
-                    groupedSortedMediaItems = mediaItems
-                } else {
-                    groupedSortedMediaItems?.append(contentsOf: mediaItems!)
+            for key in keys {
+                if let mediaItems = groupSort?[grouping]?[key]?[sorting] {
+                    if (groupedSortedMediaItems == nil) {
+                        groupedSortedMediaItems = mediaItems
+                    } else {
+                        groupedSortedMediaItems?.append(contentsOf: mediaItems)
+                    }
                 }
             }
         }
@@ -644,14 +654,22 @@ class MediaListGroupSort {
     
     func sectionIndexTitles(grouping:String?,sorting:String?) -> [String]?
     {
-        return groupSort?[grouping!]?.keys.sorted(by: {
-            switch grouping! {
-            case Grouping.YEAR:
-                switch sorting! {
-                case Sorting.CHRONOLOGICAL:
+        guard let grouping = grouping else {
+            return nil
+        }
+        
+        guard let sorting = sorting else {
+            return nil
+        }
+        
+        return groupSort?[grouping]?.keys.sorted(by: {
+            switch grouping {
+            case GROUPING.YEAR:
+                switch sorting {
+                case SORTING.CHRONOLOGICAL:
                     return $0 < $1
                     
-                case Sorting.REVERSE_CHRONOLOGICAL:
+                case SORTING.REVERSE_CHRONOLOGICAL:
                     return $1 < $0
                     
                 default:
@@ -659,7 +677,7 @@ class MediaListGroupSort {
                 }
                 break
                 
-            case Grouping.BOOK:
+            case GROUPING.BOOK:
                 if (bookNumberInBible($0) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) && (bookNumberInBible($1) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) {
                     return stringWithoutPrefixes($0) < stringWithoutPrefixes($1)
                 } else {
@@ -676,21 +694,41 @@ class MediaListGroupSort {
     
     func sectionTitles(grouping:String?,sorting:String?) -> [String]?
     {
+        guard let grouping = grouping else {
+            return nil
+        }
+        
+        guard let sorting = sorting else {
+            return nil
+        }
+        
         return sectionIndexTitles(grouping: grouping,sorting: sorting)?.map({ (string:String) -> String in
-            return groupNames![grouping!]![string]!
+            if let string = groupNames?[grouping]?[string] {
+                return string
+            } else {
+                return "ERROR"
+            }
         })
     }
     
     func sectionCounts(grouping:String?,sorting:String?) -> [Int]?
     {
-        return groupSort?[grouping!]?.keys.sorted(by: {
-            switch grouping! {
-            case Grouping.YEAR:
-                switch sorting! {
-                case Sorting.CHRONOLOGICAL:
+        guard let grouping = grouping else {
+            return nil
+        }
+        
+        guard let sorting = sorting else {
+            return nil
+        }
+        
+        return groupSort?[grouping]?.keys.sorted(by: {
+            switch grouping {
+            case GROUPING.YEAR:
+                switch sorting {
+                case SORTING.CHRONOLOGICAL:
                     return $0 < $1
                     
-                case Sorting.REVERSE_CHRONOLOGICAL:
+                case SORTING.REVERSE_CHRONOLOGICAL:
                     return $1 < $0
                     
                 default:
@@ -698,7 +736,7 @@ class MediaListGroupSort {
                 }
                 break
                 
-            case Grouping.BOOK:
+            case GROUPING.BOOK:
                 if (bookNumberInBible($0) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) && (bookNumberInBible($1) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) {
                     return stringWithoutPrefixes($0) < stringWithoutPrefixes($1)
                 } else {
@@ -711,7 +749,11 @@ class MediaListGroupSort {
             
             return $0 < $1
         }).map({ (string:String) -> Int in
-            return groupSort![grouping!]![string]![sorting!]!.count
+            if let num = groupSort?[grouping]?[string]?[sorting]?.count {
+                return num
+            } else {
+                return -1 // ERROR
+            }
         })
     }
     
@@ -723,16 +765,24 @@ class MediaListGroupSort {
     
     func sectionIndexes(grouping:String?,sorting:String?) -> [Int]?
     {
+        guard let grouping = grouping else {
+            return nil
+        }
+        
+        guard let sorting = sorting else {
+            return nil
+        }
+        
         var cumulative = 0
         
-        return groupSort?[grouping!]?.keys.sorted(by: {
-            switch grouping! {
-            case Grouping.YEAR:
-                switch sorting! {
-                case Sorting.CHRONOLOGICAL:
+        return groupSort?[grouping]?.keys.sorted(by: {
+            switch grouping {
+            case GROUPING.YEAR:
+                switch sorting {
+                case SORTING.CHRONOLOGICAL:
                     return $0 < $1
                     
-                case Sorting.REVERSE_CHRONOLOGICAL:
+                case SORTING.REVERSE_CHRONOLOGICAL:
                     return $1 < $0
                     
                 default:
@@ -740,7 +790,7 @@ class MediaListGroupSort {
                 }
                 break
                 
-            case Grouping.BOOK:
+            case GROUPING.BOOK:
                 if (bookNumberInBible($0) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) && (bookNumberInBible($1) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) {
                     return stringWithoutPrefixes($0) < stringWithoutPrefixes($1)
                 } else {
@@ -755,7 +805,9 @@ class MediaListGroupSort {
         }).map({ (string:String) -> Int in
             let prior = cumulative
             
-            cumulative += groupSort![grouping!]![string]![sorting!]!.count
+            if let count = groupSort?[grouping]?[string]?[sorting]?.count {
+                cumulative += count
+            }
             
             return prior
         })
@@ -784,18 +836,19 @@ class MediaListGroupSort {
         for mediaItem in list! {
             if let tags =  mediaItem.tagsSet {
                 for tag in tags {
-                    let sortTag = stringWithoutPrefixes(tag)
-                    
-                    if sortTag == "" {
-                        print(sortTag as Any)
+                    if let sortTag = stringWithoutPrefixes(tag) {
+                        if sortTag == "" {
+                            print(sortTag as Any)
+                        }
+                        
+                        if tagMediaItems?[sortTag] == nil {
+                            tagMediaItems?[sortTag] = [mediaItem]
+                        } else {
+                            tagMediaItems?[sortTag]?.append(mediaItem)
+                        }
+                        
+                        tagNames?[sortTag] = tag
                     }
-
-                    if tagMediaItems?[sortTag!] == nil {
-                        tagMediaItems?[sortTag!] = [mediaItem]
-                    } else {
-                        tagMediaItems?[sortTag!]?.append(mediaItem)
-                    }
-                    tagNames?[sortTag!] = tag
                 }
             }
         }
