@@ -4,6 +4,10 @@
       "idiom" : "tv",
       "filename" : "cbc_tvos_1920w_720h.png",
       "scale" : "1x"
+    },
+    {
+      "idiom" : "tv",
+      "scale" : "2x"
     }
   ],
   "info" : {

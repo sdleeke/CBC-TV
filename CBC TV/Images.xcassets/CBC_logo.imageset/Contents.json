@@ -2,8 +2,8 @@
   "images" : [
     {
       "idiom" : "universal",
-      "scale" : "1x",
-      "filename" : "CBC_logo.png"
+      "filename" : "CBC_logo.png",
+      "scale" : "1x"
     },
     {
       "idiom" : "universal",

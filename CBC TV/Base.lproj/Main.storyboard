@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.AppleTV.Storyboard" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="fjG-bv-b16">
+<document type="com.apple.InterfaceBuilder.AppleTV.Storyboard" version="3.0" toolsVersion="13196" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="fjG-bv-b16">
     <device id="appleTV" orientation="landscape">
         <adaptation id="light"/>
     </device>
     <dependencies>
         <deployment identifier="tvOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -18,23 +18,23 @@
         <!--MediaViewController-->
         <scene sceneID="cqx-oo-CmS">
             <objects>
-                <viewController id="eoF-45-Jpy" userLabel="MediaViewController" customClass="MediaViewController" customModule="CBC_TV" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="eoF-45-Jpy" userLabel="MediaViewController" customClass="MediaViewController" customModule="CBC_TV" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="XqE-jK-TLy"/>
                         <viewControllerLayoutGuide type="bottom" id="IEB-vr-fEM"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="9de-v0-CO1">
-                        <rect key="frame" x="0.0" y="0.0" width="1285" height="1080"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1285" height="935"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LuE-cy-1Wa" userLabel="PlayerView">
-                                <rect key="frame" x="0.0" y="145" width="1225" height="685"/>
+                                <rect key="frame" x="0.0" y="0.0" width="1225" height="625"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="cbc_tvos_1920w_720h" translatesAutoresizingMaskIntoConstraints="NO" id="hbW-Lj-QfV">
-                                        <rect key="frame" x="-347" y="-17" width="1920" height="720"/>
+                                        <rect key="frame" x="-347" y="-47" width="1920" height="720"/>
                                     </imageView>
                                     <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="34a-JN-ibX">
-                                        <rect key="frame" x="580" y="311" width="64" height="64"/>
+                                        <rect key="frame" x="580" y="281" width="64" height="64"/>
                                     </activityIndicatorView>
                                 </subviews>
                                 <constraints>
@@ -45,7 +45,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="by6-PB-5qp" userLabel="ControlView">
-                                <rect key="frame" x="0.0" y="830" width="1225" height="85"/>
+                                <rect key="frame" x="0.0" y="625" width="1225" height="85"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="ZgL-LS-mEN">
                                         <rect key="frame" x="0.0" y="11" width="380" height="64"/>
@@ -141,17 +141,17 @@
                                 </constraints>
                             </view>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Elw-6g-g1A" userLabel="ListView">
-                                <rect key="frame" x="0.0" y="915" width="1225" height="125"/>
+                                <rect key="frame" x="0.0" y="710" width="1225" height="125"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="115" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="j8f-cl-eHE">
                                         <rect key="frame" x="20" y="0.0" width="1185" height="125"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <prototypes>
-                                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="MultiPartMediaItem" id="tCO-gH-QHt" customClass="MediaTableViewCell" customModule="CBC_TV" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="22" width="1185" height="115"/>
+                                            <tableViewCell contentMode="scaleToFill" misplaced="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="MultiPartMediaItem" id="tCO-gH-QHt" customClass="MediaTableViewCell" customModule="CBC_TV" customModuleProvider="target">
+                                                <rect key="frame" x="0.0" y="22" width="1175" height="115"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="tCO-gH-QHt" id="4rm-ah-AG6">
-                                                    <rect key="frame" x="0.0" y="0.0" width="1169" height="115"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="1175" height="115"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Skp-n3-B3J" userLabel="Title">
@@ -228,7 +228,7 @@
                             <constraint firstItem="Elw-6g-g1A" firstAttribute="leading" secondItem="9de-v0-CO1" secondAttribute="leading" id="wSt-eg-Qfu"/>
                         </constraints>
                     </view>
-                    <extendedEdge key="edgesForExtendedLayout" top="YES"/>
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <navigationItem key="navigationItem" id="LDS-ad-wo4"/>
                     <connections>
                         <outlet property="activityIndicator" destination="34a-JN-ibX" id="dpM-av-SbW"/>
@@ -254,17 +254,17 @@
         <!--Live View Controller-->
         <scene sceneID="sbL-g6-DHU">
             <objects>
-                <viewController id="grX-2e-3fv" customClass="LiveViewController" customModule="CBC_TV" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="grX-2e-3fv" customClass="LiveViewController" customModule="CBC_TV" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="PXF-iu-NLT"/>
                         <viewControllerLayoutGuide type="bottom" id="bby-fp-OSZ"/>
                     </layoutGuides>
                     <view key="view" userInteractionEnabled="NO" contentMode="scaleToFill" id="g8O-xL-hPT">
-                        <rect key="frame" x="0.0" y="0.0" width="1285" height="1080"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1285" height="935"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Image 5-20-17 at 9.43 AM" translatesAutoresizingMaskIntoConstraints="NO" id="G13-pL-cW0">
-                                <rect key="frame" x="-688" y="290" width="2661" height="500"/>
+                                <rect key="frame" x="-688" y="218" width="2661" height="500"/>
                             </imageView>
                         </subviews>
                         <constraints>
@@ -272,6 +272,7 @@
                             <constraint firstItem="G13-pL-cW0" firstAttribute="centerY" secondItem="g8O-xL-hPT" secondAttribute="centerY" id="uBz-6e-YiN"/>
                         </constraints>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <navigationItem key="navigationItem" id="4nE-NM-iN3"/>
                     <connections>
                         <outlet property="logo" destination="G13-pL-cW0" id="TI6-EE-2gn"/>
@@ -284,13 +285,13 @@
         <!--Media Table View Controller-->
         <scene sceneID="r6K-q7-hPH">
             <objects>
-                <viewController id="W2y-Db-Rod" customClass="MediaTableViewController" customModule="CBC_TV" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="W2y-Db-Rod" customClass="MediaTableViewController" customModule="CBC_TV" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="fGO-nI-jpY"/>
                         <viewControllerLayoutGuide type="bottom" id="nCB-1i-BUn"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="gjB-Um-sSL">
-                        <rect key="frame" x="0.0" y="145" width="634" height="935"/>
+                        <rect key="frame" x="0.0" y="0.0" width="634" height="935"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="W4q-GS-uc3">
@@ -303,7 +304,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Series" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6yP-W7-Uzx">
-                                        <rect key="frame" x="276" y="62" width="83" height="55"/>
+                                        <rect key="frame" x="276" y="62" width="82" height="55"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -319,17 +320,17 @@
                                 </constraints>
                             </view>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0Hz-rA-e0K">
-                                <rect key="frame" x="60" y="125" width="574" height="770"/>
+                                <rect key="frame" x="60" y="125" width="574" height="710"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="200" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="DQ7-oR-S4I">
-                                        <rect key="frame" x="20" y="0.0" width="534" height="770"/>
+                                        <rect key="frame" x="20" y="0.0" width="534" height="710"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <prototypes>
-                                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="MediaItem" id="qEJ-3N-Uu1" customClass="MediaTableViewCell" customModule="CBC_TV" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="22" width="534" height="200"/>
+                                            <tableViewCell contentMode="scaleToFill" misplaced="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="MediaItem" id="qEJ-3N-Uu1" customClass="MediaTableViewCell" customModule="CBC_TV" customModuleProvider="target">
+                                                <rect key="frame" x="0.0" y="22" width="524" height="200"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="qEJ-3N-Uu1" id="fdk-Cw-gAD">
-                                                    <rect key="frame" x="0.0" y="0.0" width="518" height="200"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="524" height="200"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JGu-HJ-lZ9" userLabel="Title">
@@ -420,7 +421,8 @@
         <!--Split View Controller-->
         <scene sceneID="ZRe-X9-mhB">
             <objects>
-                <splitViewController id="fjG-bv-b16" sceneMemberID="viewController">
+                <splitViewController extendedLayoutIncludesOpaqueBars="YES" automaticallyAdjustsScrollViewInsets="NO" id="fjG-bv-b16" sceneMemberID="viewController">
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <connections>
                         <segue destination="acA-zG-clo" kind="relationship" relationship="detailViewController" id="T0N-F5-cGh"/>
                         <segue destination="Zox-y1-0KV" kind="relationship" relationship="masterViewController" id="Ago-ve-DIP"/>
@@ -433,7 +435,7 @@
         <!--Loading View Controller-->
         <scene sceneID="87Y-L8-Aev">
             <objects>
-                <viewController storyboardIdentifier="Loading View Controller" id="6eT-kv-GT8" userLabel="Loading View Controller" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Loading View Controller" automaticallyAdjustsScrollViewInsets="NO" id="6eT-kv-GT8" userLabel="Loading View Controller" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="e8J-1p-izJ"/>
                         <viewControllerLayoutGuide type="bottom" id="c9V-KK-1kk"/>
@@ -469,6 +471,7 @@
                             <constraint firstItem="bXy-ZR-g0s" firstAttribute="centerY" secondItem="ktu-bL-dU6" secondAttribute="centerY" id="4Og-dH-kHh"/>
                         </constraints>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cgy-fh-r3j" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -481,7 +484,7 @@
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" id="0Xt-Er-wdv">
-                        <rect key="frame" x="0.0" y="0.0" width="1920" height="145"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1285" height="145"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -497,9 +500,10 @@
         <scene sceneID="qLf-iD-ynr">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Zox-y1-0KV" sceneMemberID="viewController">
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" id="gu1-uk-fTr">
-                        <rect key="frame" x="0.0" y="0.0" width="1920" height="145"/>
+                        <rect key="frame" x="0.0" y="0.0" width="634" height="145"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -515,9 +519,10 @@
         <scene sceneID="eLk-2x-Ypu">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="N1e-TV-i7D" sceneMemberID="viewController">
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" id="Fz6-Cd-ntJ">
-                        <rect key="frame" x="0.0" y="0.0" width="1920" height="145"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1285" height="145"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -532,17 +537,17 @@
         <!--About 2-->
         <scene sceneID="TCu-xD-azM">
             <objects>
-                <viewController title="About 2" id="vl8-4l-0Uf" customClass="AboutViewController" customModule="CBC_TV" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="About 2" automaticallyAdjustsScrollViewInsets="NO" id="vl8-4l-0Uf" customClass="AboutViewController" customModule="CBC_TV" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="FW9-YW-KS9"/>
                         <viewControllerLayoutGuide type="bottom" id="AxF-Fs-nng"/>
                     </layoutGuides>
                     <view key="view" userInteractionEnabled="NO" contentMode="scaleToFill" id="Xni-g0-mYe">
-                        <rect key="frame" x="0.0" y="145" width="1285" height="935"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1285" height="935"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalCompressionResistancePriority="749" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3as-WO-S1A">
-                                <rect key="frame" x="0.0" y="0.0" width="1225" height="485"/>
+                                <rect key="frame" x="0.0" y="0.0" width="1225" height="425"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="60" id="DrA-cP-L0H"/>
                                     <constraint firstAttribute="height" constant="227" id="Qs3-tR-wfb"/>
@@ -569,13 +574,13 @@ Web site: www.countrysidebible.org</string>
                                 </variation>
                             </textView>
                             <mapView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" mapType="standard" zoomEnabled="NO" scrollEnabled="NO" rotateEnabled="NO" pitchEnabled="NO" showsBuildings="NO" showsPointsOfInterest="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cMc-vz-XHR">
-                                <rect key="frame" x="0.0" y="485" width="1225" height="450"/>
+                                <rect key="frame" x="0.0" y="425" width="1225" height="450"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="450" id="Fbz-B7-5UX"/>
                                 </constraints>
                             </mapView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sgw-vW-0GC">
-                                <rect key="frame" x="1234" y="906" width="31" height="21"/>
+                                <rect key="frame" x="1234" y="846" width="31" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="WEd-Lu-hti"/>
                                 </constraints>
@@ -611,9 +616,10 @@ Web site: www.countrysidebible.org</string>
         <scene sceneID="OSt-AW-DLO">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="6hr-yT-gFH" sceneMemberID="viewController">
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" id="EQi-17-Q2v">
-                        <rect key="frame" x="0.0" y="0.0" width="1920" height="145"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1285" height="145"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -628,27 +634,27 @@ Web site: www.countrysidebible.org</string>
         <!--Popover Table View Controller-->
         <scene sceneID="ozY-Wv-NBC">
             <objects>
-                <viewController storyboardIdentifier="PopoverTableView" id="9eb-C8-486" customClass="PopoverTableViewController" customModule="CBC_TV" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PopoverTableView" automaticallyAdjustsScrollViewInsets="NO" id="9eb-C8-486" customClass="PopoverTableViewController" customModule="CBC_TV" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Vwu-4P-F03"/>
                         <viewControllerLayoutGuide type="bottom" id="Zhx-46-RsX"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="xCl-BI-6qm">
-                        <rect key="frame" x="0.0" y="145" width="1920" height="935"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1920" height="935"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="100" sectionHeaderHeight="20" sectionFooterHeight="20" translatesAutoresizingMaskIntoConstraints="NO" id="xlW-AE-J6b">
-                                <rect key="frame" x="60" y="60" width="1800" height="815"/>
+                                <rect key="frame" x="60" y="60" width="1800" height="755"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="1800" id="KE0-tz-0bk"/>
                                 </constraints>
                                 <prototypes>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" accessoryType="checkmark" indentationWidth="10" reuseIdentifier="PopoverCell" id="3hg-7R-BZl" customClass="PopoverTableViewCell" customModule="CBC_TV" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="20" width="1800" height="100"/>
+                                    <tableViewCell contentMode="scaleToFill" misplaced="YES" selectionStyle="default" accessoryType="checkmark" indentationWidth="10" reuseIdentifier="PopoverCell" id="3hg-7R-BZl" customClass="PopoverTableViewCell" customModule="CBC_TV" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="20" width="1740" height="100"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="3hg-7R-BZl" id="EYT-ec-FRL">
-                                            <rect key="frame" x="0.0" y="0.0" width="1711" height="100"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="1667" height="100"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="f0A-Wy-tfT">
@@ -692,7 +698,9 @@ Web site: www.countrysidebible.org</string>
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
+                                <exclude reference="3Rd-G0-IRj"/>
                                 <exclude reference="9hC-17-kHv"/>
+                                <exclude reference="VpM-Nt-ph1"/>
                             </mask>
                         </variation>
                     </view>
@@ -712,6 +720,7 @@ Web site: www.countrysidebible.org</string>
         <scene sceneID="T4C-Mr-9P6">
             <objects>
                 <navigationController storyboardIdentifier="PopoverTableViewNav" automaticallyAdjustsScrollViewInsets="NO" id="bSq-JL-pU9" sceneMemberID="viewController">
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="YK7-4F-gys">
                         <rect key="frame" x="0.0" y="0.0" width="1920" height="145"/>

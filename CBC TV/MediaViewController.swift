@@ -1007,12 +1007,20 @@ class MediaViewController: UIViewController
                 }
             }
 
-            audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: UIFont(name: "FontAwesome", size: 24.0)! ], for: .normal) // Constants.FA.Fonts.Attributes.icons
-            audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: UIFont(name: "FontAwesome", size: 32.0)! ], for: .selected) // Constants.FA.Fonts.Attributes.icons
-            audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: UIFont(name: "FontAwesome", size: 40.0)! ], for: .focused) // Constants.FA.Fonts.Attributes.icons
-            
-            audioOrVideoControl.setTitle(Constants.FA.AUDIO, forSegmentAt: Constants.AV_SEGMENT_INDEX.AUDIO) // Audio
+            if let font = UIFont(name: "FontAwesome", size: 28.0) {
+                audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: font ], for: .normal) // Constants.FA.Fonts.Attributes.icons
+            }
+            if let font = UIFont(name: "FontAwesome", size: 34.0) {
+                audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: font ], for: .selected) // Constants.FA.Fonts.Attributes.icons
+            }
+            if let font = UIFont(name: "FontAwesome", size: 40.0) {
+                audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: font ], for: .focused) // Constants.FA.Fonts.Attributes.icons
+            }
+            if let font = UIFont(name: "FontAwesome", size: 28.0) {
+                audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: font ], for: .highlighted) // Constants.FA.Fonts.Attributes.icons
+            }
 
+            audioOrVideoControl.setTitle(Constants.FA.AUDIO, forSegmentAt: Constants.AV_SEGMENT_INDEX.AUDIO) // Audio
             audioOrVideoControl.setTitle(Constants.FA.VIDEO, forSegmentAt: Constants.AV_SEGMENT_INDEX.VIDEO) // Video
         } else {
             audioOrVideoControl.isEnabled = false
