@@ -34,6 +34,7 @@ class PopoverTableViewController : UIViewController
     @IBOutlet weak var tableView: UITableView! {
         didSet {
             tableView.mask = nil
+            tableView.backgroundColor = UIColor.clear
         }
     }
     
@@ -65,12 +66,12 @@ class PopoverTableViewController : UIViewController
             return
         }
         
-        guard (section.strings != nil) else {
+        guard let strings = section.strings else {
             return
         }
         
         let margins:CGFloat = 2
-        let marginSpace:CGFloat = 9
+        let marginSpace:CGFloat = 15
         
         let indexSpace:CGFloat = 40
         
@@ -100,7 +101,7 @@ class PopoverTableViewController : UIViewController
         
         //        print(strings)
         
-        for string in self.section.strings! {
+        for string in strings {
             let string = string.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.UNBREAKABLE_SPACE)
             
             let maxWidth = string.boundingRect(with: widthSize, options: .usesLineFragmentOrigin, attributes: Constants.Fonts.Attributes.bold, context: nil)
@@ -434,12 +435,12 @@ extension PopoverTableViewController : UITableViewDataSource
         
         cell.accessoryType = .none
         
-        guard purpose != nil else {
+        guard let purpose = purpose else {
             cell.title.attributedText = NSAttributedString(string:string,attributes:Constants.Fonts.Attributes.normal)
             return cell
         }
         
-        switch purpose! {
+        switch purpose {
         case .selectingCategory:
             if (globals.mediaCategory.names?[index] == globals.mediaCategory.selected) {
                 cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.boldGrey)

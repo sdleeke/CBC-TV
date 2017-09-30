@@ -565,7 +565,7 @@ class MediaItem : NSObject {
 
     func singleJSONFromURL() -> [String:String]?
     {
-        guard globals.reachability.currentReachabilityStatus != .notReachable else {
+        guard globals.reachability.isReachable else { // currentReachabilityStatus != .notReachable
             return nil
         }
         

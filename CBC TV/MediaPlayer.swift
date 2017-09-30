@@ -470,9 +470,31 @@ class MediaPlayer : NSObject {
     func checkDidPlayToEnd()
     {
         // didPlayToEnd observer doesn't always work.  This seemds to catch the cases where it doesn't.
-        if let currentTime = currentTime?.seconds,
-            let duration = duration?.seconds,
-            Int(currentTime) >= Int(duration) {
+        guard let currentTime = currentTime?.seconds else {
+            return
+        }
+        
+        guard !currentTime.isNaN else {
+            return
+        }
+        
+        guard currentTime != .infinity else {
+            return
+        }
+        
+        guard let duration = duration?.seconds else {
+            return
+        }
+        
+        guard !duration.isNaN else {
+            return
+        }
+        
+        guard duration != .infinity else {
+            return
+        }
+        
+        if Int(currentTime) >= Int(duration) {
             didPlayToEnd()
         }
     }

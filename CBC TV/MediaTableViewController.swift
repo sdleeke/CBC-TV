@@ -112,7 +112,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
 //                performSegue(withIdentifier: Constants.SEGUE.SHOW_LIVE, sender: self)
                 
                 
-                if globals.streamEntries?.count > 0, globals.reachability.currentReachabilityStatus != .notReachable, //globals.streamEntries?.count > 0,
+                if globals.streamEntries?.count > 0, globals.reachability.isReachable, // currentReachabilityStatus != .notReachable globals.streamEntries?.count > 0,
                     let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
                     let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
                     navigationController.modalPresentationStyle = .fullScreen
@@ -533,6 +533,7 @@ class MediaTableViewController : UIViewController
 
 //            tableView.remembersLastFocusedIndexPath = true
             tableView.mask = nil
+            tableView.backgroundColor = UIColor.clear
         }
     }
     
@@ -1843,7 +1844,7 @@ class MediaTableViewController : UIViewController
                         }
                     }
                     
-                    if globals.streamEntries?.count > 0, globals.reachability.currentReachabilityStatus != .notReachable {
+                    if globals.streamEntries?.count > 0, globals.reachability.isReachable { // currentReachabilityStatus != .notReachable
                         strings.append("Live")
                     }
                     
@@ -2019,6 +2020,10 @@ class MediaTableViewController : UIViewController
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
+        
+        if globals.media.active?.list == nil {
+            tableView.isHidden = true
+        }
         
         addNotifications()
 

@@ -423,6 +423,7 @@ class MediaViewController: UIViewController
     {
         didSet {
             tableView.mask = nil
+            tableView.backgroundColor = UIColor.clear
         }
     }
     
@@ -601,6 +602,7 @@ class MediaViewController: UIViewController
     {
         selectedMediaItem = globals.selectedMediaItem.detail
         
+        tableView.isHidden = false
         tableView.reloadData()
         
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
@@ -1074,6 +1076,10 @@ class MediaViewController: UIViewController
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
+        
+        if mediaItems == nil {
+            tableView.isHidden = true
+        }
 
         guard Thread.isMainThread else {
             return

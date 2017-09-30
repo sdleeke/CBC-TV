@@ -34,7 +34,7 @@ class AboutViewController: UIViewController
         super.viewWillAppear(animated)
         setVersion()
         
-        guard globals.reachability.currentReachabilityStatus != .notReachable else {
+        guard globals.reachability.isReachable else { // currentReachabilityStatus != .notReachable
             mapView.isHidden = true
             return
         }
