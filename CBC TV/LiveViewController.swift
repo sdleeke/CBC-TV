@@ -39,20 +39,18 @@ class LiveViewController: UIViewController
 
     func clearView()
     {
-        DispatchQueue.main.async {
+        Thread.onMainThread {
             globals.mediaPlayer.view?.isHidden = true
-//            self.textView.isHidden = true
             self.logo.isHidden = false
         }
     }
     
     func liveView()
     {
-        DispatchQueue.main.async {
+        Thread.onMainThread {
             self.setupLivePlayerView()
             
             globals.mediaPlayer.view?.isHidden = false
-//            self.textView.isHidden = false
             self.logo.isHidden = true
         }
     }

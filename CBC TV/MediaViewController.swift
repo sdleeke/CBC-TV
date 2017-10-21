@@ -37,9 +37,9 @@ class MediaViewController: UIViewController
     {
         didSet {
             if (preferredFocusView != nil) {
-                DispatchQueue.main.async(execute: { () -> Void in
+                Thread.onMainThread {
                     self.setNeedsFocusUpdate()
-                })
+                }
             }
         }
     }
@@ -47,8 +47,8 @@ class MediaViewController: UIViewController
     override var preferredFocusEnvironments : [UIFocusEnvironment]
         {
         get {
-            if preferredFocusView != nil {
-                return [preferredFocusView!]
+            if let preferredFocusView = preferredFocusView {
+                return [preferredFocusView]
             } else {
                 return [playPauseButton]
             }
@@ -134,7 +134,7 @@ class MediaViewController: UIViewController
                 
                 setupTitle()
                 
-                DispatchQueue.main.async {
+                Thread.onMainThread {
                     NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_UI), object: self.selectedMediaItem) //
                 }
             } else {
@@ -145,13 +145,6 @@ class MediaViewController: UIViewController
             
             if (selectedMediaItem != nil) && (selectedMediaItem == globals.mediaPlayer.mediaItem) {
                 removePlayerObserver()
-                
-//                if globals.mediaPlayer.url != selectedMediaItem?.playingURL {
-//                    updateUI()
-//                }
-                
-                // Crashes because it uses UI and this is done before viewWillAppear when the mediaItemSelected is set in prepareForSegue, but it only happens on an iPhone because the MVC isn't setup already.
-                //                addProgressObserver()
             }
         }
     }
@@ -163,7 +156,6 @@ class MediaViewController: UIViewController
     
     @IBAction func audioOrVideoSelection(sender: UISegmentedControl)
     {
-//        print(selectedMediaItem!.playing!)
         guard Thread.isMainThread else {
             userAlert(title: "Not Main Thread", message: "MediaViewController:audioOrVideoSelection")
             return
@@ -254,7 +246,7 @@ class MediaViewController: UIViewController
         }
     }
 
-    @IBOutlet weak var playPauseButton: UIButton! // UIButton!
+    @IBOutlet weak var playPauseButton: UIButton!
     
     @IBOutlet weak var restartButton: UIButton!
     {
@@ -315,7 +307,8 @@ class MediaViewController: UIViewController
     override func observeValue(forKeyPath keyPath: String?,
                                of object: Any?,
                                change: [NSKeyValueChangeKey : Any]?,
-                               context: UnsafeMutableRawPointer?) {
+                               context: UnsafeMutableRawPointer?)
+    {
         // Only handle observations for the playerItemContext
 
         if keyPath == #keyPath(AVPlayerItem.status) {
@@ -338,12 +331,16 @@ class MediaViewController: UIViewController
             return
         }
 
+        guard let state = globals.mediaPlayer.state else {
+            return
+        }
+        
         func showState(_ state:String)
         {
             print(state)
         }
         
-        switch globals.mediaPlayer.state! {
+        switch state {
         case .none:
             showState("none")
             break
@@ -404,8 +401,6 @@ class MediaViewController: UIViewController
             result = true
             break
         }
-        
-//        print(result)
 
         return result
     }
@@ -470,9 +465,6 @@ class MediaViewController: UIViewController
             parentView.addSubview(view)
         }
         
-        //            print(view)
-        //            print(view?.superview)
-        
         let centerX = NSLayoutConstraint(item: view, attribute: NSLayoutAttribute.centerX, relatedBy: NSLayoutRelation.equal, toItem: view.superview, attribute: NSLayoutAttribute.centerX, multiplier: 1.0, constant: 0.0)
         view.superview?.addConstraint(centerX)
         
@@ -530,9 +522,9 @@ class MediaViewController: UIViewController
             
             // Just for the delay
             DispatchQueue.global(qos: .background).async(execute: {
-                DispatchQueue.main.async(execute: { () -> Void in
+                Thread.onMainThread {
                     globals.mediaPlayer.play()
-                })
+                }
             })
         }
         
@@ -608,9 +600,9 @@ class MediaViewController: UIViewController
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         
         DispatchQueue.global(qos: .background).async {
-            DispatchQueue.main.async(execute: { () -> Void in
+            Thread.onMainThread {
                 self.scrollToMediaItem(self.selectedMediaItem, select: true, position: UITableViewScrollPosition.none)
-            })
+            }
         }
 
         updateUI()
@@ -618,13 +610,13 @@ class MediaViewController: UIViewController
     
     func clearView()
     {
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             self.selectedMediaItem = nil
             
             self.tableView.reloadData()
             
             self.updateUI()
-        })
+        }
     }
     
     func menuButtonAction(tap:UITapGestureRecognizer)
@@ -702,7 +694,7 @@ class MediaViewController: UIViewController
         guard let selectedMediaItem = selectedMediaItem, let showing = selectedMediaItem.showing, let playing = selectedMediaItem.playing else {
             globals.mediaPlayer.view?.isHidden = true
             
-            logo.isHidden = !shouldShowLogo() // && roomForLogo()
+            logo.isHidden = !shouldShowLogo()
             
             if !logo.isHidden {
                 mediaItemNotesAndSlides.bringSubview(toFront: self.logo)
@@ -712,14 +704,6 @@ class MediaViewController: UIViewController
         
         activityIndicator.isHidden = true
 
-//        print("setupNotesAndSlides")
-//        print("Selected: \(globals.mediaItemSelected?.title)")
-//        print("Last Selected: \(globals.mediaItemLastSelected?.title)")
-//        print("Playing: \(globals.player.playing?.title)")
-        
-//        print("notes hidden \(mediaItemNotes.hidden)")
-//        print("slides hidden \(mediaItemSlides.hidden)")
-        
         // Check whether they can or should show what they claim to show!
         
         switch showing {
@@ -761,7 +745,9 @@ class MediaViewController: UIViewController
                     
                     if (globals.mediaPlayer.player != nil) {
                         // Why is this commented out?
-//                            mediaItemNotesAndSlides.bringSubview(toFront: globals.mediaPlayer.view!)
+//                        if let view = lobals.mediaPlayer.view {
+//                            mediaItemNotesAndSlides.bringSubview(toFront: view)
+//                        }
                     } else {
                         logo.isHidden = false
                         mediaItemNotesAndSlides.bringSubview(toFront: logo)
@@ -935,7 +921,7 @@ class MediaViewController: UIViewController
 
         let attrTitleString = NSMutableAttributedString()
 
-        attrTitleString.append(NSAttributedString(string: Constants.CBC.LONG,   attributes: Constants.Fonts.Attributes.titleGrey))
+        attrTitleString.append(NSAttributedString(string: Constants.CBC.LONG,   attributes: Constants.Fonts.Attributes.title3Grey))
 
         if !globals.mediaPlayer.isZoomed {
             if let title = selectedMediaItem?.title {
@@ -966,8 +952,8 @@ class MediaViewController: UIViewController
             if titleString != Constants.CBC.LONG, let text = label.text {
                 label.text = text + "\n" + titleString
 
-                attrTitleString.append(NSAttributedString(string: "\n",   attributes: Constants.Fonts.Attributes.normal))
-                attrTitleString.append(NSAttributedString(string: titleString,   attributes: Constants.Fonts.Attributes.boldGrey))
+                attrTitleString.append(NSAttributedString(string: "\n",   attributes: Constants.Fonts.Attributes.body))
+                attrTitleString.append(NSAttributedString(string: titleString,   attributes: Constants.Fonts.Attributes.headlineGrey))
                 label.attributedText = attrTitleString
             }
             
@@ -991,8 +977,6 @@ class MediaViewController: UIViewController
 
             audioOrVideoControl.setEnabled(true, forSegmentAt: Constants.AV_SEGMENT_INDEX.AUDIO)
             audioOrVideoControl.setEnabled(true, forSegmentAt: Constants.AV_SEGMENT_INDEX.VIDEO)
-            
-//                print(selectedMediaItem!.playing!)
             
             if let playing = selectedMediaItem.playing {
                 switch playing {
@@ -1036,7 +1020,6 @@ class MediaViewController: UIViewController
     {
         if (selectedMediaItem != nil) && (selectedMediaItem == globals.mediaPlayer.mediaItem) {
             if (globals.mediaPlayer.url != selectedMediaItem?.playingURL) {
-//                globals.mediaPlayer.killPIP = true
                 globals.mediaPlayer.pause()
                 globals.mediaPlayer.setup(selectedMediaItem,playOnLoad:false)
             } else {
@@ -1048,12 +1031,6 @@ class MediaViewController: UIViewController
         }
         
         setupPlayerView(globals.mediaPlayer.view)
-
-        //        print("viewWillAppear 1 mediaItemNotesAndSlides.bounds: \(mediaItemNotesAndSlides.bounds)")
-        //        print("viewWillAppear 1 tableView.bounds: \(tableView.bounds)")
-        
-        //        print("viewWillAppear 2 mediaItemNotesAndSlides.bounds: \(mediaItemNotesAndSlides.bounds)")
-        //        print("viewWillAppear 2 tableView.bounds: \(tableView.bounds)")
         
         //These are being added here for the case when this view is opened and the mediaItem selected is playing already
         addProgressObserver()
@@ -1163,8 +1140,8 @@ class MediaViewController: UIViewController
         var destination = segue.destination as UIViewController
         // this next if-statement makes sure the segue prepares properly even
         //   if the MVC we're seguing to is wrapped in a UINavigationController
-        if let navCon = destination as? UINavigationController {
-            destination = navCon.visibleViewController!
+        if let navCon = destination as? UINavigationController, let visibleViewController = navCon.visibleViewController {
+            destination = visibleViewController
         }
 
         switch segue.identifier {
@@ -1195,8 +1172,6 @@ class MediaViewController: UIViewController
             return
         }
 
-//        print("timeNow:",timeNow,"length:",length)
-        
         let elapsedHours = max(Int(timeNow / (60*60)),0)
         let elapsedMins = max(Int((timeNow - (Double(elapsedHours) * 60*60)) / 60),0)
         let elapsedSec = max(Int(timeNow.truncatingRemainder(dividingBy: 60)),0)
@@ -1249,16 +1224,9 @@ class MediaViewController: UIViewController
             return
         }
 
-//            print(length)
-        
         //Crashes if currentPlaybackTime is not a number (NaN) or infinite!  I.e. when nothing has been playing.  This is only a problem on the iPad, I think.
         
         var progress:Double = -1.0
-
-//            print("currentTime",selectedMediaItem?.currentTime)
-//            print("timeNow",timeNow)
-//            print("length",length)
-//            print("progress",progress)
         
         switch state {
         case .playing:
@@ -1392,7 +1360,7 @@ class MediaViewController: UIViewController
             return
         }
         
-        guard (globals.mediaPlayer.state != nil) else {
+        guard let state = globals.mediaPlayer.state else {
             return
         }
         
@@ -1404,7 +1372,7 @@ class MediaViewController: UIViewController
 //            print(state)
         }
         
-        switch globals.mediaPlayer.state! {
+        switch state {
         case .none:
             showState("none")
             break
@@ -1437,42 +1405,12 @@ class MediaViewController: UIViewController
             
         case .seekingForward:
             showState("seekingForward")
-            //            setupSpinner()  // Already done above.
             break
             
         case .seekingBackward:
             showState("seekingBackward")
-            //            setupSpinner()  // Already done above.
             break
         }
-        
-//            if (globals.mediaPlayer.player != nil) {
-//                switch globals.mediaPlayer.player!.playbackState {
-//                case .Interrupted:
-//                    print("progressTimer.Interrupted")
-//                    break
-//                    
-//                case .Paused:
-//                    print("progressTimer.Paused")
-//                    break
-//                    
-//                case .Playing:
-//                    print("progressTimer.Playing")
-//                    break
-//                    
-//                case .SeekingBackward:
-//                    print("progressTimer.SeekingBackward")
-//                    break
-//                    
-//                case .SeekingForward:
-//                    print("progressTimer.SeekingForward")
-//                    break
-//                    
-//                case .Stopped:
-//                    print("progressTimer.Stopped")
-//                    break
-//                }
-//            }
     }
     
     func removeProgressObserver()
@@ -1490,9 +1428,9 @@ class MediaViewController: UIViewController
     {
         removeProgressObserver()
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread {
             self.progressObserver = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.PROGRESS, target: self, selector: #selector(MediaViewController.progressTimer), userInfo: nil, repeats: true)
-        })
+        }
 
 //        globals.mediaPlayer.progressTimerReturn = globals.mediaPlayer.player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.1,Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { [weak self] (time:CMTime) in
 //            self?.progressTimer()
@@ -1667,7 +1605,7 @@ extension MediaViewController : UITableViewDataSource
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-        let cell = tableView.dequeueReusableCell(withIdentifier: Constants.IDENTIFIER.MULTIPART_MEDIAITEM, for: indexPath) as! MediaTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: Constants.IDENTIFIER.MULTIPART_MEDIAITEM, for: indexPath) as? MediaTableViewCell ?? MediaTableViewCell()
         
         cell.hideUI()
         
@@ -1678,20 +1616,8 @@ extension MediaViewController : UITableViewDataSource
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool
     {
-        return false // editActionsAtIndexPath(tableView,indexPath:indexPath) != nil
+        return false
     }
-
-    /*
-     // Override to support editing the table view.
-     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-     if editingStyle == .Delete {
-     // Delete the row from the data source
-     tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-     } else if editingStyle == .Insert {
-     // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-     }
-     }
-     */
 }
 
 extension MediaViewController : UITableViewDelegate
@@ -1709,10 +1635,11 @@ extension MediaViewController : UITableViewDelegate
             return
         }
         
-        if (selectedMediaItem != mediaItems![indexPath.row]) || (globals.history == nil) {
-            globals.addToHistory(mediaItems![indexPath.row])
+        if let mediaItem = mediaItems?[indexPath.row], (selectedMediaItem != mediaItem) || (globals.history == nil) {
+            globals.addToHistory(mediaItem)
         }
-        selectedMediaItem = mediaItems![indexPath.row]
+        
+        selectedMediaItem = mediaItems?[indexPath.row]
         
         preferredFocusView = playPauseButton
         

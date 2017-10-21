@@ -71,7 +71,7 @@ class PopoverTableViewController : UIViewController
         }
         
         let margins:CGFloat = 2
-        let marginSpace:CGFloat = 15
+        let marginSpace:CGFloat = 20
         
         let indexSpace:CGFloat = 40
         
@@ -88,45 +88,31 @@ class PopoverTableViewController : UIViewController
         
         let viewWidth = view.frame.width
         
-        //        print(view.frame.width - deducts)
-        
         let heightSize: CGSize = CGSize(width: viewWidth - deducts, height: .greatestFiniteMagnitude)
-        let widthSize: CGSize = CGSize(width: .greatestFiniteMagnitude, height: Constants.Fonts.bold.lineHeight)
+        let widthSize: CGSize = CGSize(width: .greatestFiniteMagnitude, height: Constants.Fonts.headline.lineHeight)
         
         if let title = self.navigationItem.title {
             let string = title.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.UNBREAKABLE_SPACE)
             
-            width = string.boundingRect(with: widthSize, options: .usesLineFragmentOrigin, attributes: Constants.Fonts.Attributes.bold, context: nil).width
+            width = string.boundingRect(with: widthSize, options: .usesLineFragmentOrigin, attributes: Constants.Fonts.Attributes.headline, context: nil).width
         }
-        
-        //        print(strings)
         
         for string in strings {
             let string = string.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.UNBREAKABLE_SPACE)
             
-            let maxWidth = string.boundingRect(with: widthSize, options: .usesLineFragmentOrigin, attributes: Constants.Fonts.Attributes.bold, context: nil)
+            let maxWidth = string.boundingRect(with: widthSize, options: .usesLineFragmentOrigin, attributes: Constants.Fonts.Attributes.headline, context: nil)
             
-            let maxHeight = string.boundingRect(with: heightSize, options: .usesLineFragmentOrigin, attributes: Constants.Fonts.Attributes.bold, context: nil)
-            
-            //            print(string)
-            //            print(maxSize)
-            
-            //            print(string,width,maxWidth.width)
+            let maxHeight = string.boundingRect(with: heightSize, options: .usesLineFragmentOrigin, attributes: Constants.Fonts.Attributes.headline, context: nil)
             
             if maxWidth.width > width {
                 width = maxWidth.width
             }
             
-            //            print(string,maxHeight.height) // baseHeight
-            
             if tableView.rowHeight != -1 {
                 height += tableView.rowHeight
             } else {
-                height += 2*8 + maxHeight.height // - baseHeight
+                height += 2*8 + maxHeight.height
             }
-            
-            //            print(maxHeight.height, (Int(maxHeight.height) / 16) - 1)
-            //            height += CGFloat(((Int(maxHeight.height) / 16) - 1) * 16)
         }
         
         width += margins * marginSpace
@@ -138,13 +124,11 @@ class PopoverTableViewController : UIViewController
             }
         }
         
-//        print(height)
-//        print(width)
-        
         tableViewWidth.constant = width
     }
     
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
         
         //This makes accurate scrolling to sections impossible but since we don't use scrollToRowAtIndexPath with
@@ -156,11 +140,6 @@ class PopoverTableViewController : UIViewController
         tableView.allowsSelection = allowsSelection
         tableView.allowsMultipleSelection = allowsMultipleSelection
         
-//        print("Strings: \(strings)")
-//        print("Sections: \(sections)")
-//        print("Section Indexes: \(sectionIndexes)")
-//        print("Section Counts: \(sectionCounts)")
-
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -206,7 +185,7 @@ class PopoverTableViewController : UIViewController
                 let row = index - base
                 
                 if self.section.strings?.count > 0 {
-                    DispatchQueue.main.async(execute: { () -> Void in
+                    Thread.onMainThread {
                         if section < self.tableView.numberOfSections, row < self.tableView.numberOfRows(inSection: section) {
                             let indexPath = IndexPath(row: row,section: section)
                             if scroll {
@@ -218,7 +197,7 @@ class PopoverTableViewController : UIViewController
                         } else {
                             userAlert(title:"String not found!",message:"THIS SHOULD NOT HAPPEN.")
                         }
-                    })
+                    }
                 }
             }
         } else {
@@ -401,7 +380,7 @@ extension PopoverTableViewController : UITableViewDataSource
                 view?.label = label
             }
             
-            view?.label?.attributedText = NSAttributedString(string: title,   attributes: Constants.Fonts.Attributes.bold)
+            view?.label?.attributedText = NSAttributedString(string: title,   attributes: Constants.Fonts.Attributes.headline)
             
             view?.alpha = 0.85
         }
@@ -411,7 +390,7 @@ extension PopoverTableViewController : UITableViewDataSource
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-        let cell = tableView.dequeueReusableCell(withIdentifier: Constants.IDENTIFIER.POPOVER_CELL, for: indexPath) as! PopoverTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: Constants.IDENTIFIER.POPOVER_CELL, for: indexPath) as? PopoverTableViewCell ?? PopoverTableViewCell()
         
         cell.title.text = nil
         cell.title.attributedText = nil
@@ -436,50 +415,54 @@ extension PopoverTableViewController : UITableViewDataSource
         cell.accessoryType = .none
         
         guard let purpose = purpose else {
-            cell.title.attributedText = NSAttributedString(string:string,attributes:Constants.Fonts.Attributes.normal)
+            cell.title.attributedText = NSAttributedString(string:string,attributes:Constants.Fonts.Attributes.body)
             return cell
         }
         
         switch purpose {
         case .selectingCategory:
             if (globals.mediaCategory.names?[index] == globals.mediaCategory.selected) {
-                cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.boldGrey)
+                cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headlineGrey)
             } else {
-                cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.bold)
+                cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headline)
             }
             break
             
         case .selectingGrouping:
             if (globals.groupings[index] == globals.grouping) {
-                cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.boldGrey)
+                cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headlineGrey)
             } else {
-                cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.bold)
+                cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headline)
             }
             break
             
         case .selectingSorting:
             if (Constants.sortings[index] == globals.sorting) {
-                cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.boldGrey)
+                cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headlineGrey)
             } else {
-                cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.bold)
+                cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headline)
             }
             break
             
         case .selectingTags:
-            switch globals.media.tags.showing! {
+            guard let showing = globals.media.tags.showing else {
+                break
+            }
+            
+            switch showing {
             case Constants.TAGGED:
                 if let tagsArray = tagsArrayFromTagsString(globals.media.tags.selected), tagsArray.index(of: string) != nil {
-                    cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.boldGrey)
+                    cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headlineGrey)
                 } else {
-                    cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.bold)
+                    cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headline)
                 }
                 break
                 
             case Constants.ALL:
                 if ((globals.media.tags.selected == nil) && (string == Constants.All)) {
-                    cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.boldGrey)
+                    cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headlineGrey)
                 } else {
-                    cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.bold)
+                    cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headline)
                 }
                 break
                 
@@ -489,47 +472,12 @@ extension PopoverTableViewController : UITableViewDataSource
             break
             
         default:
-            cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.bold)
+            cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headline)
             break
         }
 
         return cell
     }
-
-    /*
-     // Override to support conditional editing of the table view.
-     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-     // Return NO if you do not want the specified item to be editable.
-     return true
-     }
-     */
-    
-    /*
-     // Override to support editing the table view.
-     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-     if editingStyle == .Delete {
-     // Delete the row from the data source
-     tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-     } else if editingStyle == .Insert {
-     // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-     }
-     }
-     */
-    
-    /*
-     // Override to support rearranging the table view.
-     override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-     
-     }
-     */
-    
-    /*
-     // Override to support conditional rearranging of the table view.
-     override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-     // Return NO if you do not want the item to be re-orderable.
-     return true
-     }
-     */
 }
 
 extension PopoverTableViewController : UITableViewDelegate
@@ -547,13 +495,11 @@ extension PopoverTableViewController : UITableViewDelegate
             return
         }
 
-        //        let cell = tableView.cellForRow(at: indexPath)
-        
         var index = -1
         
         if (section.showIndex) {
-            //        if let active = self.searchController?.isActive, active {
             index = section.indexes != nil ? section.indexes![indexPath.section] + indexPath.row : -1
+            
             if let range = section.strings?[index].range(of: " (") {
                 selectedText = section.strings?[index].substring(to: range.lowerBound).uppercased()
             }
@@ -563,8 +509,6 @@ extension PopoverTableViewController : UITableViewDelegate
                 selectedText = section.strings?[index].substring(to: range.lowerBound).uppercased()
             }
         }
-        
-        //        print(index,strings![index])
         
         if let purpose = purpose {
             delegate?.rowClickedAtIndex(index, strings: section.strings, purpose: purpose)

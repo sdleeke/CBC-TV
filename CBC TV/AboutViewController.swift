@@ -34,7 +34,7 @@ class AboutViewController: UIViewController
         super.viewWillAppear(animated)
         setVersion()
         
-        guard globals.reachability.isReachable else { // currentReachabilityStatus != .notReachable
+        guard globals.reachability.isReachable else {
             mapView.isHidden = true
             return
         }
@@ -55,8 +55,9 @@ class AboutViewController: UIViewController
                 self.item = MKMapItem(placemark: mkPlacemark)
                 
                 let viewRegion = MKCoordinateRegionMakeWithDistance(coordinates, 50000, 50000)
-                let adjustedRegion = self.mapView?.regionThatFits(viewRegion)
-                self.mapView?.setRegion(adjustedRegion!, animated: false)
+                if let adjustedRegion = self.mapView?.regionThatFits(viewRegion) {
+                    self.mapView?.setRegion(adjustedRegion, animated: false)
+                }
             }
         })
     }

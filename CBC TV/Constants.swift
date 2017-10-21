@@ -69,23 +69,10 @@ enum Purpose {
     static let outline  = MediaType.OUTLINE
 }
 
-//struct Purpose {
-//    static let audio    = MediaType.AUDIO
-//    static let video    = MediaType.VIDEO
-//    static let slides   = MediaType.SLIDES
-//    static let notes    = MediaType.NOTES
-//    static let outline  = MediaType.OUTLINE
-//}
-
 enum Playing {
     static let audio    = MediaType.AUDIO
     static let video    = MediaType.VIDEO
 }
-
-//struct Playing {
-//    static let audio    = MediaType.AUDIO
-//    static let video    = MediaType.VIDEO
-//}
 
 enum Showing {
     static let video    = MediaType.VIDEO
@@ -93,13 +80,6 @@ enum Showing {
     static let slides   = MediaType.SLIDES
     static let none     = MediaType.NONE
 }
-
-//struct Showing {
-//    static let video    = MediaType.VIDEO
-//    static let notes    = MediaType.NOTES
-//    static let slides   = MediaType.SLIDES
-//    static let none     = MediaType.NONE
-//}
 
 enum Grouping {
     static let Year     = "Year"
@@ -126,22 +106,9 @@ enum Sorting {
 
 enum SORTING {
     static let CHRONOLOGICAL = "chronological"
-    //    static let Chronological = "Chronological"
     
     static let REVERSE_CHRONOLOGICAL = "reverse chronological"
-    //    static let Reverse_Chronological = "Reverse Chronological"
 }
-
-//struct Sorting {
-//    static let CHRONOLOGICAL = "chronological"
-//    //    static let Chronological = "Chronological"
-//
-//    static let REVERSE_CHRONOLOGICAL = "reverse chronological"
-//    //    static let Reverse_Chronological = "Reverse Chronological"
-//
-//    static let Newest_to_Oldest = "Newest to Oldest"
-//    static let Oldest_to_Newest = "Oldest to Newest"
-//}
 
 enum Constants {
     enum JSON {
@@ -154,11 +121,11 @@ enum Constants {
             
             static let MEDIA = BASE + MEDIA_PATH //
             
-            static let CATEGORIES = BASE + CATEGORIES_PATH //
+            static let CATEGORIES = BASE + CATEGORIES_PATH
             
-            static let CATEGORY = MEDIA + "&categoryID=" //
+            static let CATEGORY = MEDIA + "&categoryID="
             
-            static let CATEGORY_MEDIA = CATEGORY + globals.mediaCategory.selectedID! //
+            static let CATEGORY_MEDIA = CATEGORY + (globals.mediaCategory.selectedID ?? "1")
             
             static let SINGLE = BASE + "single&mediacode="
         }
@@ -363,43 +330,149 @@ enum Constants {
     
     static let ZOOM_SCALE = "ZoomScale"
     
-    static let Email_CBC = "E-mail " + CBC.SHORT
-    static let CBC_WebSite = CBC.SHORT + " Website"
-    static let CBC_in_Apple_Maps = CBC.SHORT + " in Apple Maps"
-    static let CBC_in_Google_Maps = CBC.SHORT + " in Google Maps"
+    static let Constant_Tags:Set = [Constants.Strings.Video,Constants.Strings.Slides,Constants.Strings.Transcript,Constants.Strings.Lexicon]
+    
+    enum Strings {
+        static let Email_CBC = "E-mail " + CBC.SHORT
+        static let CBC_WebSite = CBC.SHORT + " Website"
+        static let CBC_in_Apple_Maps = CBC.SHORT + " in Apple Maps"
+        static let CBC_in_Google_Maps = CBC.SHORT + " in Google Maps"
+        
+        static let Share_This_App = "Share This App"
+        
+        static let Show = "Show"
+        static let Select_Category = "Select Category"
+        
+        static let Search = "Search"
+        static let Words = "Words"
+        static let Word_Picker = "Word Picker"
+        
+        static let Sermon = "Sermon"
+        static let Sermons = "Sermons"
+        
+        static let Slides = "Slides"
+        static let Transcript = "Transcript"
+        static let Scripture = "Scripture"
 
-    static let Share_This_App = "Share This App"
-    
-    static let Show = "Show"
-    static let Select_Category = "Select Category"
-    
-    static let Search = "Search"
-    static let Words = "Words"
-    static let Word_Picker = "Word Picker"
+        static let EMAIL_SUBJECT = CBC.LONG
+        static let EMAIL_ONE_SUBJECT = CBC.LONG + " Media"
+        static let EMAIL_ALL_SUBJECT = EMAIL_ONE_SUBJECT
+        
+        static let Network_Error = "Network Error"
+        static let Content_Failed_to_Load = "Content Failed to Load"
 
-    static let Sermon = "Sermon"
-    static let Sermons = "Sermons"
-    
-    static let Slides = "Slides"
-    static let Transcript = "Transcript"
-    static let Scripture = "Scripture"
-    
-    static let Constant_Tags:Set = [Constants.Video,Constants.Slides,Constants.Transcript,Constants.Lexicon]
-    
-    static let EMAIL_SUBJECT = CBC.LONG
-    static let EMAIL_ONE_SUBJECT = CBC.LONG + " Media"
-    static let EMAIL_ALL_SUBJECT = EMAIL_ONE_SUBJECT
-    
-    static let Network_Error = "Network Error"
-    static let Content_Failed_to_Load = "Content Failed to Load"
+        static let Scripture_in_Browser = "Scripture in Browser"
+        
+        static let Scripture_Viewer = "Scripture Viewer"
+
+        static let Index = "Index"
+        static let Sort = "Sort"
+        static let Group = "Group"
+
+        enum Menu {
+            static let Sorting = "Sorting"
+            static let Grouping = "Grouping"
+            static let Index = "Index"
+        }
+        
+        enum Options_Title {
+            static let Sorting = "Sort By"
+            static let Grouping = "Group By"
+        }
+        
+        static let Options = "Options"
+        
+        static let Sorting_Options =  Menu.Sorting + SINGLE_SPACE + Options
+        static let Grouping_Options = Menu.Grouping + SINGLE_SPACE + Options
+        
+        static let Settings = "Settings"
+        static let Clear_History = "Clear History"
+        
+        static let Scripture_Index = "Scripture Index"
+        
+        static let Swap_Video_Location = "Swap Video Location"
+        
+        static let Print = "Print"
+        static let Print_All = "Print All"
+        
+        static let Print_Slides = "Print Slides"
+        static let Print_Transcript = "Print Transcript"
+        
+        static let Refresh_Document = "Refresh Document"
+        
+        static let Refresh_Slides = "Refresh Slides"
+        static let Refresh_Transcript = "Refresh Transcript"
+        
+        static let Zoom = "Zoom"
+        static let Full_Screen = "Full Screen"
+        static let Open_in_Browser = "Open in Browser"
+        
+        static let Open_on_CBC_Website = "Open on CBC Web Site"
+        
+        static let Email_One = "E-mail"
+        static let Email_All = "E-mail All"
+        
+        static let Actions = "Actions"
+        
+        static let Download = "Download"
+        static let Downloaded = Download + "ed"
+        static let Downloads = Download + "s"
+        static let Downloading = Download + "ing"
+        
+        static let Audio = "Audio"
+        static let Video = "Video"
+        
+        static let Download_Audio = Download + SINGLE_SPACE + Audio
+        static let Download_Video = Download + SINGLE_SPACE + Video
+        
+        static let Download_All = Download  + SINGLE_SPACE + All
+        
+        static let Download_All_Audio = Download_All + SINGLE_SPACE + Audio
+        static let Download_All_Video = Download_All + SINGLE_SPACE + Video
+        
+        static let Cancel_All = Cancel + SINGLE_SPACE + All
+        static let Delete_All = Delete + SINGLE_SPACE + All
+        
+        static let Cancel_All_Downloads = Cancel_All + SINGLE_SPACE + Downloads
+        static let Delete_All_Downloads = Delete_All + SINGLE_SPACE + Downloads
+        
+        static let Cancel_All_Audio_Downloads = Cancel_All + SINGLE_SPACE + Audio + SINGLE_SPACE + Downloads
+        static let Delete_All_Audio_Downloads = Delete_All + SINGLE_SPACE + Audio + SINGLE_SPACE + Downloads
+        
+        static let Cancel_Audio_Download = Cancel + SINGLE_SPACE + Audio + SINGLE_SPACE + Download // + QUESTION_MARK
+        static let Delete_Audio_Download = Delete + SINGLE_SPACE + Audio + SINGLE_SPACE + Download // + QUESTION_MARK
+        
+        static let Cancel_Video_Download = Cancel + SINGLE_SPACE + Video + SINGLE_SPACE + Download // + QUESTION_MARK
+        static let Delete_Video_Download = Delete + SINGLE_SPACE + Video + SINGLE_SPACE + Download // + QUESTION_MARK
+        
+        static let Add_to = "Add to"
+        static let Remove_From = "Remove From"
+        static let Add_All_to = "Add All to"
+        static let Remove_All_From = "Remove All From"
+        
+        static let Favorites = "Favorites"
+        static let Add_to_Favorites = Add_to + SINGLE_SPACE + Favorites
+        static let Remove_From_Favorites = Remove_From + SINGLE_SPACE + Favorites
+        static let Add_All_to_Favorites = Add_All_to + SINGLE_SPACE + Favorites
+        static let Remove_All_From_Favorites = Remove_All_From + SINGLE_SPACE + Favorites
+        
+        static let Lexicon = "Lexicon"
+        static let Lexicon_Index = "Lexicon Index"
+        
+        static let Expanded_View = "Expanded View"
+        
+        static let View_List = "View List"
+        static let List = "List"
+        
+        static let View_Scripture = "View Scripture"
+        
+        static let Share = "Share"
+        static let Share_All = "Share All"
+    }
     
     static let TAGGED = "tagged"
     static let ALL = "all"
     static let DOWNLOADED = "downloaded"
-
-    static let Scripture_in_Browser = "Scripture in Browser"
-    
-    static let Scripture_Viewer = "Scripture Viewer"
     
     static let EMPTY_STRING = ""
 
@@ -430,24 +503,6 @@ enum Constants {
     static let FORWARD_SLASH = "/"
     
     static let TAGS_SEPARATOR = "|"
-    
-    enum Menu {
-        static let Sorting = "Sorting"
-        static let Grouping = "Grouping"
-        static let Index = "Index"
-    }
-    
-    enum Options_Title {
-        static let Sorting = "Sort By"
-        static let Grouping = "Group By"
-    }
-    
-    static let Options = "Options"
-    
-    static let Sorting_Options =  Menu.Sorting + SINGLE_SPACE + Options
-    static let Grouping_Options = Menu.Grouping + SINGLE_SPACE + Options
-    
-    static let Settings = "Settings"
     
     enum USER_SETTINGS {
         static let SEARCH_TRANSCRIPTS = "SEARCH TRANSCRIPTS"
@@ -510,26 +565,56 @@ enum Constants {
     enum Fonts {
         static let body = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)
         
-        static let bold = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
+        static let headline = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
         
-        static let title = UIFont.preferredFont(forTextStyle: UIFontTextStyle.title3)
+        static let footnote = UIFont.preferredFont(forTextStyle: UIFontTextStyle.footnote)
+
+        static let caption1 = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
         
+        static let caption2 = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption2)
+
+        static let title1 = UIFont.preferredFont(forTextStyle: UIFontTextStyle.title1)
+
+        static let title2 = UIFont.preferredFont(forTextStyle: UIFontTextStyle.title2)
+
+        static let title3 = UIFont.preferredFont(forTextStyle: UIFontTextStyle.title3)
+
         enum Attributes {
-            static let normal = [ NSFontAttributeName: Fonts.body ]
+            static let body = [ NSFontAttributeName: Fonts.body ]
             
-            static let bold = [ NSFontAttributeName: Fonts.bold ]
+            static let headline = [ NSFontAttributeName: Fonts.headline ]
             
-            static let boldGrey = [ NSForegroundColorAttributeName: UIColor.gray,
-                                    NSFontAttributeName: Fonts.bold ]
+            static let footnote = [ NSFontAttributeName: Fonts.footnote ]
             
-            static let titleGrey = [ NSForegroundColorAttributeName: UIColor.gray,
-                                     NSFontAttributeName: Fonts.title ]
+            static let caption1 = [ NSFontAttributeName: Fonts.caption1 ]
             
-            static let highlighted = [ NSBackgroundColorAttributeName: UIColor.yellow,
-                                       NSFontAttributeName: Fonts.body ]
+            static let caption2 = [ NSFontAttributeName: Fonts.caption2 ]
             
-            static let boldHighlighted = [ NSBackgroundColorAttributeName: UIColor.yellow,
-                                           NSFontAttributeName: Fonts.bold ]
+            static let title3 = [ NSFontAttributeName: Fonts.title3 ]
+            
+            static let headlineGrey = [ NSForegroundColorAttributeName: UIColor.gray,
+                                    NSFontAttributeName: Fonts.headline ]
+            
+            static let title3Grey = [ NSForegroundColorAttributeName: UIColor.gray,
+                                     NSFontAttributeName: Fonts.title3 ]
+            
+            static let bodyHighlighted = [ NSBackgroundColorAttributeName: UIColor.yellow,
+                                           NSFontAttributeName: Fonts.body ]
+            
+            static let footnoteHighlighted = [ NSBackgroundColorAttributeName: UIColor.yellow,
+                                           NSFontAttributeName: Fonts.footnote ]
+            
+            static let headlineHighlighted = [ NSBackgroundColorAttributeName: UIColor.yellow,
+                                               NSFontAttributeName: Fonts.headline ]
+            
+            static let title3Highlighted = [ NSBackgroundColorAttributeName: UIColor.yellow,
+                                               NSFontAttributeName: Fonts.title3 ]
+            
+            static let caption1Highlighted = [ NSBackgroundColorAttributeName: UIColor.yellow,
+                                               NSFontAttributeName: Fonts.caption1 ]
+            
+            static let caption2Highlighted = [ NSBackgroundColorAttributeName: UIColor.yellow,
+                                               NSFontAttributeName: Fonts.caption2 ]
         }
     }
     
@@ -537,10 +622,10 @@ enum Constants {
         static let name = "FontAwesome"
 
         enum Fonts {
-            static let tags     = UIFont(name: "FontAwesome", size: TAGS_FONT_SIZE)!
-            static let show     = UIFont(name: "FontAwesome", size: SHOW_FONT_SIZE)!
-            static let icons    = UIFont(name: "FontAwesome", size: ICONS_FONT_SIZE)!
-            static let download = UIFont(name: "FontAwesome", size: DOWNLOAD_FONT_SIZE)!
+            static let tags     = UIFont(name: "FontAwesome", size: TAGS_FONT_SIZE) ?? UIFont()
+            static let show     = UIFont(name: "FontAwesome", size: SHOW_FONT_SIZE) ?? UIFont()
+            static let icons    = UIFont(name: "FontAwesome", size: ICONS_FONT_SIZE) ?? UIFont()
+            static let download = UIFont(name: "FontAwesome", size: DOWNLOAD_FONT_SIZE) ?? UIFont()
             
             enum Attributes {
                 static let icons = [ NSFontAttributeName: Fonts.icons ]
@@ -616,55 +701,9 @@ enum Constants {
     }
 
     static let HTML_MIN_FONT_SIZE = 4
-    
-    static let Actions = "Actions"
-    
-    static let Download = "Download"
-    static let Downloaded = Download + "ed"
-    static let Downloads = Download + "s"
-    static let Downloading = Download + "ing"
-    
-    static let Audio = "Audio"
-    static let Video = "Video"
-    
-    static let Download_Audio = Download + SINGLE_SPACE + Audio
-    static let Download_Video = Download + SINGLE_SPACE + Video
-    
-    static let Download_All = Download  + SINGLE_SPACE + All
-    
-    static let Download_All_Audio = Download_All + SINGLE_SPACE + Audio
-    static let Download_All_Video = Download_All + SINGLE_SPACE + Video
-    
-    static let Cancel_All = Cancel + SINGLE_SPACE + All
-    static let Delete_All = Delete + SINGLE_SPACE + All
-    
-    static let Cancel_All_Downloads = Cancel_All + SINGLE_SPACE + Downloads
-    static let Delete_All_Downloads = Delete_All + SINGLE_SPACE + Downloads
-    
-    static let Cancel_All_Audio_Downloads = Cancel_All + SINGLE_SPACE + Audio + SINGLE_SPACE + Downloads
-    static let Delete_All_Audio_Downloads = Delete_All + SINGLE_SPACE + Audio + SINGLE_SPACE + Downloads
-    
-    static let Cancel_Audio_Download = Cancel + SINGLE_SPACE + Audio + SINGLE_SPACE + Download // + QUESTION_MARK
-    static let Delete_Audio_Download = Delete + SINGLE_SPACE + Audio + SINGLE_SPACE + Download // + QUESTION_MARK
-    
-    static let Cancel_Video_Download = Cancel + SINGLE_SPACE + Video + SINGLE_SPACE + Download // + QUESTION_MARK
-    static let Delete_Video_Download = Delete + SINGLE_SPACE + Video + SINGLE_SPACE + Download // + QUESTION_MARK
-    
-    static let Add_to = "Add to"
-    static let Remove_From = "Remove From"
-    static let Add_All_to = "Add All to"
-    static let Remove_All_From = "Remove All From"
-
-    static let Favorites = "Favorites"
-    static let Add_to_Favorites = Add_to + SINGLE_SPACE + Favorites
-    static let Remove_From_Favorites = Remove_From + SINGLE_SPACE + Favorites
-    static let Add_All_to_Favorites = Add_All_to + SINGLE_SPACE + Favorites
-    static let Remove_All_From_Favorites = Remove_All_From + SINGLE_SPACE + Favorites
 
     static let CHECK_FILE_SLEEP_INTERVAL = 0.01
     static let CHECK_FILE_MAX_ITERATIONS = 200
-    
-//    static let TRANSCRIPT_PREFIX = "tx-un-"
     
     static let New = "New"
     static let All = "All"
@@ -684,50 +723,12 @@ enum Constants {
     
     static let HISTORY = "HISTORY"
     static let History = "History"
-    static let Clear_History = "Clear History"
-    
-    static let Scripture_Index = "Scripture Index"
-
-    static let Swap_Video_Location = "Swap Video Location"
-    
-    static let Print = "Print"
-    static let Print_All = "Print All"
-    
-    static let Print_Slides = "Print Slides"
-    static let Print_Transcript = "Print Transcript"
-    
-    static let Refresh_Document = "Refresh Document"
-    
-    static let Refresh_Slides = "Refresh Slides"
-    static let Refresh_Transcript = "Refresh Transcript"
-    
-    static let Zoom = "Zoom"
-    static let Full_Screen = "Full Screen"
-    static let Open_in_Browser = "Open in Browser"
-    
-    static let Open_on_CBC_Website = "Open on CBC Web Site"
-    
-    static let Email_One = "E-mail"
-    static let Email_All = "E-mail All"
     
     static let FONT_SIZE = 12
     
-    static let Lexicon = "Lexicon"
-    static let Lexicon_Index = "Lexicon Index"
-    
-    static let Expanded_View = "Expanded View"
-    
-    static let View_List = "View List"
-    static let List = "List"
-    
-    static let View_Scripture = "View Scripture"
-    
-    static let Share = "Share"
-    static let Share_All = "Share All"
-    
-    static let Share_on = "Share on "
-    static let Share_on_Facebook = Share_on + "Facebook"
-    static let Share_on_Twitter = Share_on + "Twitter"
+//    static let Share_on = "Share on "
+//    static let Share_on_Facebook = Share_on + "Facebook"
+//    static let Share_on_Twitter = Share_on + "Twitter"
 
     static let Play = "Play"
     static let Pause = "Pause"

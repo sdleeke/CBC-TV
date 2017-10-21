@@ -50,8 +50,6 @@ func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
   }
 }
 
-//typealias GroupTuple = (indexes: [Int]?, counts: [Int]?)
-
 func documentsURL() -> URL?
 {
     let fileManager = FileManager.default
@@ -84,7 +82,8 @@ func filesOfTypeInCache(_ fileType:String) -> [String]?
                 }
             }
         }
-    } catch _ {
+    } catch let error as NSError {
+        NSLog(error.localizedDescription)
         print("failed to get files in caches directory")
     }
     
@@ -96,7 +95,8 @@ func removeJSONFromFileSystemDirectory()
     if let filename = globals.mediaCategory.filename, let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) {
         do {
             try FileManager.default.removeItem(atPath: jsonFileSystemURL.path)
-        } catch _ {
+        } catch let error as NSError {
+            NSLog(error.localizedDescription)
             print("failed to copy mediaItems.json")
         }
     }
@@ -116,7 +116,8 @@ func jsonToFileSystemDirectory(key:String)
             do {
                 // Copy File From Bundle To Documents Directory
                 try fileManager.copyItem(atPath: jsonBundlePath,toPath: jsonFileURL.path)
-            } catch _ {
+            } catch let error as NSError {
+                NSLog(error.localizedDescription)
                 print("failed to copy mediaItems.json")
             }
         } else {
@@ -127,40 +128,42 @@ func jsonToFileSystemDirectory(key:String)
                 
                 let jsonDocumentsAttributes = try fileManager.attributesOfItem(atPath: jsonFileURL.path)
                 
-                let jsonBundleModDate = jsonBundleAttributes[FileAttributeKey.modificationDate] as! Date
-                let jsonDocumentsModDate = jsonDocumentsAttributes[FileAttributeKey.modificationDate] as! Date
-                
-                if (jsonDocumentsModDate.isNewerThan(jsonBundleModDate)) {
-                    //Do nothing, the json in Documents is newer, i.e. it was downloaded after the install.
-                    print("JSON in Documents is newer than JSON in bundle")
-                }
-                
-                if (jsonDocumentsModDate.isEqualTo(jsonBundleModDate)) {
-                    print("JSON in Documents is the same date as JSON in bundle")
-                    let jsonBundleFileSize = jsonBundleAttributes[FileAttributeKey.size] as! Int
-                    let jsonDocumentsFileSize = jsonDocumentsAttributes[FileAttributeKey.size] as! Int
+                if  let jsonBundleModDate = jsonBundleAttributes[FileAttributeKey.modificationDate] as? Date,
+                    let jsonDocumentsModDate = jsonDocumentsAttributes[FileAttributeKey.modificationDate] as? Date {
+                    if (jsonDocumentsModDate.isNewerThan(jsonBundleModDate)) {
+                        //Do nothing, the json in Documents is newer, i.e. it was downloaded after the install.
+                        print("JSON in Documents is newer than JSON in bundle")
+                    }
                     
-                    if (jsonBundleFileSize != jsonDocumentsFileSize) {
-                        print("Same dates different file sizes")
-                        //We have a problem.
-                    } else {
-                        print("Same dates same file sizes")
-                        //Do nothing, they are the same.
+                    if (jsonDocumentsModDate.isEqualTo(jsonBundleModDate)) {
+                        print("JSON in Documents is the same date as JSON in bundle")
+                        if  let jsonBundleFileSize = jsonBundleAttributes[FileAttributeKey.size] as? Int,
+                            let jsonDocumentsFileSize = jsonDocumentsAttributes[FileAttributeKey.size] as? Int {
+                            if (jsonBundleFileSize != jsonDocumentsFileSize) {
+                                print("Same dates different file sizes")
+                                //We have a problem.
+                            } else {
+                                print("Same dates same file sizes")
+                                //Do nothing, they are the same.
+                            }
+                        }
+                    }
+                    
+                    if (jsonBundleModDate.isNewerThan(jsonDocumentsModDate)) {
+                        print("JSON in bundle is newer than JSON in Documents")
+                        //copy the bundle into Documents directory
+                        do {
+                            // Copy File From Bundle To Documents Directory
+                            try fileManager.removeItem(atPath: jsonFileURL.path)
+                            try fileManager.copyItem(atPath: jsonBundlePath,toPath: jsonFileURL.path)
+                        } catch let error as NSError {
+                            NSLog(error.localizedDescription)
+                            print("failed to copy mediaItems.json")
+                        }
                     }
                 }
-                
-                if (jsonBundleModDate.isNewerThan(jsonDocumentsModDate)) {
-                    print("JSON in bundle is newer than JSON in Documents")
-                    //copy the bundle into Documents directory
-                    do {
-                        // Copy File From Bundle To Documents Directory
-                        try fileManager.removeItem(atPath: jsonFileURL.path)
-                        try fileManager.copyItem(atPath: jsonBundlePath,toPath: jsonFileURL.path)
-                    } catch _ {
-                        print("failed to copy mediaItems.json")
-                    }
-                }
-            } catch _ {
+            } catch let error as NSError {
+                NSLog(error.localizedDescription)
                 print("failed to get json file attributes")
             }
         }
@@ -169,11 +172,8 @@ func jsonToFileSystemDirectory(key:String)
 
 func jsonFromURL(url:String) -> Any?
 {
-    guard globals.reachability.isReachable else { // currentReachabilityStatus != .notReachable
+    guard globals.reachability.isReachable else {
         print("json not reachable.")
-        
-        //            globals.alert(title:"Network Error",message:"Newtork not available, attempting to load last available media list.")
-        
         return nil
     }
     
@@ -182,7 +182,7 @@ func jsonFromURL(url:String) -> Any?
     }
     
     do {
-        let data = try Data(contentsOf: url) // , options: NSData.ReadingOptions.mappedIfSafe
+        let data = try Data(contentsOf: url)
         print("able to read json from the URL.")
         
         do {
@@ -209,23 +209,20 @@ func jsonFromURL(url:String,filename:String) -> Any?
         return nil
     }
     
-    guard globals.reachability.isReachable else { // currentReachabilityStatus != .notReachable
+    guard globals.reachability.isReachable else {
         print("json not reachable.")
-        
-        //            globals.alert(title:"Network Error",message:"Newtork not available, attempting to load last available media list.")
-        
         return jsonFromFileSystem(filename: filename)
     }
     
     do {
-        let data = try Data(contentsOf: url) // , options: NSData.ReadingOptions.mappedIfSafe
+        let data = try Data(contentsOf: url)
         print("able to read json from the URL.")
         
         do {
             let json = try JSONSerialization.jsonObject(with: data, options: [])
             
             do {
-                try data.write(to: jsonFileSystemURL)//, options: NSData.WritingOptions.atomic)
+                try data.write(to: jsonFileSystemURL)
                 
                 print("able to write json to the file system")
             } catch let error as NSError {
@@ -257,7 +254,7 @@ func jsonFromFileSystem(filename:String?) -> Any?
     }
     
     do {
-        let data = try Data(contentsOf: jsonFileSystemURL) // , options: NSData.ReadingOptions.mappedIfSafe
+        let data = try Data(contentsOf: jsonFileSystemURL)
         print("able to read json from the URL.")
         
         do {
@@ -287,13 +284,6 @@ func jsonDataFromDocumentsDirectory() -> Any?
                 NSLog(error.localizedDescription)
                 return nil
             }
-
-//            let json = JSON(data: data)
-//            if json != JSON.null {
-//                return json
-//            } else {
-//                print("could not get json from data, make sure the file contains valid json.")
-//            }
         } else {
             print("could not get data from the json file.")
         }
@@ -313,13 +303,6 @@ func jsonDataFromCachesDirectory() -> Any?
                 NSLog(error.localizedDescription)
                 return nil
             }
-            
-//            let json = JSON(data: data)
-//            if json != JSON.null {
-//                return json
-//            } else {
-//                print("could not get json from data, make sure the file contains valid json.")
-//            }
         } else {
             print("could not get data from the json file.")
         }
@@ -336,8 +319,11 @@ extension Date
         let dateStringFormatter = DateFormatter()
         dateStringFormatter.dateFormat = "yyyy-MM-dd"
         dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
-        let d = dateStringFormatter.date(from: dateString)!
-        self = Date(timeInterval:0, since:d)
+        if let d = dateStringFormatter.date(from: dateString) {
+            self = Date(timeInterval:0, since:d)
+        } else {
+            self = Date()
+        }
     }
     
     var ymd : String {
@@ -519,12 +505,18 @@ func yearsFromMediaItems(_ mediaItems:[MediaItem]?, sorting: String?) -> [Int]?
     return Array(
             Set(
                 mediaItems.filter({ (mediaItem:MediaItem) -> Bool in
-                    assert(mediaItem.fullDate != nil) // We're assuming this gets ALL mediaItems.
+                    // We're assuming this gets ALL mediaItems.
                     return mediaItem.fullDate != nil
                 }).map({ (mediaItem:MediaItem) -> Int in
                     let calendar = Calendar.current
-                    let components = (calendar as NSCalendar).components(.year, from: mediaItem.fullDate! as Date)
-                    return components.year!
+                    if let fullDate = mediaItem.fullDate {
+                        let components = (calendar as NSCalendar).components(.year, from: fullDate)
+                        if let year = components.year {
+                            return year
+                        }
+                    }
+                    
+                    return -1
                 })
             )
             ).sorted(by: { (first:Int, second:Int) -> Bool in
@@ -600,8 +592,8 @@ func versesFromScripture(_ scripture:String?) -> [Int]?
         case "-":
             seenHyphen = true
             if (startVerse == 0) {
-                if Int(chars) != nil {
-                    startVerse = Int(chars)!
+                if let num = Int(chars) {
+                    startVerse = num
                 }
             }
             chars = Constants.EMPTY_STRING
@@ -626,14 +618,14 @@ func versesFromScripture(_ scripture:String?) -> [Int]?
         }
     }
     if !seenHyphen {
-        if Int(chars) != nil {
-            startVerse = Int(chars)!
+        if let num = Int(chars) {
+            startVerse = num
         }
     }
     if (startVerse != 0) {
         if (endVerse == 0) {
-            if (Int(chars) != nil) {
-                endVerse = Int(chars)!
+            if let num = Int(chars) {
+                endVerse = num
             }
             chars = Constants.EMPTY_STRING
         }
@@ -762,31 +754,13 @@ func versesForBookChapter(_ book:String?,_ chapter:Int) -> [Int]?
         }
     }
     
-//    if verses.count == 0 {
-//        switch testament(book!) {
-//        case Constants.Old_Testament:
-//            let index = Constants.OLD_TESTAMENT_BOOKS.index(of: book!)
-//            print(Constants.OLD_TESTAMENT_BOOKS.index(of: book!)!,Constants.OLD_TESTAMENT_VERSES.count,Constants.OLD_TESTAMENT_VERSES[index!].count)
-//            break
-//        case Constants.New_Testament:
-//            let index = Constants.NEW_TESTAMENT_BOOKS.index(of: book!)
-//            print(Constants.NEW_TESTAMENT_BOOKS.index(of: book!)!,Constants.NEW_TESTAMENT_VERSES.count,Constants.NEW_TESTAMENT_VERSES[index!].count)
-//            break
-//        default:
-//            break
-//        }
-//        print(book!,index,chapter)
-//    }
-    
     return verses.count > 0 ? verses : nil
 }
 
 func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int]]?
 {
     // This can only comprehend a range of chapters or a range of verses from a single book.
-//    if (book == "Mark") && (reference == " 2:23-3:6") {
-//        print(book,reference)
-//    }
+
     guard let book = book else {
         return nil
     }
@@ -800,8 +774,6 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
     }
     
     guard let string = reference?.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.EMPTY_STRING), !string.isEmpty else {
-        //        print(book,reference)
-        
         // Now we have a book w/ no chapter or verse references
         // FILL in all chapters and all verses and return
         
@@ -817,10 +789,6 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
     var endChapter = 0
     var startVerse = 0
     var endVerse = 0
-    
-    //        print(book!,reference!)
-    
-//    print(string)
     
     var token = Constants.EMPTY_STRING
     
@@ -1001,17 +969,6 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                                 startChapter = 0
                             }
                         }
-
-//                        if tokens.first == ":" {
-//                            tokens.remove(at: 0)
-//                            startVerses = true
-//                            
-//                            if let number = Int(first) {
-//                                startChapter = number
-//                                currentChapter = number
-//                            }
-//                        } else {
-//                        }
                     }
                     break
                     
@@ -1477,8 +1434,6 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
         debug("Done w/ processing tokens")
         debug("If start and end (chapter,verse) remaining, process them")
         
-//        print(book!,reference!)
-        
         if startChapter > 0 {
             if endChapter > 0 {
                 if endChapter >= startChapter {
@@ -1515,11 +1470,8 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
             endVerse = 0
         }
     } else {
-//        print(book,reference,string,tokens)
         return chaptersAndVersesForBook(book)
     }
-
-//    print(chaptersAndVerses)
 
     return chaptersAndVerses.count > 0 ? chaptersAndVerses : nil
 }
@@ -1542,13 +1494,9 @@ func chaptersFromScriptureReference(_ scriptureReference:String?) -> [Int]?
         return nil
     }
     
-    //        print("\(string!)")
-    
     let colon = string.range(of: ":")
     let hyphen = string.range(of: "-")
     let comma = string.range(of: ",")
-    
-    //        print(scripture,string)
     
     if (colon == nil) && (hyphen == nil) &&  (comma == nil) {
         if let number = Int(string) {
@@ -1574,17 +1522,17 @@ func chaptersFromScriptureReference(_ scriptureReference:String?) -> [Int]?
             case ":":
                 if !seenColon {
                     seenColon = true
-                    if (Int(chars) != nil) {
+                    if let num = Int(chars) {
                         if (startChapter == 0) {
-                            startChapter = Int(chars)!
+                            startChapter = num
                         } else {
-                            endChapter = Int(chars)!
+                            endChapter = num
                         }
                     }
                 } else {
                     if (seenHyphen) {
-                        if (Int(chars) != nil) {
-                            endChapter = Int(chars)!
+                        if let num = Int(chars) {
+                            endChapter = num
                         }
                     } else {
                         //Error
@@ -1601,8 +1549,8 @@ func chaptersFromScriptureReference(_ scriptureReference:String?) -> [Int]?
                 if colonCount == 0 {
                     // This is a chapter not a verse
                     if (startChapter == 0) {
-                        if Int(chars) != nil {
-                            startChapter = Int(chars)!
+                        if let num = Int(chars) {
+                            startChapter = num
                         }
                     }
                 }
@@ -1629,15 +1577,14 @@ func chaptersFromScriptureReference(_ scriptureReference:String?) -> [Int]?
                 
             default:
                 chars.append(character)
-                //                    print(chars)
                 break
             }
         }
         if (startChapter != 0) {
             if (endChapter == 0) {
                 if (colonCount == 0) {
-                    if (Int(chars) != nil) {
-                        endChapter = Int(chars)!
+                    if let num = Int(chars) {
+                        endChapter = num
                     }
                     chars = Constants.EMPTY_STRING
                 }
@@ -1651,19 +1598,14 @@ func chaptersFromScriptureReference(_ scriptureReference:String?) -> [Int]?
             }
         }
         if seenComma {
-            if Int(chars) != nil {
+            if let num = Int(chars) {
                 if !seenColon {
                     // This is a chapter not a verse
-                    if let num = Int(chars) {
-                        chapters.append(num)
-                    }
+                    chapters.append(num)
                 }
             }
         }
     }
-    
-    //    print("\(scripture)")
-    //    print("\(chapters)")
     
     return chapters.count > 0 ? chapters : nil
 }
@@ -1677,8 +1619,6 @@ func booksFromScriptureReference(_ scriptureReference:String?) -> [String]?
     var books = [String]()
 
     var string = scriptureReference
-    
-    //        print(string)
     
     var otBooks = [String]()
     
@@ -1703,8 +1643,6 @@ func booksFromScriptureReference(_ scriptureReference:String?) -> [String]?
     
     string = string.replacingOccurrences(of: Constants.SINGLE_SPACE, with: Constants.EMPTY_STRING)
     
-    //        print(string)
-    
     // Only works for "<book> - <book>"
     
     if (string == "-") {
@@ -1715,9 +1653,6 @@ func booksFromScriptureReference(_ scriptureReference:String?) -> [String]?
             
             if ((book1?.upperBound < hyphen?.lowerBound) && (hyphen?.upperBound < book2?.lowerBound)) ||
                 ((book2?.upperBound < hyphen?.lowerBound) && (hyphen?.upperBound < book1?.lowerBound)) {
-                //                print(first)
-                //                print(last)
-                
                 books = [String]()
                 
                 let first = books[0]
@@ -1758,8 +1693,6 @@ func booksFromScriptureReference(_ scriptureReference:String?) -> [String]?
             }
         }
     }
-    
-//    print(books)
     
     return books.count > 0 ? books.sorted() { scriptureReference.range(of: $0)?.lowerBound < scriptureReference.range(of: $1)?.lowerBound } : nil // redundant
 }
@@ -1817,13 +1750,13 @@ func mediaItemsInBook(_ mediaItems:[MediaItem]?,book:String?) -> [MediaItem]?
 
 func booksFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
 {
-    guard (mediaItems != nil) else {
+    guard let mediaItems = mediaItems else {
         return nil
     }
     
     var bookSet = Set<String>()
     
-    for mediaItem in mediaItems! {
+    for mediaItem in mediaItems {
         if let books = mediaItem.books {
             for book in books {
                 bookSet.insert(book)
@@ -1857,13 +1790,13 @@ func booksFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
 
 func bookSectionsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
 {
-    guard (mediaItems != nil) else {
+    guard let mediaItems = mediaItems else {
         return nil
     }
     
     var bookSectionSet = Set<String>()
     
-    for mediaItem in mediaItems! {
+    for mediaItem in mediaItems {
         for bookSection in mediaItem.bookSections {
             bookSectionSet.insert(bookSection)
         }
@@ -1918,7 +1851,9 @@ func seriesSectionsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
     
     return Array(
             Set(
-                mediaItems.map({ (mediaItem:MediaItem) -> String in
+                mediaItems.filter({ (mediaItem:MediaItem) -> Bool in
+                    return mediaItem.hasMultipleParts
+                }).map({ (mediaItem:MediaItem) -> String in
                     return mediaItem.multiPartSection!
                 })
             )
@@ -1939,7 +1874,7 @@ func seriesSectionsFromMediaItems(_ mediaItems:[MediaItem]?,withTitles:Bool) -> 
                     if (mediaItem.hasMultipleParts) {
                         return mediaItem.multiPartName!
                     } else {
-                        return withTitles ? mediaItem.title! : Constants.Individual_Media
+                        return withTitles ? mediaItem.title ?? "TITLE" : Constants.Individual_Media
                     }
                 })
             )
@@ -2000,9 +1935,6 @@ func tokensFromString(_ string:String?) -> [String]?
         str = str.substring(to: range.lowerBound)
     }
     
-    //        print(name)
-    //        print(string)
-    
     var token = Constants.EMPTY_STRING
     let trimChars = Constants.UNBREAKABLE_SPACE + Constants.QUOTES + " '" // ‘”
     let breakChars = "\" :-!;,.()?&/<>[]" + Constants.UNBREAKABLE_SPACE + Constants.DOUBLE_QUOTES // ‘“
@@ -2029,9 +1961,7 @@ func tokensFromString(_ string:String?) -> [String]?
             }
             
             if token != token.trimmingCharacters(in: CharacterSet(charactersIn: trimChars)) {
-                //                print("\(token)")
                 token = token.trimmingCharacters(in: CharacterSet(charactersIn: trimChars))
-                //                print("\(token)")
             }
             
             if token != Constants.EMPTY_STRING {
@@ -2044,19 +1974,14 @@ func tokensFromString(_ string:String?) -> [String]?
     }
     
     for char in str.characters {
-        //        print(char)
-        
         if UnicodeScalar(String(char)) != nil {
             if let unicodeScalar = UnicodeScalar(String(char)), CharacterSet(charactersIn: breakChars).contains(unicodeScalar) {
-                //                print(token)
                 processToken()
             } else {
                 if let unicodeScalar = UnicodeScalar(String(char)), !CharacterSet(charactersIn: "$0123456789").contains(unicodeScalar) {
                     if !CharacterSet(charactersIn: trimChars).contains(unicodeScalar) || (token != Constants.EMPTY_STRING) {
                         // DO NOT WANT LEADING CHARS IN SET
-                        //                        print(token)
                         token.append(char)
-                        //                        print(token)
                     }
                 }
             }
@@ -2087,9 +2012,6 @@ func tokensAndCountsFromString(_ string:String?) -> [String:Int]?
         str = str.substring(to: range.lowerBound)
     }
     
-    //        print(name)
-    //        print(string)
-    
     var token = Constants.EMPTY_STRING
     let trimChars = Constants.UNBREAKABLE_SPACE + Constants.QUOTES + " '" // ‘”
     let breakChars = "\" :-!;,.()?&/<>[]" + Constants.UNBREAKABLE_SPACE + Constants.DOUBLE_QUOTES // ‘“
@@ -2116,13 +2038,10 @@ func tokensAndCountsFromString(_ string:String?) -> [String:Int]?
             }
             
             if token != token.trimmingCharacters(in: CharacterSet(charactersIn: trimChars)) {
-//                print("\(token)")
                 token = token.trimmingCharacters(in: CharacterSet(charactersIn: trimChars))
-//                print("\(token)")
             }
             
             if token != Constants.EMPTY_STRING {
-//                print(token.uppercased())
                 if let count = tokens[token.uppercased()] {
                     tokens[token.uppercased()] = count + 1
                 } else {
@@ -2136,19 +2055,14 @@ func tokensAndCountsFromString(_ string:String?) -> [String:Int]?
     }
     
     for char in str.characters {
-        //        print(char)
-        
         if UnicodeScalar(String(char)) != nil {
             if let unicodeScalar = UnicodeScalar(String(char)), CharacterSet(charactersIn: breakChars).contains(unicodeScalar) {
-//                print(token)
                 processToken()
             } else {
                 if let unicodeScalar = UnicodeScalar(String(char)), !CharacterSet(charactersIn: "$0123456789").contains(unicodeScalar) {
                     if !CharacterSet(charactersIn: trimChars).contains(unicodeScalar) || (token != Constants.EMPTY_STRING) {
                         // DO NOT WANT LEADING CHARS IN SET
-//                        print(token)
                         token.append(char)
-//                        print(token)
                     }
                 }
             }
@@ -2188,9 +2102,6 @@ func firstNameFromName(_ name:String?) -> String?
     }
     
     string = string.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-    
-    //        print(name)
-    //        print(string)
     
     var newString = Constants.EMPTY_STRING
     
@@ -2233,7 +2144,7 @@ func classSectionsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
     
     return Array(
             Set(mediaItems.map({ (mediaItem:MediaItem) -> String in
-                return mediaItem.classSection!
+                return mediaItem.classSection ?? "CLASS SECTION"
             })
             )
             ).sorted()
@@ -2247,7 +2158,7 @@ func speakerSectionsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
     
     return Array(
             Set(mediaItems.map({ (mediaItem:MediaItem) -> String in
-                return mediaItem.speakerSection!
+                return mediaItem.speakerSection ?? "SPEAKER SECTION"
             })
             )
             ).sorted(by: { (first:String, second:String) -> Bool in
@@ -2265,7 +2176,7 @@ func speakersFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
             Set(mediaItems.filter({ (mediaItem:MediaItem) -> Bool in
                 return mediaItem.hasSpeaker
             }).map({ (mediaItem:MediaItem) -> String in
-                return mediaItem.speaker!
+                return mediaItem.speaker ?? "SPEAKER"
             })
             )
             ).sorted(by: { (first:String, second:String) -> Bool in
@@ -2279,9 +2190,6 @@ func sortMediaItemsChronologically(_ mediaItems:[MediaItem]?) -> [MediaItem]?
         if let firstDate = $0.fullDate, let secondDate = $1.fullDate {
             if (firstDate.isEqualTo(secondDate)) {
                 if ($0.service == $1.service) {
-                    //                print($0)
-                    //                print($1)
-                    
                     return $0.id < $1.id
                 } else {
                     return $0.service < $1.service
@@ -2301,9 +2209,6 @@ func sortMediaItemsReverseChronologically(_ mediaItems:[MediaItem]?) -> [MediaIt
         if let firstDate = $0.fullDate, let secondDate = $1.fullDate {
             if (firstDate.isEqualTo(secondDate)) {
                 if ($0.service == $1.service) {
-    //                print($0)
-    //                print($1)
-                    
                     return $0.id > $1.id
                 } else {
                     return $0.service > $1.service
@@ -2517,17 +2422,17 @@ func tagsSetFromTagsString(_ tagsString:String?) -> Set<String>?
 
 func tagsArrayToTagsString(_ tagsArray:[String]?) -> String?
 {
-    if tagsArray != nil {
-        var tagString:String?
-        
-        for tag in tagsArray! {
-            tagString = tagString != nil ? tagString! + Constants.TAGS_SEPARATOR + tag : tag
-        }
-        
-        return tagString
-    } else {
+    guard let tagsArray = tagsArray else {
         return nil
     }
+    
+    var tagString:String?
+    
+    for tag in tagsArray {
+        tagString = (tagString != nil ? tagString! + Constants.TAGS_SEPARATOR : "") + tag
+    }
+    
+    return tagString
 }
 
 func tagsArrayFromTagsString(_ tagsString:String?) -> [String]?
@@ -2535,7 +2440,7 @@ func tagsArrayFromTagsString(_ tagsString:String?) -> [String]?
     var arrayOfTags:[String]?
     
     if let tags = tagsSetFromTagsString(tagsString) {
-        arrayOfTags = Array(tags) //.sort() { $0 < $1 } // .sort() { stringWithoutLeadingTheOrAOrAn($0) < stringWithoutLeadingTheOrAOrAn($1) } // Not sorted
+        arrayOfTags = Array(tags)
     }
     
     return arrayOfTags
@@ -2562,13 +2467,13 @@ func mediaItemsWithTag(_ mediaItems:[MediaItem]?,tag:String?) -> [MediaItem]?
 
 func tagsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
 {
-    guard (mediaItems != nil) else {
+    guard let mediaItems = mediaItems else {
         return nil
     }
 
     var tagsSet = Set<String>()
     
-    for mediaItem in mediaItems! {
+    for mediaItem in mediaItems {
         if let tags = mediaItem.tagsSet {
             tagsSet.formUnion(tags)
         }
@@ -2579,73 +2484,28 @@ func tagsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
     
     tagsArray.append(Constants.All)
     
-    //    print("Tag Set: \(tagsSet)")
-    //    print("Tag Array: \(tagsArray)")
-    
     return tagsArray.count > 0 ? tagsArray : nil
 }
 
-//func sort(method:String?,strings:[String]?) -> [String]?
-//{
-//    guard let strings = strings else {
-//        return nil
-//    }
-//    
-//    guard let method = method else {
-//        return nil
-//    }
-//
-//    switch method {
-//    case Constants.Sort.Alphabetical:
-//        return strings.sorted()
-//        
-//    case Constants.Sort.Frequency:
-//        return strings.sorted(by: { (first:String, second:String) -> Bool in
-//            if let rangeFirst = first.range(of: " ("), let rangeSecond = second.range(of: " (") {
-//                let left = first.substring(from: rangeFirst.upperBound)
-//                let right = second.substring(from: rangeSecond.upperBound)
-//                
-//                let first = first.substring(to: rangeFirst.lowerBound)
-//                let second = second.substring(to: rangeSecond.lowerBound)
-//                
-//                if let rangeLeft = left.range(of: ")"), let rangeRight = right.range(of: ")") {
-//                    let left = left.substring(to: rangeLeft.lowerBound)
-//                    let right = right.substring(to: rangeRight.lowerBound)
-//                    
-//                    if let left = Int(left), let right = Int(right) {
-//                        if left == right {
-//                            return first < second
-//                        } else {
-//                            return left > right
-//                        }
-//                    }
-//                }
-//                
-//                return false
-//            } else {
-//                return false
-//            }
-//        })
-//        
-//    default:
-//        return nil
-//    }
-//}
-
 func process(viewController:UIViewController,work:(()->(Any?))?,completion:((Any?)->())?)
 {
+    guard let view = viewController.view else {
+        return
+    }
+    
     guard (work != nil)  && (completion != nil) else {
         return
     }
     
-    
     guard let loadingViewController = viewController.storyboard?.instantiateViewController(withIdentifier: "Loading View Controller") else {
         return
     }
+
+    guard let container = loadingViewController.view else {
+        return
+    }
     
-    // to share
-    
-    DispatchQueue.main.async(execute: { () -> Void in
+    Thread.onMainThread { () -> (Void) in
         if let buttons = viewController.navigationItem.rightBarButtonItems {
             for button in buttons {
                 button.isEnabled = false
@@ -2658,10 +2518,6 @@ func process(viewController:UIViewController,work:(()->(Any?))?,completion:((Any
             }
         }
         
-        let view = viewController.view!
-
-        let container = loadingViewController.view!
-        
         container.frame = view.frame
         container.center = CGPoint(x: view.bounds.width / 2, y: view.bounds.height / 2)
         
@@ -2672,8 +2528,7 @@ func process(viewController:UIViewController,work:(()->(Any?))?,completion:((Any
         DispatchQueue.global(qos: .background).async {
             let data = work?()
             
-            DispatchQueue.main.async(execute: { () -> Void in
-
+            Thread.onMainThread { () -> (Void) in
                 if container != viewController.view {
                     container.removeFromSuperview()
                 }
@@ -2691,9 +2546,9 @@ func process(viewController:UIViewController,work:(()->(Any?))?,completion:((Any
                 }
                 
                 completion?(data)
-            })
+            }
         }
-    })
+    }
 }
 
 func translateTestament(_ testament:String) -> String
@@ -2760,7 +2615,7 @@ var alert:UIAlertController!
 
 func networkUnavailable(_ message:String?)
 {
-    alert(title:Constants.Network_Error,message:message)
+    alert(title:Constants.Strings.Network_Error,message:message)
 }
 
 func alert(title:String?,message:String?)
@@ -2782,9 +2637,9 @@ func alert(title:String?,message:String?)
     })
     alert.addAction(action)
     
-    DispatchQueue.main.async(execute: { () -> Void in
+    Thread.onMainThread { () -> (Void) in
         UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
-    })
+    }
 }
 
 func userAlert(title:String?,message:String?)
@@ -2800,9 +2655,9 @@ func userAlert(title:String?,message:String?)
         })
         alert.addAction(action)
         
-        DispatchQueue.main.async(execute: { () -> Void in
+        Thread.onMainThread { () -> (Void) in
             UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
-        })
+        }
     }
 }
 

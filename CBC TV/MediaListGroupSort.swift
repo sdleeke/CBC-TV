@@ -62,10 +62,6 @@ class StringNode {
     
     func printWords(_ cumulativeString:String?)
     {
-        //        guard string != nil else {
-        //            return
-        //        }
-        
         if wordEnding {
             if let cumulativeString = cumulativeString {
                 if let string = string {
@@ -78,8 +74,6 @@ class StringNode {
                     print(string)
                 }
             }
-            
-            //            print("\n")
         }
         
         guard let stringNodes = stringNodes else {
@@ -87,16 +81,15 @@ class StringNode {
         }
         
         for stringNode in stringNodes.sorted(by: { $0.string < $1.string }) {
-            //            print(string!+"-")
-            if cumulativeString != nil {
+            if let cumulativeString = cumulativeString {
                 if let string = string {
-                    stringNode.printWords(cumulativeString!+string+"-")
+                    stringNode.printWords(cumulativeString + string + "-")
                 } else {
-                    stringNode.printWords(cumulativeString!+"-")
+                    stringNode.printWords(cumulativeString + "-")
                 }
             } else {
                 if let string = string {
-                    stringNode.printWords(string+"-")
+                    stringNode.printWords(string + "-")
                 } else {
                     stringNode.printWords(nil)
                 }
@@ -106,32 +99,23 @@ class StringNode {
     
     func htmlWords(_ cumulativeString:String?) -> [String]?
     {
-        //        guard string != nil else {
-        //            return
-        //        }
-
         var html = [String]()
         
         if wordEnding {
-            if cumulativeString != nil {
-                if string != nil {
-                    let word = cumulativeString! + string! + "</td>"
+            if let cumulativeString = cumulativeString {
+                if let string = string {
+                    let word = cumulativeString + string + "</td>"
                     html.append(word)
-//                    print(word)
                 } else {
-                    let word = cumulativeString! + "</td>"
+                    let word = cumulativeString + "</td>"
                     html.append(word)
-//                    print(word)
                 }
             } else {
-                if string != nil {
-                    let word = "<td>" + string! + "</td>"
+                if let string = string {
+                    let word = "<td>" + string + "</td>"
                     html.append(word)
-//                    print(word)
                 }
             }
-            
-            //            print("\n")
         }
 
         guard let stringNodes = stringNodes else {
@@ -139,20 +123,19 @@ class StringNode {
         }
         
         for stringNode in stringNodes.sorted(by: { $0.string < $1.string }) {
-            //            print(string!+"-")
-            if cumulativeString != nil {
-                if string != nil {
-                    if let words = stringNode.htmlWords(cumulativeString!+string!+"</td><td>") {
+            if let cumulativeString = cumulativeString {
+                if let string = string {
+                    if let words = stringNode.htmlWords(cumulativeString + string + "</td><td>") {
                         html.append(contentsOf: words)
                     }
                 } else {
-                    if let words = stringNode.htmlWords(cumulativeString!+"</td><td>") {
+                    if let words = stringNode.htmlWords(cumulativeString + "</td><td>") {
                         html.append(contentsOf: words)
                     }
                 }
             } else {
-                if string != nil {
-                    if let words = stringNode.htmlWords("<td>" + string! + "</td><td>") {
+                if let string = string {
+                    if let words = stringNode.htmlWords("<td>" + string + "</td><td>") {
                         html.append(contentsOf: words)
                     }
                 } else {
@@ -296,11 +279,11 @@ class StringNode {
     
     func addStrings(_ strings:[String]?)
     {
-        guard strings != nil else {
+        guard let strings = strings else {
             return
         }
         
-        for string in strings! {
+        for string in strings {
             addString(string)
         }
     }
@@ -309,8 +292,6 @@ class StringNode {
 class MediaListGroupSort {
     @objc func freeMemory()
     {
-//        lexicon = nil
-        
         guard searches != nil else {
             return
         }
@@ -427,7 +408,7 @@ class MediaListGroupSort {
     var mediaItemTags:[String]? {
         get {
             return tagMediaItems?.keys.sorted(by: { $0 < $1 }).map({ (string:String) -> String in
-                return self.tagNames![string]!
+                return self.tagNames?[string] ?? "TAG NAME"
             })
         }
     }
@@ -480,9 +461,6 @@ class MediaListGroupSort {
                         entries = [(Constants.None,Constants.None)]
                     }
                 }
-                //                if entries?.count > 1 {
-                //                    print(mediaItem,entries!)
-                //                }
                 break
                 
             case GROUPING.SPEAKER:
@@ -815,11 +793,11 @@ class MediaListGroupSort {
     
     init(mediaItems:[MediaItem]?)
     {
-        DispatchQueue.main.async {
+        Thread.onMainThread { () -> (Void) in
             NotificationCenter.default.addObserver(self, selector: #selector(MediaListGroupSort.freeMemory), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FREE_MEMORY), object: nil)
         }
         
-        guard (mediaItems != nil) else {
+        guard let mediaItems = mediaItems else {
             return
         }
         
@@ -833,7 +811,7 @@ class MediaListGroupSort {
         tagMediaItems = [String:[MediaItem]]()
         tagNames = [String:String]()
 
-        for mediaItem in list! {
+        for mediaItem in mediaItems {
             if let tags =  mediaItem.tagsSet {
                 for tag in tags {
                     if let sortTag = stringWithoutPrefixes(tag) {

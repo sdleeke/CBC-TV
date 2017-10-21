@@ -12,9 +12,8 @@ class MediaTableViewCell: UITableViewCell
 {
     func clear()
     {
-        DispatchQueue.main.async {
+        Thread.onMainThread { () -> (Void) in
             self.title.attributedText = nil
-            self.detail.attributedText = nil
         }
     }
     
@@ -36,7 +35,6 @@ class MediaTableViewCell: UITableViewCell
         }
         
         title.isHidden = state
-        detail.isHidden = state
         
         icons.isHidden = state
     }
@@ -58,18 +56,18 @@ class MediaTableViewCell: UITableViewCell
                 after = formattedDate.substring(from: range.upperBound)
                 
                 if let before = before {
-                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.normal))
+                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
                 }
                 if let string = string {
-                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.highlighted))
+                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
                 }
                 if let after = after {
-                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.normal))
+                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
                 }
             }
         } else {
             if let formattedDate = mediaItem?.formattedDate {
-                titleString.append(NSAttributedString(string:formattedDate, attributes: Constants.Fonts.Attributes.normal))
+                titleString.append(NSAttributedString(string:formattedDate, attributes: Constants.Fonts.Attributes.body))
             }
         }
         
@@ -77,9 +75,9 @@ class MediaTableViewCell: UITableViewCell
             titleString.append(NSAttributedString(string: Constants.SINGLE_SPACE))
         }
         if let service = mediaItem?.service {
-            titleString.append(NSAttributedString(string: service, attributes: Constants.Fonts.Attributes.normal))
+            titleString.append(NSAttributedString(string: service, attributes: Constants.Fonts.Attributes.body))
         }
-        
+
         if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText).speaker, searchHit, let speaker = mediaItem?.speaker {
             var string:String?
             var before:String?
@@ -95,13 +93,13 @@ class MediaTableViewCell: UITableViewCell
                 }
                 
                 if let before = before {
-                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.normal))
+                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
                 }
                 if let string = string {
-                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.highlighted))
+                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
                 }
                 if let after = after {
-                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.normal))
+                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
                 }
             }
         } else {
@@ -109,16 +107,9 @@ class MediaTableViewCell: UITableViewCell
                 titleString.append(NSAttributedString(string: Constants.SINGLE_SPACE))
             }
             if let speaker = mediaItem?.speaker {
-                titleString.append(NSAttributedString(string:speaker, attributes: Constants.Fonts.Attributes.normal))
+                titleString.append(NSAttributedString(string:speaker, attributes: Constants.Fonts.Attributes.body))
             }
         }
-        
-        DispatchQueue.main.async {
-            //                print(titleString.string)
-            self.title.attributedText = titleString // NSAttributedString(string: "\(mediaItem!.formattedDate!) \(mediaItem!.service!) \(mediaItem!.speaker!)", attributes: normal)
-        }
-        
-        let detailString = NSMutableAttributedString()
         
         var title:String?
         
@@ -144,19 +135,27 @@ class MediaTableViewCell: UITableViewCell
                 string = title?.substring(with: range)
                 after = title?.substring(from: range.upperBound)
                 
+                if !titleString.string.isEmpty {
+                    titleString.append(NSAttributedString(string: "\n"))
+                }
+                
                 if let before = before {
-                    detailString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.bold))
+                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.headline))
                 }
                 if let string = string {
-                    detailString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.boldHighlighted))
+                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.headlineHighlighted))
                 }
                 if let after = after {
-                    detailString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.bold))
+                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.headline))
                 }
             }
         } else {
             if let title = title {
-                detailString.append(NSAttributedString(string: title,   attributes: Constants.Fonts.Attributes.bold))
+                if !titleString.string.isEmpty {
+                    titleString.append(NSAttributedString(string: "\n"))
+                }
+                
+                titleString.append(NSAttributedString(string: title,   attributes: Constants.Fonts.Attributes.headline))
             }
         }
         
@@ -170,25 +169,27 @@ class MediaTableViewCell: UITableViewCell
                 string = scriptureReference.substring(with: range)
                 after = scriptureReference.substring(from: range.upperBound)
                 
-                if !detailString.string.isEmpty {
-                    detailString.append(NSAttributedString(string: "\n"))
+                if !titleString.string.isEmpty {
+                    titleString.append(NSAttributedString(string: "\n"))
                 }
+                
                 if let before = before {
-                    detailString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.normal))
+                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
                 }
                 if let string = string {
-                    detailString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.highlighted))
+                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
                 }
                 if let after = after {
-                    detailString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.normal))
+                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
                 }
             }
         } else {
             if let scriptureReference = mediaItem?.scriptureReference {
-                if !detailString.string.isEmpty {
-                    detailString.append(NSAttributedString(string: "\n"))
+                if !titleString.string.isEmpty {
+                    titleString.append(NSAttributedString(string: "\n"))
                 }
-                detailString.append(NSAttributedString(string: scriptureReference,   attributes: Constants.Fonts.Attributes.normal))
+                
+                titleString.append(NSAttributedString(string: scriptureReference,   attributes: Constants.Fonts.Attributes.body))
             }
         }
         
@@ -202,25 +203,27 @@ class MediaTableViewCell: UITableViewCell
                 string = mediaItem?.className?.substring(with: range)
                 after = mediaItem?.className?.substring(from: range.upperBound)
                 
-                if !detailString.string.isEmpty {
-                    detailString.append(NSAttributedString(string: "\n"))
+                if !titleString.string.isEmpty {
+                    titleString.append(NSAttributedString(string: "\n"))
                 }
+                
                 if let before = before {
-                    detailString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.normal))
+                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
                 }
                 if let string = string {
-                    detailString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.highlighted))
+                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
                 }
                 if let after = after {
-                    detailString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.normal))
+                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
                 }
             }
         } else {
             if let className = mediaItem?.className {
-                if !detailString.string.isEmpty {
-                    detailString.append(NSAttributedString(string: "\n"))
+                if !titleString.string.isEmpty {
+                    titleString.append(NSAttributedString(string: "\n"))
                 }
-                detailString.append(NSAttributedString(string: className, attributes: Constants.Fonts.Attributes.normal))
+                
+                titleString.append(NSAttributedString(string: className, attributes: Constants.Fonts.Attributes.body))
             }
         }
         
@@ -234,31 +237,32 @@ class MediaTableViewCell: UITableViewCell
                 string = mediaItem?.eventName?.substring(with: range)
                 after = mediaItem?.eventName?.substring(from: range.upperBound)
                 
-                if !detailString.string.isEmpty {
-                    detailString.append(NSAttributedString(string: "\n"))
+                if !titleString.string.isEmpty {
+                    titleString.append(NSAttributedString(string: "\n"))
                 }
+                
                 if let before = before {
-                    detailString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.normal))
+                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
                 }
                 if let string = string {
-                    detailString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.highlighted))
+                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
                 }
                 if let after = after {
-                    detailString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.normal))
+                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
                 }
             }
         } else {
             if let eventName = mediaItem?.eventName {
-                if !detailString.string.isEmpty {
-                    detailString.append(NSAttributedString(string: "\n"))
+                if !titleString.string.isEmpty {
+                    titleString.append(NSAttributedString(string: "\n"))
                 }
-                detailString.append(NSAttributedString(string: eventName, attributes: Constants.Fonts.Attributes.normal))
+                
+                titleString.append(NSAttributedString(string: eventName, attributes: Constants.Fonts.Attributes.body))
             }
         }
         
-        DispatchQueue.main.async {
-            //                print(detailString.string)
-            self.detail.attributedText = detailString
+        Thread.onMainThread { () -> (Void) in
+            self.title.attributedText = titleString
         }
     }
     
@@ -279,7 +283,7 @@ class MediaTableViewCell: UITableViewCell
 
         setupText()
         
-        if (detail.text != nil) || (detail.attributedText != nil) {
+        if (title.text != nil) || (title.attributedText != nil) {
             isHiddenUI(false)
         }
     }
@@ -299,15 +303,15 @@ class MediaTableViewCell: UITableViewCell
         }
         didSet {
             if (oldValue != nil) {
-                DispatchQueue.main.async(execute: { () -> Void in
+                Thread.onMainThread { () -> (Void) in
                     NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_CELL), object: oldValue)
-                })
+                }
             }
             
             if (mediaItem != nil) {
-                DispatchQueue.main.async(execute: { () -> Void in
+                Thread.onMainThread { () -> (Void) in
                     NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewCell.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_CELL), object: self.mediaItem)
-                })
+                }
             }
             
             updateUI()
@@ -315,27 +319,29 @@ class MediaTableViewCell: UITableViewCell
     }
     
     @IBOutlet weak var title: UILabel!
-    @IBOutlet weak var detail: UILabel!
     @IBOutlet weak var icons: UILabel!
     
-    override func addSubview(_ view: UIView)
-    {
-        super.addSubview(view)
-        
-        let buttonFont = UIFont(name: Constants.FA.name, size: Constants.FA.ACTION_ICONS_FONT_SIZE)
-        let confirmationClass: AnyClass = NSClassFromString("UITableViewCellDeleteConfirmationView")!
-        
-        // replace default font in swipe buttons
-        let s = subviews.flatMap({$0}).filter { $0.isKind(of: confirmationClass) }
-        
-        for sub in s {
-            for button in sub.subviews {
-                if let b = button as? UIButton {
-                    b.titleLabel?.font = buttonFont
-                }
-            }
-        }
-    }
+//    override func addSubview(_ view: UIView)
+//    {
+//        super.addSubview(view)
+//        
+//        guard let confirmationClass: AnyClass = NSClassFromString("UITableViewCellDeleteConfirmationView") else {
+//            return
+//        }
+//        
+//        let buttonFont = UIFont(name: Constants.FA.name, size: Constants.FA.ACTION_ICONS_FONT_SIZE)
+//        
+//        // replace default font in swipe buttons
+//        let s = subviews.flatMap({$0}).filter { $0.isKind(of: confirmationClass) }
+//        
+//        for sub in s {
+//            for button in sub.subviews {
+//                if let b = button as? UIButton {
+//                    b.titleLabel?.font = buttonFont
+//                }
+//            }
+//        }
+//    }
 
     func setupIcons()
     {
@@ -398,7 +404,7 @@ class MediaTableViewCell: UITableViewCell
                 attrString.append(NSAttributedString(string: Constants.SINGLE_SPACE + Constants.FA.AUDIO, attributes: Constants.FA.Fonts.Attributes.icons))
             }
             
-            DispatchQueue.main.async {
+            Thread.onMainThread { () -> (Void) in
                 self.icons.attributedText = attrString
             }
         } else {
@@ -443,7 +449,7 @@ class MediaTableViewCell: UITableViewCell
                 string = string + Constants.SINGLE_SPACE + Constants.FA.AUDIO
             }
             
-            DispatchQueue.main.async {
+            Thread.onMainThread { () -> (Void) in
                 self.icons.text = string
             }
         }

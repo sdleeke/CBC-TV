@@ -43,52 +43,54 @@ struct MediaRepository {
             classes = nil
             events = nil
             
-            if (list != nil) {
-                for mediaItem in list! {
-                    if let id = mediaItem.id {
-                        if index == nil {
-                            index = [String:MediaItem]()
-                        }
-                        if index![id] == nil {
-                            index![id] = mediaItem
-                        } else {
-                            print("DUPLICATE MEDIAITEM ID: \(mediaItem)")
-                        }
+            guard let list = list else {
+                return
+            }
+            
+            for mediaItem in list {
+                if let id = mediaItem.id {
+                    if index == nil {
+                        index = [String:MediaItem]()
                     }
-                    
-                    if let className = mediaItem.className {
-                        if classes == nil {
-                            classes = [className]
-                        } else {
-                            classes?.append(className)
-                        }
-                    }
-                    
-                    if let eventName = mediaItem.eventName {
-                        if events == nil {
-                            events = [eventName]
-                        } else {
-                            events?.append(eventName)
-                        }
+                    if index?[id] == nil {
+                        index?[id] = mediaItem
+                    } else {
+                        print("DUPLICATE MEDIAITEM ID: \(mediaItem)")
                     }
                 }
                 
-                globals.groupings = Constants.groupings
-                globals.groupingTitles = Constants.GroupingTitles
+                if let className = mediaItem.className {
+                    if classes == nil {
+                        classes = [className]
+                    } else {
+                        classes?.append(className)
+                    }
+                }
+                
+                if let eventName = mediaItem.eventName {
+                    if events == nil {
+                        events = [eventName]
+                    } else {
+                        events?.append(eventName)
+                    }
+                }
+            }
+            
+            globals.groupings = Constants.groupings
+            globals.groupingTitles = Constants.GroupingTitles
 
-                if classes?.count > 0 {
-                    globals.groupings.append(GROUPING.CLASS)
-                    globals.groupingTitles.append(Grouping.Class)
-                }
-                
-                if events?.count > 0 {
-                    globals.groupings.append(GROUPING.EVENT)
-                    globals.groupingTitles.append(Grouping.Event)
-                }
-                
-                if let grouping = globals.grouping, !globals.groupings.contains(grouping) {
-                    globals.grouping = GROUPING.YEAR
-                }
+            if classes?.count > 0 {
+                globals.groupings.append(GROUPING.CLASS)
+                globals.groupingTitles.append(Grouping.Class)
+            }
+            
+            if events?.count > 0 {
+                globals.groupings.append(GROUPING.EVENT)
+                globals.groupingTitles.append(Grouping.Event)
+            }
+            
+            if let grouping = globals.grouping, !globals.groupings.contains(grouping) {
+                globals.grouping = GROUPING.YEAR
             }
         }
     }
@@ -207,7 +209,11 @@ struct MediaCategory {
     
     var filename:String? {
         get {
-            return selectedID != nil ? Constants.JSON.ARRAY_KEY.MEDIA_ENTRIES + selectedID! +  Constants.JSON.FILENAME_EXTENSION : nil
+            guard let selectedID = selectedID else {
+                return nil
+            }
+
+            return Constants.JSON.ARRAY_KEY.MEDIA_ENTRIES + selectedID +  Constants.JSON.FILENAME_EXTENSION
         }
     }
     
@@ -224,7 +230,7 @@ struct MediaCategory {
     var selected:String? {
         get {
             if UserDefaults.standard.object(forKey: Constants.MEDIA_CATEGORY) == nil {
-                UserDefaults.standard.set(Constants.Sermons, forKey: Constants.MEDIA_CATEGORY)
+                UserDefaults.standard.set(Constants.Strings.Sermons, forKey: Constants.MEDIA_CATEGORY)
             }
             
             return UserDefaults.standard.string(forKey: Constants.MEDIA_CATEGORY)
@@ -413,7 +419,7 @@ struct Search {
         }
         didSet {
             if (text != oldValue) && !globals.isLoading {
-                if extant { //  && !lexicon
+                if extant {
                     UserDefaults.standard.set(text, forKey: Constants.SEARCH_TEXT)
                     UserDefaults.standard.synchronize()
                 } else {
@@ -524,50 +530,8 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
     
     func playerViewController(_ playerViewController: AVPlayerViewController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void)
     {
-//        if !mediaPlayer.killPIP {
-//            if globals.mediaPlayer.url == URL(string:Constants.URL.LIVE_STREAM) {
-//                DispatchQueue.main.async(execute: { () -> Void in
-//                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.LIVE_VIEW), object: nil)
-//                })
-//            } else {
-//                DispatchQueue.main.async(execute: { () -> Void in
-//                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.PLAYER_VIEW), object: nil)
-//                })
-//            }
-//        } else {
-//            mediaPlayer.killPIP = false
-//        }
-
         completionHandler(true)
     }
-    
-//    func playerViewController(_ playerViewController: AVPlayerViewController, failedToStartPictureInPictureWithError error: Error)
-//    {
-//        print("failedToStartPictureInPictureWithError \(error.localizedDescription)")
-//        mediaPlayer.pip = .stopped
-//    }
-    
-//    func playerViewControllerWillStopPictureInPicture(_ playerViewController: AVPlayerViewController) {
-//        print("playerViewControllerWillStopPictureInPicture")
-//        mediaPlayer.stoppingPIP = true
-//    }
-    
-//    func playerViewControllerDidStopPictureInPicture(_ playerViewController: AVPlayerViewController) {
-//        print("playerViewControllerDidStopPictureInPicture")
-//        mediaPlayer.pip = .stopped
-//        mediaPlayer.stoppingPIP = false
-//    }
-
-//    func playerViewControllerWillStartPictureInPicture(_ playerViewController: AVPlayerViewController) {
-//        print("playerViewControllerWillStartPictureInPicture")
-//        mediaPlayer.startingPIP = true
-//    }
-    
-//    func playerViewControllerDidStartPictureInPicture(_ playerViewController: AVPlayerViewController) {
-//        print("playerViewControllerDidStartPictureInPicture")
-//        mediaPlayer.pip = .started
-//        mediaPlayer.startingPIP = false
-//    }
     
     var loadSingles = true
     
@@ -575,21 +539,6 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
     
     let reachability = Reachability()!
     
-//    func reachabilityChanged(note: NSNotification)
-//    {
-//        let reachability = note.object as! Reachability
-//        
-//        if reachability.isReachable {
-//            if reachability.isReachableViaWiFi {
-//                print("Reachable via WiFi")
-//            } else {
-//                print("Reachable via Cellular")
-//            }
-//        } else {
-//            print("Network not reachable")
-//        }
-//    }
-
     override init()
     {
         super.init()
@@ -597,7 +546,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         reachability.whenReachable = { reachability in
             // this is called on a background thread, but UI updates must
             // be on the main thread, like this:
-            DispatchQueue.main.async() {
+            Thread.onMainThread { () -> (Void) in
                 if reachability.isReachableViaWiFi {
                     print("Reachable via WiFi")
                 } else {
@@ -608,16 +557,15 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         reachability.whenUnreachable = { reachability in
             // this is called on a background thread, but UI updates must
             // be on the main thread, like this:
-            DispatchQueue.main.async() {
+            Thread.onMainThread { () -> (Void) in
                 print("Not reachable")
             }
         }
         
-//        NotificationCenter.default.addObserver(self, selector: #selector(self.reachabilityChanged),name: ReachabilityChangedNotification,object: reachability)
-        
         do {
             try reachability.startNotifier()
-        } catch {
+        } catch let error as NSError {
+            NSLog(error.localizedDescription)
             print("Unable to start notifier")
         }
     }
@@ -631,10 +579,6 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         }
         didSet {
             media.need.grouping = (grouping != oldValue)
-            
-//            if (grouping != oldValue) {
-//                media.active?.html.string = nil
-//            }
             
             let defaults = UserDefaults.standard
             if (grouping != nil) {
@@ -653,10 +597,6 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         }
         didSet {
             media.need.sorting = (sorting != oldValue)
-            
-//            if (sorting != oldValue) {
-//                media.active?.html.string = nil
-//            }
             
             let defaults = UserDefaults.standard
             if (sorting != nil) {
@@ -681,8 +621,6 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
     
     var cacheDownloads:Bool {
         get {
-//            print(UserDefaults.standard.object(forKey: Constants.USER_SETTINGS.CACHE_DOWNLOADS))
-
             if UserDefaults.standard.object(forKey: Constants.USER_SETTINGS.CACHE_DOWNLOADS) == nil {
                 if #available(iOS 9.0, *) {
                     UserDefaults.standard.set(true, forKey: Constants.USER_SETTINGS.CACHE_DOWNLOADS)
@@ -699,24 +637,25 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         }
     }
     
-//    var isRefreshing:Bool   = false
     var isLoading:Bool      = false
-    
+    var isSorting:Bool      = false
+    var isGrouping:Bool     = false
+
     var search = Search()
     
     var contextTitle:String? {
         get {
             var string:String?
             
-            if let mediaCategory = globals.mediaCategory.selected {
-                string = mediaCategory // Category:
+            if let mediaCategory = globals.mediaCategory.selected, !mediaCategory.isEmpty {
+                string = mediaCategory
                 
-                if let tag = globals.media.tags.selected {
-                    string = string! + ", " + tag  // Collection:
+                if let tag = globals.media.tags.selected, string != nil {
+                    string = string! + ", " + tag
                 }
                 
-                if globals.search.valid, let search = globals.search.text {
-                    string = string! + ", \"\(search)\""  // Search:
+                if globals.search.valid, let search = globals.search.text, string != nil {
+                    string = string! + ", \"\(search)\""
                 }
             }
             
@@ -740,11 +679,11 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
                 string = mediaCategory
                 
                 if let tag = globals.media.tags.selected {
-                    string = (string != nil) ? string! + ":" + tag : tag
+                    string = ((string != nil) ? string! + ":" : "") + tag
                 }
                 
                 if globals.search.valid, let search = globals.search.text {
-                    string = (string != nil) ? string! + ":" + search : search
+                    string = ((string != nil) ? string! + ":" : "") + search
                 }
             }
             
@@ -756,11 +695,11 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         var string:String?
         
         if let context = contextString {
-            string = (string != nil) ? string! + ":" + context : context
+            string = ((string != nil) ? string! + ":" : "") + context
         }
         
         if let order = orderString {
-            string = (string != nil) ? string! + ":" + order : order
+            string = ((string != nil) ? string! + ":" : "") + order
         }
         
         return string
@@ -771,11 +710,11 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
             var string:String?
             
             if let sorting = globals.sorting {
-                string = (string != nil) ? string! + ":" + sorting : sorting
+                string = ((string != nil) ? string! + ":" : "") + sorting
             }
             
             if let grouping = globals.grouping {
-                string = (string != nil) ? string! + ":" + grouping : grouping
+                string = ((string != nil) ? string! + ":" : "") + grouping
             }
             
             return string
@@ -982,7 +921,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
             return globals.history?.reversed().filter({ (string:String) -> Bool in
                 if let range = string.range(of: Constants.TAGS_SEPARATOR) {
                     let mediaItemID = string.substring(from: range.upperBound)
-                    return globals.mediaRepository.index![mediaItemID] != nil
+                    return globals.mediaRepository.index?[mediaItemID] != nil
                 } else {
                     return false
                 }
@@ -1001,7 +940,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
                     if let range = history.range(of: Constants.TAGS_SEPARATOR) {
                         mediaItemID = history.substring(from: range.upperBound)
                         
-                        if let mediaItem = globals.mediaRepository.index![mediaItemID] {
+                        if let mediaItem = globals.mediaRepository.index?[mediaItemID] {
                             if let text = mediaItem.text {
                                 list.append(text)
                             } else {
@@ -1031,7 +970,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
     func freeMemory()
     {
         // Free memory in classes
-        DispatchQueue.main.async {
+        Thread.onMainThread { () -> (Void) in
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.FREE_MEMORY), object: nil)
         }
 
@@ -1182,7 +1121,8 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         
         do {
             try audioSession.setCategory(AVAudioSessionCategoryPlayback)
-        } catch _ {
+        } catch let error as NSError {
+            NSLog(error.localizedDescription)
             print("failed to setCategory(AVAudioSessionCategoryPlayback)")
         }
         
@@ -1201,7 +1141,8 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         
         do {
             try audioSession.setActive(false)
-        } catch _ {
+        } catch let error as NSError {
+            NSLog(error.localizedDescription)
             print("failed to audioSession.setActive(false)")
         }
     }
@@ -1280,7 +1221,6 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         //    }
         
         MPRemoteCommandCenter.shared().skipBackwardCommand.isEnabled = true
-//        MPRemoteCommandCenter.shared().skipBackwardCommand.preferredIntervals = [15]
         MPRemoteCommandCenter.shared().skipBackwardCommand.addTarget (handler: { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
             print("RemoteControlSkipBackward")
             if let seconds = self.mediaPlayer.currentTime?.seconds {
@@ -1292,7 +1232,6 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         })
         
         MPRemoteCommandCenter.shared().skipForwardCommand.isEnabled = true
-        //        MPRemoteCommandCenter.shared().skipForwardCommand.preferredIntervals = [15]
         MPRemoteCommandCenter.shared().skipForwardCommand.addTarget (handler: { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
             print("RemoteControlSkipForward")
             if let seconds = self.mediaPlayer.currentTime?.seconds {
@@ -1307,8 +1246,12 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
             MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled = true
             MPRemoteCommandCenter.shared().changePlaybackPositionCommand.addTarget (handler: { (event:MPRemoteCommandEvent!) -> MPRemoteCommandHandlerStatus in
                 print("MPChangePlaybackPositionCommand")
-                self.mediaPlayer.seek(to: (event as! MPChangePlaybackPositionCommandEvent).positionTime)
-                return MPRemoteCommandHandlerStatus.success
+                if let positionTime = (event as? MPChangePlaybackPositionCommandEvent)?.positionTime {
+                    self.mediaPlayer.seek(to: positionTime)
+                    return MPRemoteCommandHandlerStatus.success
+                } else {
+                    return MPRemoteCommandHandlerStatus.commandFailed
+                }
             })
         } else {
             // Fallback on earlier versions

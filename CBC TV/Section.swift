@@ -12,11 +12,11 @@ class Section
 {
     func indexPath(from string:String?) -> IndexPath?
     {
-        guard counts?.count == indexes?.count else {
+        guard let string = string else {
             return nil
         }
         
-        guard let string = string else {
+        guard let counts = counts, let indexes = indexes, counts.count == indexes.count else {
             return nil
         }
         
@@ -24,22 +24,16 @@ class Section
             return nil
         }
         
-        if counts?.count == indexes?.count {
-            var section = 0
-            
-            while index >= (indexes![section] + counts![section]) {
-                section += 1
-            }
-            
-            if let sectionIndex = indexes?[section] {
-                
-                let row = index - sectionIndex
-                
-                return IndexPath(row: row, section: section)
-            }
+        var section = 0
+        
+        while index >= (indexes[section] + counts[section]) {
+            section += 1
         }
         
-        return nil
+        let sectionIndex = indexes[section]
+        let row = index - sectionIndex
+            
+        return IndexPath(row: row, section: section)
     }
     
     func index(_ indexPath:IndexPath) -> Int
@@ -112,7 +106,11 @@ class Section
             }
             
             indexStrings = strings.map({ (string:String) -> String in
-                return indexStringsTransform != nil ? indexStringsTransform!(string.uppercased())! : string.uppercased()
+                if let string = indexStringsTransform?(string.uppercased()) {
+                    return string
+                } else {
+                    return string.uppercased()
+                }
             })
         }
     }
@@ -161,18 +159,22 @@ class Section
                             return string
                         }
                     })
-                )) // .sorted()
+                ))
             } else {
                 indexHeaders = Array(Set(
                     indexStrings.map({ (string:String) -> String in
-                        return indexHeadersTransform!(string)!
+                        if let string = indexHeadersTransform?(string) {
+                            return string
+                        } else {
+                            return string
+                        }
                     })
-                )) // .sorted()
+                ))
             }
             
-            if indexSort != nil {
+            if let indexSort = indexSort {
                 indexHeaders = indexHeaders?.sorted(by: {
-                    return indexSort!($0,$1)
+                    return indexSort($0,$1)
                 })
             } else {
                 indexHeaders = indexHeaders?.sorted()
@@ -213,17 +215,15 @@ class Section
                 var indexes = [Int]()
                 var keys = [String]()
                 
-                if indexSort != nil {
+                if let indexSort = indexSort {
                     keys = stringIndex.keys.sorted(by: {
-                        return indexSort!($0,$1)
+                        return indexSort($0,$1)
                     })
                 } else {
                     keys = stringIndex.keys.sorted()
                 }
                 
                 for key in keys {
-                    //                print(stringIndex[key]!)
-                    
                     if let count = stringIndex[key]?.count {
                         indexes.append(counter)
                         counts.append(count)
@@ -278,95 +278,5 @@ class Section
     
     var counts:[Int]?
     var indexes:[Int]?
-    
-    //    var strings:[String]? {
-    //        willSet {
-    //
-    //        }
-    //        didSet {
-    //            indexStrings = strings?.map({ (string:String) -> String in
-    //                return indexTransform != nil ? indexTransform!(string.uppercased())! : string.uppercased()
-    //            })
-    //        }
-    //    }
-    //
-    //    var indexStrings:[String]?
-    //
-    //    var indexTransform:((String?)->String?)? = stringWithoutPrefixes
-    //
-    //    var showHeaders = false
-    //    var showIndex = false
-    //
-    //    var titles:[String]?
-    //    var counts:[Int]?
-    //    var indexes:[Int]?
-    
-    //    func build()
-    //    {
-    //        guard strings?.count > 0 else {
-    //            titles = nil
-    //            counts = nil
-    //            indexes = nil
-    //
-    //            return
-    //        }
-    //
-    //        if showIndex {
-    //            guard indexStrings?.count > 0 else {
-    //                titles = nil
-    //                counts = nil
-    //                indexes = nil
-    //
-    //                return
-    //            }
-    //        }
-    //
-    //        let a = "A"
-    //
-    //        titles = Array(Set(indexStrings!
-    //
-    //            .map({ (string:String) -> String in
-    //                if string.endIndex >= a.endIndex {
-    //                    return string.substring(to: a.endIndex).uppercased()
-    //                } else {
-    //                    return string
-    //                }
-    //            })
-    //
-    //        )).sorted() { $0 < $1 }
-    //
-    //        if titles?.count == 0 {
-    //            titles = nil
-    //            counts = nil
-    //            indexes = nil
-    //        } else {
-    //            var stringIndex = [String:[String]]()
-    //
-    //            for indexString in indexStrings! {
-    //                if stringIndex[indexString.substring(to: a.endIndex)] == nil {
-    //                    stringIndex[indexString.substring(to: a.endIndex)] = [String]()
-    //                }
-    //                //                print(testString,string)
-    //                stringIndex[indexString.substring(to: a.endIndex)]?.append(indexString)
-    //            }
-    //
-    //            var counter = 0
-    //
-    //            var counts = [Int]()
-    //            var indexes = [Int]()
-    //
-    //            for key in stringIndex.keys.sorted() {
-    //                //                print(stringIndex[key]!)
-    //
-    //                indexes.append(counter)
-    //                counts.append(stringIndex[key]!.count)
-    //                
-    //                counter += stringIndex[key]!.count
-    //            }
-    //            
-    //            self.counts = counts.count > 0 ? counts : nil
-    //            self.indexes = indexes.count > 0 ? indexes : nil
-    //        }
-    //    }
 }
 

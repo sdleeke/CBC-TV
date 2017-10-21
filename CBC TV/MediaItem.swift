@@ -23,58 +23,58 @@ struct SearchHit {
     
     var title:Bool {
         get {
-            guard searchText != nil else {
+            guard let searchText = searchText else {
                 return false
             }
-            return mediaItem?.title?.range(of:searchText!, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
+            return mediaItem?.title?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
         }
     }
     var formattedDate:Bool {
         get {
-            guard searchText != nil else {
+            guard let searchText = searchText else {
                 return false
             }
-            return mediaItem?.formattedDate?.range(of:searchText!, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
+            return mediaItem?.formattedDate?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
         }
     }
     var speaker:Bool {
         get {
-            guard searchText != nil else {
+            guard let searchText = searchText else {
                 return false
             }
-            return mediaItem?.speaker?.range(of:searchText!, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
+            return mediaItem?.speaker?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
         }
     }
     var scriptureReference:Bool {
         get {
-            guard searchText != nil else {
+            guard let searchText = searchText else {
                 return false
             }
-            return mediaItem?.scriptureReference?.range(of:searchText!, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
+            return mediaItem?.scriptureReference?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
         }
     }
     var className:Bool {
         get {
-            guard searchText != nil else {
+            guard let searchText = searchText else {
                 return false
             }
-            return mediaItem?.className?.range(of:searchText!, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
+            return mediaItem?.className?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
         }
     }
     var eventName:Bool {
         get {
-            guard searchText != nil else {
+            guard let searchText = searchText else {
                 return false
             }
-            return mediaItem?.eventName?.range(of:searchText!, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
+            return mediaItem?.eventName?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
         }
     }
     var tags:Bool {
         get {
-            guard searchText != nil else {
+            guard let searchText = searchText else {
                 return false
             }
-            return mediaItem?.tags?.range(of:searchText!, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
+            return mediaItem?.tags?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
         }
     }
 }
@@ -92,17 +92,16 @@ class MediaItem : NSObject {
     init(dict:[String:String]?)
     {
         super.init()
-//        print("\(dict)")
         self.dict = dict
         
-        DispatchQueue.main.async {
+        Thread.onMainThread { () -> (Void) in
             NotificationCenter.default.addObserver(self, selector: #selector(MediaItem.freeMemory), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FREE_MEMORY), object: nil)
         }
     }
     
     var id:String! {
         get {
-            return dict![Field.id]
+            return dict?[Field.id] ?? "ID"
         }
     }
     
@@ -130,9 +129,7 @@ class MediaItem : NSObject {
             let afterDate = afterClassCode.substring(from: ymd.endIndex)
             
             let code = afterDate.substring(to: "x".endIndex)
-            
-            //        print(code)
-            
+
             return code
         }
     }
@@ -173,8 +170,7 @@ class MediaItem : NSObject {
             
             let code = id.substring(from: string.endIndex)
             
-            if code != Constants.EMPTY_STRING  {
-                //            print(code)
+            if !code.isEmpty  {
                 return code
             } else {
                 return nil
@@ -189,7 +185,6 @@ class MediaItem : NSObject {
             }
             
             var mediaItemParts:[MediaItem]?
-            //                print(multiPartSort)
             if (globals.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL] == nil) {
                 mediaItemParts = globals.mediaRepository.list?.filter({ (testMediaItem:MediaItem) -> Bool in
                     if testMediaItem.hasMultipleParts {
@@ -203,12 +198,6 @@ class MediaItem : NSObject {
                     return (testMediaItem.multiPartName == multiPartName) && (testMediaItem.category == category)
                 })
             }
-            
-            //                print(id)
-            //                print(id.range(of: "s")?.lowerBound)
-            //                print("flYYMMDD".endIndex)
-            
-            //                print(mediaItemParts)
             
             // Filter for conference series
             
@@ -230,10 +219,10 @@ class MediaItem : NSObject {
             // Filter for multiple series of the same name
             var mediaList = [MediaItem]()
             
-            if mediaItemParts?.count > 1 {
+            if let mediaItemParts = mediaItemParts, mediaItemParts.count > 1 {
                 var number = 0
                 
-                for mediaItem in mediaItemParts! {
+                for mediaItem in mediaItemParts {
                     if let part = mediaItem.part, let partNumber = Int(part) {
                         if partNumber > number {
                             mediaList.append(mediaItem)
@@ -358,17 +347,19 @@ class MediaItem : NSObject {
         get {
             var url:URL?
             
-            switch playing! {
-            case Playing.audio:
-                url = audioURL
-                break
-                
-            case Playing.video:
-                url = videoURL
-                break
-                
-            default:
-                break
+            if let playing = playing {
+                switch playing {
+                case Playing.audio:
+                    url = audioURL
+                    break
+                    
+                case Playing.video:
+                    url = videoURL
+                    break
+                    
+                default:
+                    break
+                }
             }
             
             return url
@@ -393,36 +384,35 @@ class MediaItem : NSObject {
         }
     }
     
-    // this supports settings values that are saved in defaults between sessions
     var playing:String? {
         get {
-            if (dict![Field.playing] == nil) {
+            if (dict?[Field.playing] == nil) {
                 if let playing = mediaItemSettings?[Field.playing] {
-                    dict![Field.playing] = playing
+                    dict?[Field.playing] = playing
                 } else {
-                    dict![Field.playing] = hasAudio ? Playing.audio : (hasVideo ? Playing.video : nil)
+                    let playing = hasAudio ? Playing.audio : (hasVideo ? Playing.video : nil)
+                    dict?[Field.playing] = playing
                 }
             }
             
-            if !hasAudio && (dict![Field.playing] == Playing.audio) {
-                dict![Field.playing] = hasVideo ? Playing.video : nil
+            if !hasAudio && (dict?[Field.playing] == Playing.audio) {
+                dict?[Field.playing] = hasVideo ? Playing.video : nil
             }
 
-            if !hasVideo && (dict![Field.playing] == Playing.video) {
-                dict![Field.playing] = hasAudio ? Playing.video : nil
+            if !hasVideo && (dict?[Field.playing] == Playing.video) {
+                dict?[Field.playing] = hasAudio ? Playing.video : nil
             }
             
-            return dict![Field.playing]
+            return dict?[Field.playing]
         }
         
         set {
-            if newValue != dict![Field.playing] {
-                //Changing audio to video or vice versa resets the state and time.
+            if newValue != dict?[Field.playing] {
                 if globals.mediaPlayer.mediaItem == self {
                     globals.mediaPlayer.stop()
                 }
                 
-                dict![Field.playing] = newValue
+                dict?[Field.playing] = newValue
                 mediaItemSettings?[Field.playing] = newValue
             }
         }
@@ -430,24 +420,23 @@ class MediaItem : NSObject {
     
     var wasShowing:String? = Showing.slides //This is an arbitrary choice
     
-    // this supports settings values that are saved in defaults between sessions
     var showing:String? {
         get {
-            if (dict![Field.showing] == nil) {
+            if (dict?[Field.showing] == nil) {
                 if let showing = mediaItemSettings?[Field.showing] {
-                    dict![Field.showing] = showing
+                    dict?[Field.showing] = showing
                 } else {
-                    dict![Field.showing] = Showing.none
+                    dict?[Field.showing] = Showing.none
                 }
             }
-            return dict![Field.showing]
+            return dict?[Field.showing]
         }
         
         set {
             if newValue != Showing.video {
                 wasShowing = newValue
             }
-            dict![Field.showing] = newValue
+            dict?[Field.showing] = newValue
             mediaItemSettings?[Field.showing] = newValue
         }
     }
@@ -459,11 +448,11 @@ class MediaItem : NSObject {
             }
             
             if let atEnd = mediaItemSettings?[Constants.SETTINGS.AT_END+playing] {
-                dict![Constants.SETTINGS.AT_END+playing] = atEnd
+                dict?[Constants.SETTINGS.AT_END+playing] = atEnd
             } else {
-                dict![Constants.SETTINGS.AT_END+playing] = "NO"
+                dict?[Constants.SETTINGS.AT_END+playing] = "NO"
             }
-            return dict![Constants.SETTINGS.AT_END+playing] == "YES"
+            return dict?[Constants.SETTINGS.AT_END+playing] == "YES"
         }
         
         set {
@@ -471,7 +460,7 @@ class MediaItem : NSObject {
                 return
             }
             
-            dict![Constants.SETTINGS.AT_END+playing] = newValue ? "YES" : "NO"
+            dict?[Constants.SETTINGS.AT_END+playing] = newValue ? "YES" : "NO"
             mediaItemSettings?[Constants.SETTINGS.AT_END+playing] = newValue ? "YES" : "NO"
         }
     }
@@ -484,7 +473,11 @@ class MediaItem : NSObject {
     
     var hasCurrentTime : Bool
     {
-        return (currentTime != nil) && (Float(currentTime!) != nil)
+        guard let currentTime = currentTime else {
+            return false
+        }
+        
+        return Float(currentTime) != nil
     }
     
     var currentTime:String? {
@@ -494,12 +487,12 @@ class MediaItem : NSObject {
             }
             
             if let current_time = mediaItemSettings?[Constants.SETTINGS.CURRENT_TIME+playing] {
-                dict![Constants.SETTINGS.CURRENT_TIME+playing] = current_time
+                dict?[Constants.SETTINGS.CURRENT_TIME+playing] = current_time
             } else {
-                dict![Constants.SETTINGS.CURRENT_TIME+playing] = "\(0)"
+                dict?[Constants.SETTINGS.CURRENT_TIME+playing] = "\(0)"
             }
-//            print(dict![Constants.SETTINGS.CURRENT_TIME+playing])
-            return dict![Constants.SETTINGS.CURRENT_TIME+playing]
+
+            return dict?[Constants.SETTINGS.CURRENT_TIME+playing]
         }
         
         set {
@@ -507,7 +500,7 @@ class MediaItem : NSObject {
                 return
             }
             
-            dict![Constants.SETTINGS.CURRENT_TIME+playing] = newValue
+            dict?[Constants.SETTINGS.CURRENT_TIME+playing] = newValue
             
             if mediaItemSettings?[Constants.SETTINGS.CURRENT_TIME+playing] != newValue {
                mediaItemSettings?[Constants.SETTINGS.CURRENT_TIME+playing] = newValue
@@ -532,11 +525,6 @@ class MediaItem : NSObject {
             } else {
                 return nil
             }
-
-//            if let fullDate = fullDate {
-//                return (Calendar.current as NSCalendar).components(.year, from: fullDate).year
-//            }
-//            return nil
         }
     }
     
@@ -554,18 +542,12 @@ class MediaItem : NSObject {
             } else {
                 return "None"
             }
-
-//            if (year != nil) {
-//                return "\(year!)"
-//            } else {
-//                return "None"
-//            }
         }
     }
 
     func singleJSONFromURL() -> [String:String]?
     {
-        guard globals.reachability.isReachable else { // currentReachabilityStatus != .notReachable
+        guard globals.reachability.isReachable else {
             return nil
         }
         
@@ -574,7 +556,7 @@ class MediaItem : NSObject {
         }
         
         do {
-            let data = try Data(contentsOf: url) // , options: NSData.ReadingOptions.mappedIfSafe
+            let data = try Data(contentsOf: url)
             
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: [])
@@ -582,71 +564,12 @@ class MediaItem : NSObject {
             } catch let error as NSError {
                 NSLog(error.localizedDescription)
             }
-            
-            //            let json = JSON(data: data)
-            //            if json != JSON.null {
-            //
-            ////                print(json)
-            //
-            //                return json
-            //            }
         } catch let error as NSError {
             NSLog(error.localizedDescription)
         }
         
         return nil
     }
-    
-//    func singleJSONFromURL() -> JSON
-//    {
-//        do {
-//            let data = try Data(contentsOf: URL(string: Constants.JSON.URL.SINGLE + self.id!)!) // , options: NSData.ReadingOptions.mappedIfSafe
-//            
-//            let json = JSON(data: data)
-//            if json != JSON.null {
-//                
-////                print(json)
-//                
-//                return json
-//            }
-//        } catch let error as NSError {
-//            NSLog(error.localizedDescription)
-//        }
-//        
-//        return nil
-//    }
-    
-//    func loadSingleDict() -> [String:String]?
-//    {
-//        var mediaItemDicts = [[String:String]]()
-//        
-//        let json = singleJSONFromURL() // jsonDataFromDocumentsDirectory()
-//        
-//        if json != JSON.null {
-//            print("single json:\(json)")
-//            
-//            let mediaItems = json[Constants.JSON.ARRAY_KEY.SINGLE_ENTRY]
-//            
-//            for i in 0..<mediaItems.count {
-//                
-//                var dict = [String:String]()
-//                
-//                for (key,value) in mediaItems[i] {
-//                    dict["\(key)"] = "\(value)"
-//                }
-//                
-//                mediaItemDicts.append(dict)
-//            }
-//            
-////            print(mediaItemDicts)
-//            
-//            return mediaItemDicts.count > 0 ? mediaItemDicts[0] : nil
-//        } else {
-//            print("could not get json from URL, make sure that URL contains valid json.")
-//        }
-//        
-//        return nil
-//    }
     
     func formatDate(_ format:String?) -> String? {
         let dateStringFormatter = DateFormatter()
@@ -681,14 +604,14 @@ class MediaItem : NSObject {
     
     var dateService:String? {
         get {
-            return dict![Field.date]
+            return dict?[Field.date]
         }
     }
     
     var date:String? {
         get {
-            if let range = dict![Field.date]?.range(of: Constants.SINGLE_SPACE) {
-                return dict![Field.date]?.substring(to: range.lowerBound) // last two characters // dict![Field.title]
+            if let range = dict?[Field.date]?.range(of: Constants.SINGLE_SPACE) {
+                return dict?[Field.date]?.substring(to: range.lowerBound) // last two characters
             } else {
                 return nil
             }
@@ -697,8 +620,8 @@ class MediaItem : NSObject {
     
     var service:String? {
         get {
-            if let range = dict![Field.date]?.range(of: Constants.SINGLE_SPACE) {
-                return dict![Field.date]?.substring(from: range.upperBound) // last two characters // dict![Field.title]
+            if let range = dict?[Field.date]?.range(of: Constants.SINGLE_SPACE) {
+                return dict?[Field.date]?.substring(from: range.upperBound) // last two characters
             } else {
                 return nil
             }
@@ -707,19 +630,19 @@ class MediaItem : NSObject {
     
     var title:String? {
         get {
-            return dict![Field.title]
+            return dict?[Field.title]
         }
     }
     
     var category:String? {
         get {
-            return dict![Field.category]
+            return dict?[Field.category]
         }
     }
     
     var scriptureReference:String? {
         get {
-            return dict![Field.scripture]?.replacingOccurrences(of: "Psalm ", with: "Psalms ")
+            return dict?[Field.scripture]?.replacingOccurrences(of: "Psalm ", with: "Psalms ")
         }
     }
     
@@ -737,7 +660,7 @@ class MediaItem : NSObject {
     
     var className:String? {
         get {
-            return dict![Field.className]
+            return dict?[Field.className]
         }
     }
     
@@ -749,44 +672,40 @@ class MediaItem : NSObject {
     
     var eventSection:String! {
         get {
-            return hasEventName ? eventName! : Constants.None
+            return eventName ?? Constants.None
         }
     }
     
     var eventName:String? {
         get {
-            return dict![Field.eventName]
+            return dict?[Field.eventName]
         }
     }
     
     var speakerSectionSort:String! {
         get {
-            if let speakerSort = speakerSort {
-                return speakerSort.lowercased()
-            } else {
-                return "ERROR"
-            }
+            return speakerSort?.lowercased() ?? "ERROR"
         }
     }
     
     var speakerSection:String! {
         get {
-            return hasSpeaker ? speaker! : Constants.None
+            return speaker ?? Constants.None
         }
     }
     
     var speaker:String? {
         get {
-            return dict![Field.speaker]
+            return dict?[Field.speaker]
         }
     }
     
     // this saves calculated values in defaults between sessions
     var speakerSort:String? {
         get {
-            if dict![Field.speaker_sort] == nil {
+            if dict?[Field.speaker_sort] == nil {
                 if let speakerSort = mediaItemSettings?[Field.speaker_sort] {
-                    dict![Field.speaker_sort] = speakerSort
+                    dict?[Field.speaker_sort] = speakerSort
                 } else {
                     //Sort on last names.  This assumes the speaker names are all fo the form "... <last name>" with one or more spaces before the last name and no spaces IN the last name, e.g. "Van Kirk"
 
@@ -798,21 +717,18 @@ class MediaItem : NSObject {
                                 speakerSort = lastName
                             }
                             if let firstName = firstNameFromName(speaker) {
-                                speakerSort = (speakerSort != nil) ? speakerSort! + "," + firstName : firstName
+                                speakerSort = ((speakerSort != nil) ? speakerSort! + "," : "") + firstName
                             }
                         } else {
                             speakerSort = speaker
                         }
                     }
                         
-//                    print(speaker)
-//                    print(speakerSort)
-                    
-                    dict![Field.speaker_sort] = speakerSort != nil ? speakerSort : Constants.None
+                    dict?[Field.speaker_sort] = speakerSort ?? Constants.None
                 }
             }
 
-            return dict![Field.speaker_sort]
+            return dict?[Field.speaker_sort]
         }
     }
     
@@ -832,56 +748,52 @@ class MediaItem : NSObject {
     
     var multiPartSection:String! {
         get {
-            return hasMultipleParts ? multiPartName! : title! // Constants.Individual_Media
+            return hasMultipleParts ? multiPartName! : (title ?? Constants.Individual_Media)
         }
     }
     
-    // this saves calculated values in defaults between sessions
     var multiPartSort:String? {
         get {
-            if dict![Field.multi_part_name_sort] == nil {
+            if dict?[Field.multi_part_name_sort] == nil {
                 if let multiPartSort = mediaItemSettings?[Field.multi_part_name_sort] {
-                    dict![Field.multi_part_name_sort] = multiPartSort
+                    dict?[Field.multi_part_name_sort] = multiPartSort
                 } else {
                     if let multiPartSort = stringWithoutPrefixes(multiPartName) {
-                        dict![Field.multi_part_name_sort] = multiPartSort
-//                        settings?[Field.series_sort] = multiPartSort
+                        dict?[Field.multi_part_name_sort] = multiPartSort
                     } else {
-//                        print("multiPartSort is nil")
+
                     }
                 }
             }
-            return dict![Field.multi_part_name_sort]
+            return dict?[Field.multi_part_name_sort]
         }
     }
     
     var multiPartName:String? {
         get {
-            if (dict![Field.multi_part_name] == nil) {
+            if (dict?[Field.multi_part_name] == nil) {
                 if let range = title?.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) {
                     if let seriesString = title?.substring(to: range.lowerBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) {
-                        dict![Field.multi_part_name] = seriesString
+                        dict?[Field.multi_part_name] = seriesString
                     }
                 }
             }
             
-            return dict![Field.multi_part_name]
+            return dict?[Field.multi_part_name]
         }
     }
     
     var part:String? {
         get {
-            if hasMultipleParts && (dict![Field.part] == nil) {
+            if hasMultipleParts && (dict?[Field.part] == nil) {
                 if let range = title?.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) {
                     if let partString = title?.substring(from: range.upperBound), let range = partString.range(of: ")") {
-                        //                    print(partString)
-                        dict![Field.part] = partString.substring(to: range.lowerBound)
+                        dict?[Field.part] = partString.substring(to: range.lowerBound)
                     }
                 }
             }
             
-//            print(dict![Field.part])
-            return dict![Field.part]
+            return dict?[Field.part]
         }
     }
     
@@ -933,12 +845,12 @@ class MediaItem : NSObject {
         get {
             var dynamicTags:String?
             
-            if hasClassName {
-                dynamicTags = dynamicTags != nil ? dynamicTags! + "|" + className! : className!
+            if let className = className {
+                dynamicTags = ((dynamicTags != nil) ? dynamicTags! + "|" : "") + className
             }
             
-            if hasEventName {
-                dynamicTags = dynamicTags != nil ? dynamicTags! + "|" + eventName! : eventName!
+            if let eventName = eventName {
+                dynamicTags = ((dynamicTags != nil) ? dynamicTags! + "|" : "") + eventName
             }
             
             return dynamicTags
@@ -961,18 +873,16 @@ class MediaItem : NSObject {
             tags = tags != nil ? tags! + (dynamicTags != nil ? "|" + dynamicTags! : "") : (dynamicTags != nil ? dynamicTags : nil)
             
             if let proposedTags = proposedTags(jsonTags) {
-                tags = tags != nil ? tags! + "|" + proposedTags : proposedTags
+                tags = ((tags != nil) ? tags! + "|" : "") + proposedTags
             }
             
             if let proposedTags = proposedTags(savedTags) {
-                tags = tags != nil ? tags! + "|" + proposedTags : proposedTags
+                tags = ((tags != nil) ? tags! + "|" : "") + proposedTags
             }
             
             if let proposedTags = proposedTags(dynamicTags) {
-                tags = tags != nil ? tags! + "|" + proposedTags : proposedTags
+                tags = ((tags != nil) ? tags! + "|" : "") + proposedTags
             }
-            
-//            print(tags)
             
             return tags
         }
@@ -980,20 +890,21 @@ class MediaItem : NSObject {
     
     func addTag(_ tag:String)
     {
-        let tags = tagsArrayFromTagsString(mediaItemSettings![Field.tags])
+        guard !tag.isEmpty else {
+            return
+        }
         
-//        print(tags)
+        let tags = tagsArrayFromTagsString(mediaItemSettings?[Field.tags])
         
         if tags?.index(of: tag) == nil {
-            if (mediaItemSettings?[Field.tags] == nil) {
-                mediaItemSettings?[Field.tags] = tag
+            if let tags = mediaItemSettings?[Field.tags] {
+                mediaItemSettings?[Field.tags] = tags + Constants.TAGS_SEPARATOR + tag
             } else {
-                mediaItemSettings?[Field.tags] = mediaItemSettings![Field.tags]! + Constants.TAGS_SEPARATOR + tag
+                if (mediaItemSettings?[Field.tags] == nil) {
+                    mediaItemSettings?[Field.tags] = tag
+                }
             }
             
-//            let tags = tagsArrayFromTagsString(mediaItemSettings![Field.tags])
-//            print(tags)
-
             if let sortTag = stringWithoutPrefixes(tag) {
                 if globals.media.all?.tagMediaItems?[sortTag] != nil {
                     if globals.media.all?.tagMediaItems?[sortTag]?.index(of: self) == nil {
@@ -1001,19 +912,19 @@ class MediaItem : NSObject {
                         globals.media.all?.tagNames?[sortTag] = tag
                     }
                 } else {
-                    globals.media.all?.tagMediaItems![sortTag] = [self]
-                    globals.media.all?.tagNames![sortTag] = tag
+                    globals.media.all?.tagMediaItems?[sortTag] = [self]
+                    globals.media.all?.tagNames?[sortTag] = tag
                 }
                 
                 if globals.media.tags.selected == tag, let selected = globals.media.tags.selected {
                     globals.media.tagged[selected] = MediaListGroupSort(mediaItems: globals.media.all?.tagMediaItems?[sortTag])
                     
-                    DispatchQueue.main.async(execute: { () -> Void in
-                        NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil) // globals.media.tagged
-                    })
+                    Thread.onMainThread { () -> (Void) in
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil)
+                    }
                 }
                 
-                DispatchQueue.main.async {
+                Thread.onMainThread { () -> (Void) in
                     NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_UI), object: self)
                 }
             }
@@ -1028,13 +939,9 @@ class MediaItem : NSObject {
         
         var tags = tagsArrayFromTagsString(mediaItemSettings?[Field.tags])
         
-//            print(tags)
-        
         while let index = tags?.index(of: tag) {
             tags?.remove(at: index)
         }
-        
-//            print(tags)
         
         mediaItemSettings?[Field.tags] = tagsArrayToTagsString(tags)
         
@@ -1050,12 +957,12 @@ class MediaItem : NSObject {
             if globals.media.tags.selected == tag, let selected = globals.media.tags.selected {
                 globals.media.tagged[selected] = MediaListGroupSort(mediaItems: globals.media.all?.tagMediaItems?[sortTag])
                 
-                DispatchQueue.main.async(execute: { () -> Void in
+                Thread.onMainThread { () -> (Void) in
                     NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil) // globals.media.tagged
-                })
+                }
             }
             
-            DispatchQueue.main.async {
+            Thread.onMainThread { () -> (Void) in
                 NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_UI), object: self)
             }
         }
@@ -1063,15 +970,17 @@ class MediaItem : NSObject {
     
     func tagsSetToString(_ tagsSet:Set<String>?) -> String?
     {
+        guard let tagsSet = tagsSet else {
+            return nil
+        }
+        
         var tags:String?
         
-        if tagsSet != nil {
-            for tag in tagsSet! {
-                if tags == nil {
-                    tags = tag
-                } else {
-                    tags = tags! + Constants.TAGS_SEPARATOR + tag
-                }
+        for tag in tagsSet {
+            if let currentTags = tags {
+                tags = currentTags + Constants.TAGS_SEPARATOR + tag
+            } else {
+                tags = tag
             }
         }
         
@@ -1120,24 +1029,22 @@ class MediaItem : NSObject {
         
         get {
             if dict?[Field.audio] == nil, hasAudio, let year = year, let id = id {
-                dict![Field.audio] = Constants.BASE_URL.MEDIA + "\(year)/\(id)" + Constants.FILENAME_EXTENSION.MP3
+                dict?[Field.audio] = Constants.BASE_URL.MEDIA + "\(year)/\(id)" + Constants.FILENAME_EXTENSION.MP3
             }
             
-//            print(dict![Field.audio])
-            
-            return dict![Field.audio]
+            return dict?[Field.audio]
         }
     }
     
     var mp4:String? {
         get {
-            return dict![Field.mp4]
+            return dict?[Field.mp4]
         }
     }
     
     var m3u8:String? {
         get {
-            return dict![Field.m3u8]
+            return dict?[Field.m3u8]
         }
     }
     
@@ -1174,7 +1081,11 @@ class MediaItem : NSObject {
     
     var externalVideo:String? {
         get {
-            return videoID != nil ? Constants.BASE_URL.EXTERNAL_VIDEO_PREFIX + videoID! : nil
+            guard let videoID = videoID else {
+                return nil
+            }
+            
+            return Constants.BASE_URL.EXTERNAL_VIDEO_PREFIX + videoID
         }
     }
     
@@ -1182,7 +1093,7 @@ class MediaItem : NSObject {
 
     var files:String? {
         get {
-            return dict![Field.files]
+            return dict?[Field.files]
         }
     }
     
@@ -1261,7 +1172,7 @@ class MediaItem : NSObject {
         get {
             var string:String?
             
-            if hasDate {
+            if hasDate, let formattedDate = formattedDate {
                 string = formattedDate
             } else {
                 string = "No Date"
@@ -1271,7 +1182,7 @@ class MediaItem : NSObject {
                 string = string! + " \(service)"
             }
             
-            if let speaker = speaker {
+            if hasSpeaker, let speaker = speaker {
                 string = string! + " \(speaker)"
             }
             
@@ -1461,12 +1372,29 @@ class MediaItem : NSObject {
     
     var hasDate:Bool
     {
-        return (date != nil) && (date != Constants.EMPTY_STRING)
+        guard let isEmpty = date?.isEmpty else {
+            return false
+        }
+        
+        return !isEmpty
     }
     
     var hasTitle:Bool
     {
-        return (title != nil) && (title != Constants.EMPTY_STRING)
+        guard let isEmpty = title?.isEmpty else {
+            return false
+        }
+        
+        return !isEmpty
+    }
+    
+    var hasService:Bool
+    {
+        guard let isEmpty = service?.isEmpty else {
+            return false
+        }
+        
+        return !isEmpty
     }
     
     var playingAudio:Bool
@@ -1496,7 +1424,6 @@ class MediaItem : NSObject {
             }
             
             return !isEmpty
-//            return (self.scriptureReference != nil) && (self.scriptureReference != Constants.EMPTY_STRING)
         }
     }
     
@@ -1508,7 +1435,6 @@ class MediaItem : NSObject {
             }
             
             return !isEmpty
-            //            return (self.className != nil) && (self.className != Constants.EMPTY_STRING)
         }
     }
     
@@ -1520,7 +1446,6 @@ class MediaItem : NSObject {
             }
             
             return !isEmpty
-            //            return (self.eventName != nil) && (self.eventName != Constants.EMPTY_STRING)
         }
     }
     
@@ -1532,7 +1457,6 @@ class MediaItem : NSObject {
             }
             
             return !isEmpty
-//            return (self.multiPartName != nil) && (self.multiPartName != Constants.EMPTY_STRING)
         }
     }
     
@@ -1544,7 +1468,6 @@ class MediaItem : NSObject {
             }
             
             return !isEmpty
-//            return (self.category != nil) && (self.category != Constants.EMPTY_STRING)
         }
     }
     
@@ -1567,7 +1490,6 @@ class MediaItem : NSObject {
             }
             
             return !isEmpty
-//            return (self.speaker != nil) && (self.speaker != Constants.EMPTY_STRING)
         }
     }
     
@@ -1579,7 +1501,6 @@ class MediaItem : NSObject {
             }
             
             return !isEmpty
-//            return (self.tags != nil) && (self.tags != Constants.EMPTY_STRING)
         }
     }
     
@@ -1587,7 +1508,7 @@ class MediaItem : NSObject {
     {
         get {
             if hasTags, let tagsSet = tagsSet {
-                return tagsSet.contains(Constants.Favorites)
+                return tagsSet.contains(Constants.Strings.Favorites)
             } else {
                 return false
             }
