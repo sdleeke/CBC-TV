@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import AVKit
 
-struct SearchHit {
+class SearchHit {
     var mediaItem:MediaItem?
     
     var searchText:String?
@@ -109,7 +109,7 @@ class MediaItem : NSObject {
         get {
             var chars = Constants.EMPTY_STRING
             
-            for char in id.characters {
+            for char in id {
                 if Int(String(char)) != nil {
                     break
                 }
@@ -418,8 +418,29 @@ class MediaItem : NSObject {
         }
     }
     
-    var wasShowing:String? = Showing.slides //This is an arbitrary choice
+//    var wasShowing:String? = Showing.none //This is an arbitrary choice
     
+    var pageImages:[UIImage]?
+
+    var pageNum:Int?
+//    {
+//        get {
+//            if let range = showing?.range(of: Showing.slides) {
+//                if let num = showing?.substring(from: range.upperBound) {
+//                    return Int(num)
+//                }
+//            }
+//            
+//            return nil
+//        }
+//        
+//        set {
+//            if let num = newValue, showing?.range(of: Showing.slides) != nil {
+//                showing = "\(Showing.slides)\(num)"
+//            }
+//        }
+//    }
+
     var showing:String? {
         get {
             if (dict?[Field.showing] == nil) {
@@ -433,9 +454,6 @@ class MediaItem : NSObject {
         }
         
         set {
-            if newValue != Showing.video {
-                wasShowing = newValue
-            }
             dict?[Field.showing] = newValue
             mediaItemSettings?[Field.showing] = newValue
         }
@@ -1138,6 +1156,67 @@ class MediaItem : NSObject {
         }
     }
     
+    var hasSlides:Bool {
+        get {
+            if let contains = files?.contains("S") {
+                return contains
+            } else {
+                return false
+            }
+        }
+    }
+    
+    var hasNotes:Bool {
+        get {
+            if let contains = files?.contains("T") {
+                return contains
+            } else {
+                return false
+            }
+        }
+    }
+
+    var notes:String? {
+        get {
+            if (dict?[Field.notes] == nil), hasNotes, let year = year, let id = id {
+                dict?[Field.notes] = Constants.BASE_URL.MEDIA + "\(year)/\(id)" + Field.notes + Constants.FILENAME_EXTENSION.PDF
+            }
+            
+            //            print(dict?[Field.notes])
+            return dict?[Field.notes]
+        }
+    }
+
+    var slides:String? {
+        get {
+            if (dict?[Field.slides] == nil) && hasSlides, let year = year, let id = id {
+                dict?[Field.slides] = Constants.BASE_URL.MEDIA + "\(year)/\(id)" + Field.slides + Constants.FILENAME_EXTENSION.PDF
+            }
+            
+            return dict?[Field.slides]
+        }
+    }
+
+    var notesURL:URL? {
+        get {
+            if let notes = notes {
+                return URL(string: notes)
+            } else {
+                return nil
+            }
+        }
+    }
+    
+    var slidesURL:URL? {
+        get {
+            if let slides = slides {
+                return URL(string: slides)
+            } else {
+                return nil
+            }
+        }
+    }
+
     var bookSections:[String]
     {
         get {
@@ -1249,7 +1328,7 @@ class MediaItem : NSObject {
         return mediaItemString
     }
     
-    struct MediaItemSettings {
+    class MediaItemSettings {
         weak var mediaItem:MediaItem?
         
         init(mediaItem:MediaItem?) {
@@ -1299,7 +1378,7 @@ class MediaItem : NSObject {
         return MediaItemSettings(mediaItem:self)
     }()
     
-    struct MultiPartSettings {
+    class MultiPartSettings {
         weak var mediaItem:MediaItem?
         
         init(mediaItem:MediaItem?) {

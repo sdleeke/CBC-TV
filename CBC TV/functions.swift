@@ -1,4 +1,4 @@
-//
+
 //  functions.swift
 //  CBC
 //
@@ -48,6 +48,37 @@ func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
   default:
     return rhs < lhs
   }
+}
+
+func removeCacheFiles(fileExtension:String)
+{
+    // Clean up temp directory for cancelled downloads
+    let fileManager = FileManager.default
+    
+    guard let cachesURL = cachesURL() else {
+        return
+    }
+    
+    do {
+        let array = try fileManager.contentsOfDirectory(atPath: cachesURL.path)
+        print(array)
+        
+        for filename in array {
+            if let range = filename.range(of: "." + fileExtension) {
+                let id = filename.substring(to: range.lowerBound)
+
+                if globals.mediaRepository.index?[id] != nil {
+                    let url = cachesURL.appendingPathComponent(filename)
+                    
+                    print(url.path)
+                    try fileManager.removeItem(atPath: url.path)
+                }
+            }
+        }
+    } catch let error as NSError {
+        NSLog(error.localizedDescription)
+        print("failed to remove temp files")
+    }
 }
 
 func documentsURL() -> URL?
@@ -172,12 +203,7 @@ func jsonToFileSystemDirectory(key:String)
 
 func jsonFromURL(url:String) -> Any?
 {
-    guard globals.reachability.isReachable else {
-        print("json not reachable.")
-        return nil
-    }
-    
-    guard let url = URL(string: url) else {
+    guard globals.reachability.isReachable, let url = URL(string: url) else {
         return nil
     }
     
@@ -201,16 +227,7 @@ func jsonFromURL(url:String) -> Any?
 
 func jsonFromURL(url:String,filename:String) -> Any?
 {
-    guard let url = URL(string: url) else {
-        return nil
-    }
-    
-    guard let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) else {
-        return nil
-    }
-    
-    guard globals.reachability.isReachable else {
-        print("json not reachable.")
+    guard globals.reachability.isReachable, let url = URL(string: url) else {
         return jsonFromFileSystem(filename: filename)
     }
     
@@ -222,7 +239,9 @@ func jsonFromURL(url:String,filename:String) -> Any?
             let json = try JSONSerialization.jsonObject(with: data, options: [])
             
             do {
-                try data.write(to: jsonFileSystemURL)
+                if let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) {
+                    try data.write(to: jsonFileSystemURL)
+                }
                 
                 print("able to write json to the file system")
             } catch let error as NSError {
@@ -582,7 +601,7 @@ func versesFromScripture(_ scripture:String?) -> [Int]?
     
     var breakOut = false
     
-    for character in string.characters {
+    for character in string {
         if breakOut {
             break
         }
@@ -792,7 +811,7 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
     
     var token = Constants.EMPTY_STRING
     
-    for char in string.characters {
+    for char in string {
         if let unicodeScalar = UnicodeScalar(String(char)), CharacterSet(charactersIn: ":,-").contains(unicodeScalar) {
             tokens.append(token)
             token = Constants.EMPTY_STRING
@@ -1514,7 +1533,7 @@ func chaptersFromScriptureReference(_ scriptureReference:String?) -> [Int]?
         
         var breakOut = false
         
-        for character in string.characters {
+        for character in string {
             if breakOut {
                 break
             }
@@ -2105,7 +2124,7 @@ func firstNameFromName(_ name:String?) -> String?
     
     var newString = Constants.EMPTY_STRING
     
-    for char in string.characters {
+    for char in string {
         if String(char) == Constants.SINGLE_SPACE {
             firstName = newString
             break

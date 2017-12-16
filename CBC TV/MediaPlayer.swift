@@ -577,13 +577,15 @@ class MediaPlayer : NSObject {
     
     func playerTimer()
     {
-        if (state != nil) && (url != URL(string: Constants.URL.LIVE_STREAM)) {
-            if (rate > 0) {
-                updateCurrentTimeForPlaying()
-            }
-            
-            //            logPlayerState()
+        guard state != nil, url != URL(string: Constants.URL.LIVE_STREAM) else {
+            return
         }
+            
+        if (rate > 0) {
+            updateCurrentTimeForPlaying()
+        }
+        
+        //            logPlayerState()
     }
     
     func observe()

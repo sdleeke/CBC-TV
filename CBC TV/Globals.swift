@@ -10,6 +10,48 @@ import Foundation
 import MediaPlayer
 import AVKit
 
+extension UIBarButtonItem {
+    func setTitleTextAttributes(_ attributes:[String:UIFont])
+    {
+        setTitleTextAttributes(attributes, for: UIControlState.normal)
+        setTitleTextAttributes(attributes, for: UIControlState.disabled)
+        setTitleTextAttributes(attributes, for: UIControlState.selected)
+        setTitleTextAttributes(attributes, for: UIControlState.highlighted)
+        setTitleTextAttributes(attributes, for: UIControlState.focused)
+    }
+}
+
+extension UISegmentedControl {
+    func setTitleTextAttributes(_ attributes:[String:UIFont])
+    {
+        setTitleTextAttributes(attributes, for: UIControlState.normal)
+        setTitleTextAttributes(attributes, for: UIControlState.disabled)
+        setTitleTextAttributes(attributes, for: UIControlState.selected)
+        setTitleTextAttributes(attributes, for: UIControlState.highlighted)
+        setTitleTextAttributes(attributes, for: UIControlState.focused)
+    }
+}
+
+extension UIButton {
+    func setTitle(_ string:String?)
+    {
+        setTitle(string, for: UIControlState.normal)
+        setTitle(string, for: UIControlState.disabled)
+        setTitle(string, for: UIControlState.selected)
+        setTitle(string, for: UIControlState.highlighted)
+        setTitle(string, for: UIControlState.focused)
+    }
+    
+    func setAttributedTitle(_ string:NSAttributedString?)
+    {
+        setAttributedTitle(string, for: UIControlState.normal)
+        setAttributedTitle(string, for: UIControlState.disabled)
+        setAttributedTitle(string, for: UIControlState.selected)
+        setAttributedTitle(string, for: UIControlState.highlighted)
+        setAttributedTitle(string, for: UIControlState.focused)
+    }
+}
+
 extension Thread {
     static func onMainThread(block:(()->(Void))?)
     {
@@ -28,12 +70,12 @@ struct MediaNeed {
     var grouping:Bool = true
 }
 
-struct Display {
+class Display {
     var mediaItems:[MediaItem]?
     var section = Section()
 }
 
-struct MediaRepository {
+class MediaRepository {
     var list:[MediaItem]? { //Not in any specific order
         willSet {
             
@@ -100,7 +142,7 @@ struct MediaRepository {
     var events:[String]?
 }
 
-struct Tags {
+class Tags {
     var showing:String? {
         get {
             return selected == nil ? Constants.ALL : Constants.TAGGED
@@ -132,7 +174,7 @@ struct Tags {
     }
 }
 
-struct Media {
+class Media {
     var need = MediaNeed()
 
     //All mediaItems
@@ -204,7 +246,7 @@ struct Media {
     }
 }
 
-struct MediaCategory {
+class MediaCategory {
     var dicts:[String:String]?
     
     var filename:String? {
@@ -353,7 +395,7 @@ struct MediaCategory {
     }
 }
 
-struct SelectedMediaItem {
+class SelectedMediaItem {
     var master:MediaItem? {
         get {
             var selectedMediaItem:MediaItem?
@@ -387,7 +429,7 @@ struct SelectedMediaItem {
     }
 }
 
-struct Search {
+class Search {
     var complete:Bool = true
 
     var active:Bool = false {

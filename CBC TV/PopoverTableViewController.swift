@@ -29,7 +29,7 @@ class PopoverTableViewController : UIViewController
 {
     var selectedText:String!
 
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+//    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     @IBOutlet weak var tableView: UITableView! {
         didSet {
@@ -224,6 +224,92 @@ class PopoverTableViewController : UIViewController
         dismiss(animated: true, completion: nil)
     }
     
+    var container:UIView!
+    var loadingView:UIView!
+    var actInd:UIActivityIndicatorView!
+    
+    func setupLoadingView()
+    {
+        guard (loadingView == nil) else {
+            return
+        }
+        
+        guard let loadingViewController = self.storyboard?.instantiateViewController(withIdentifier: "Loading View Controller") else {
+            return
+        }
+        
+        guard let containerView = loadingViewController.view else {
+            return
+        }
+        
+        container = containerView
+        
+        loadingView = containerView.subviews[0]
+        
+        guard let activityIndicator = loadingView.subviews[0] as? UIActivityIndicatorView else {
+            container = nil
+            loadingView = nil
+            return
+        }
+        
+        container.backgroundColor = UIColor.clear
+        
+        container.frame = view.frame
+        container.center = CGPoint(x: view.bounds.width / 2, y: view.bounds.height / 2)
+        
+        container.isUserInteractionEnabled = false
+        
+        loadingView.isUserInteractionEnabled = false
+        
+        actInd = activityIndicator
+        
+        actInd.isUserInteractionEnabled = false
+        
+        view.addSubview(container)
+    }
+    
+    func stopAnimating()
+    {
+        guard container != nil else {
+            return
+        }
+        
+        guard loadingView != nil else {
+            return
+        }
+        
+        guard actInd != nil else {
+            return
+        }
+        
+        Thread.onMainThread {
+            self.actInd.stopAnimating()
+            self.loadingView.isHidden = true
+            self.container.isHidden = true
+        }
+    }
+    
+    func startAnimating()
+    {
+        if container == nil {
+            setupLoadingView()
+        }
+        
+        guard loadingView != nil else {
+            return
+        }
+        
+        guard actInd != nil else {
+            return
+        }
+        
+        Thread.onMainThread {
+            self.container.isHidden = false
+            self.loadingView.isHidden = false
+            self.actInd.startAnimating()
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
@@ -241,11 +327,11 @@ class PopoverTableViewController : UIViewController
 
             tableView.reloadData()
             
-            activityIndicator?.stopAnimating()
-            activityIndicator?.isHidden = true
+//            activityIndicator?.stopAnimating()
+//            activityIndicator?.isHidden = true
         } else {
-            activityIndicator?.stopAnimating()
-            activityIndicator?.isHidden = true
+//            activityIndicator?.stopAnimating()
+//            activityIndicator?.isHidden = true
         }
         
         setPreferredContentSize()

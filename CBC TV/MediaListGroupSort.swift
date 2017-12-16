@@ -592,7 +592,7 @@ class MediaListGroupSort {
         return groupedSortedMediaItems
     }
     
-    struct Section {
+    class Section {
         weak var mlgs:MediaListGroupSort?
         
         init(_ mlgs:MediaListGroupSort?)

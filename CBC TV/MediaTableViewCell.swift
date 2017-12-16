@@ -395,7 +395,11 @@ class MediaTableViewCell: UITableViewCell
                     }
                 }
             }
-
+            
+            if mediaItem.hasSlides {
+                attrString.append(NSAttributedString(string: Constants.SINGLE_SPACE + Constants.FA.SLIDES, attributes: Constants.FA.Fonts.Attributes.icons))
+            }
+            
             if (mediaItem.hasVideo) {
                 attrString.append(NSAttributedString(string: Constants.SINGLE_SPACE + Constants.FA.VIDEO, attributes: Constants.FA.Fonts.Attributes.icons))
             }
@@ -439,6 +443,10 @@ class MediaTableViewCell: UITableViewCell
                 } else {
                     string = string + Constants.SINGLE_SPACE + Constants.FA.TAG
                 }
+            }
+            
+            if mediaItem.hasSlides {
+                string = string + Constants.SINGLE_SPACE + Constants.FA.SLIDES
             }
             
             if (mediaItem.hasVideo) {

@@ -111,6 +111,8 @@ enum SORTING {
 }
 
 enum Constants {
+    static let states = [UIControlState.normal, UIControlState.disabled, UIControlState.selected, UIControlState.highlighted, UIControlState.focused]
+    
     enum JSON {
         static let MEDIA_PATH = "media-mini" //
         
@@ -163,6 +165,9 @@ enum Constants {
     }
 
     enum NOTIFICATION {
+        static let SHOW_SLIDES              = "SHOW SLIDES"
+        static let HIDE_SLIDES              = "HIDE SLIDES"
+        
         static let FREE_MEMORY              = "FREE MEMORY"
         
         static let MENU                     = "MENU"
@@ -273,7 +278,7 @@ enum Constants {
         static let SHORT = "CBC"
         static let LONG = "Countryside Bible Church"
         
-        struct TITLE {
+        enum TITLE {
             static let POSTFIX  = SINGLE_SPACE + Media
             
             static let SHORT    = CBC.SHORT + POSTFIX
@@ -323,8 +328,6 @@ enum Constants {
     
     static let SEARCH_TEXT = "SEARCH TEXT"
     
-    static let Live = "Live"
-    
     static let CONTENT_OFFSET_X_RATIO = "ContentOffsetXRatio"
     static let CONTENT_OFFSET_Y_RATIO = "ContentOffsetYRatio"
     
@@ -333,6 +336,8 @@ enum Constants {
     static let Constant_Tags:Set = [Constants.Strings.Video,Constants.Strings.Slides,Constants.Strings.Transcript,Constants.Strings.Lexicon]
     
     enum Strings {
+        static let Live = "Live"
+        
         static let Email_CBC = "E-mail " + CBC.SHORT
         static let CBC_WebSite = CBC.SHORT + " Website"
         static let CBC_in_Apple_Maps = CBC.SHORT + " in Apple Maps"
@@ -520,12 +525,12 @@ enum Constants {
         
         static let prefix = "settings:"
         
-        struct VERSION {
+        enum VERSION {
             static let KEY = prefix + " Version"
             static let NUMBER = "2.8"
         }
         
-        struct KEY {
+        enum KEY {
             static let SORTING  = prefix + "sorting"
             static let GROUPING = prefix + "grouping"
             
@@ -535,7 +540,7 @@ enum Constants {
             static let MEDIA            = prefix + "media"
             static let MULTI_PART_MEDIA = prefix + "multiPart media"
             
-            struct SELECTED_MEDIA {
+            enum SELECTED_MEDIA {
                 static let MASTER   = prefix + "selected master"
                 static let DETAIL   = prefix + "selected detail"
             }
@@ -549,7 +554,7 @@ enum Constants {
 
     static let Individual_Media     = "Single Part Media"
     
-    struct AV_SEGMENT_INDEX {
+    enum AV_SEGMENT_INDEX {
         static let AUDIO = 0
         static let VIDEO = 1
     }
@@ -635,7 +640,8 @@ enum Constants {
                 
                 static let tags = [ NSFontAttributeName: Fonts.tags ]
                 
-                static let show = [ NSFontAttributeName: Fonts.show ]
+                static let show = [ NSForegroundColorAttributeName: UIColor.white,
+                                    NSFontAttributeName: Fonts.show ]
                 
                 static let download = [ NSFontAttributeName: Fonts.download ]
             }
