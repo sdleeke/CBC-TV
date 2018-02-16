@@ -188,7 +188,7 @@ class MediaPlayer : NSObject {
         
         controller = AVPlayerViewController()
         
-        let menuPressRecognizer = UITapGestureRecognizer(target: controller, action: #selector(AVPlayerViewController.menuButtonAction(tap:)))
+        let menuPressRecognizer = UITapGestureRecognizer(target: controller, action: #selector(MediaTableViewController.menuButtonAction(tap:)))
         menuPressRecognizer.allowedPressTypes = [NSNumber(value: UIPressType.menu.rawValue)]
         controller?.view.addGestureRecognizer(menuPressRecognizer)
         

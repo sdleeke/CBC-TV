@@ -168,7 +168,7 @@ class PopoverTableViewController : UIViewController
         
         if let selectedText = selectedText,  let index = section.strings?.index(where: { (string:String) -> Bool in
             if let range = string.range(of: " (") {
-                return selectedText.uppercased() == string.substring(to: range.lowerBound).uppercased()
+                return selectedText.uppercased() == String(string[..<range.lowerBound]).uppercased()
             } else {
                 return false
             }
@@ -219,7 +219,7 @@ class PopoverTableViewController : UIViewController
 
     }
     
-    func willResignActive()
+    @objc func willResignActive()
     {
         dismiss(animated: true, completion: nil)
     }
@@ -586,13 +586,13 @@ extension PopoverTableViewController : UITableViewDelegate
         if (section.showIndex) {
             index = section.indexes != nil ? section.indexes![indexPath.section] + indexPath.row : -1
             
-            if let range = section.strings?[index].range(of: " (") {
-                selectedText = section.strings?[index].substring(to: range.lowerBound).uppercased()
+            if let string = section.strings?[index], let range = string.range(of: " (") {
+                selectedText = String(string[..<range.lowerBound]).uppercased()
             }
         } else {
             index = indexPath.row
-            if let range = section.strings?[index].range(of: " (") {
-                selectedText = section.strings?[index].substring(to: range.lowerBound).uppercased()
+            if let string = section.strings?[index], let range = string.range(of: " (") {
+                selectedText = String(string[..<range.lowerBound]).uppercased()
             }
         }
         

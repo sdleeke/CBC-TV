@@ -161,7 +161,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 //        return !result
 //    }
     
-    func swipeNext(swipe:UISwipeGestureRecognizer)
+    @objc func swipeNext(swipe:UISwipeGestureRecognizer)
     {
         guard globals.mediaPlayer.isZoomed else {
             return
@@ -210,7 +210,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
     
-    func swipePrev(swipe:UISwipeGestureRecognizer)
+    @objc func swipePrev(swipe:UISwipeGestureRecognizer)
     {
         guard globals.mediaPlayer.isZoomed else {
             return
@@ -961,7 +961,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         view.superview?.setNeedsLayout()
     }
     
-    func readyToPlay()
+    @objc func readyToPlay()
     {
         guard Thread.isMainThread else {
             return
@@ -1020,14 +1020,14 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 //        setupPlayPauseButton()
     }
     
-    func paused()
+    @objc func paused()
     {
         setupSpinner()
         setupProgressAndTimes()
         setupPlayPauseButton()
     }
     
-    func failedToLoad()
+    @objc func failedToLoad()
     {
         guard (selectedMediaItem != nil) else {
             return
@@ -1042,7 +1042,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
     
-    func failedToPlay()
+    @objc func failedToPlay()
     {
         guard (selectedMediaItem != nil) else {
             return
@@ -1057,7 +1057,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
     
-    func showPlaying()
+    @objc func showPlaying()
     {
         guard Thread.isMainThread else {
             return
@@ -1077,7 +1077,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         updateUI()
     }
     
-    func updateView()
+    @objc func updateView()
     {
         selectedMediaItem = globals.selectedMediaItem.detail
         
@@ -1095,7 +1095,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         updateUI()
     }
     
-    func clearView()
+    @objc func clearView()
     {
         Thread.onMainThread {
             self.selectedMediaItem = nil
@@ -1106,7 +1106,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
     
-    func menuButtonAction(tap:UITapGestureRecognizer)
+    @objc func menuButtonAction(tap:UITapGestureRecognizer)
     {
         print("MVC menu button pressed")
         
@@ -1117,7 +1117,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.MENU), object: nil)
     }
     
-    func playPauseButtonAction(tap:UITapGestureRecognizer)
+    @objc func playPauseButtonAction(tap:UITapGestureRecognizer)
     {
         print("play pause button pressed")
         
@@ -1342,7 +1342,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         tableView.scrollToRow(at: indexPath, at: position, animated: false)
     }
     
-    func setupPlayPauseButton()
+    @objc func setupPlayPauseButton()
     {
         guard Thread.isMainThread else {
             userAlert(title: "Not Main Thread", message: "MediaViewController:setupPlayPauseButton")
@@ -1507,26 +1507,26 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
 
         if let font = UIFont(name: "FontAwesome", size: 28.0) {
-            audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: font ], for: .disabled) // Constants.FA.Fonts.Attributes.icons
+            audioOrVideoControl.setTitleTextAttributes([ NSAttributedStringKey.font: font ], for: .disabled) // Constants.FA.Fonts.Attributes.icons
         }
         if let font = UIFont(name: "FontAwesome", size: 28.0) {
-            audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: font ], for: .normal) // Constants.FA.Fonts.Attributes.icons
+            audioOrVideoControl.setTitleTextAttributes([ NSAttributedStringKey.font: font ], for: .normal) // Constants.FA.Fonts.Attributes.icons
         }
         if let font = UIFont(name: "FontAwesome", size: 34.0) {
-            audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: font ], for: .selected) // Constants.FA.Fonts.Attributes.icons
+            audioOrVideoControl.setTitleTextAttributes([ NSAttributedStringKey.font: font ], for: .selected) // Constants.FA.Fonts.Attributes.icons
         }
         if let font = UIFont(name: "FontAwesome", size: 40.0) {
-            audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: font ], for: .focused) // Constants.FA.Fonts.Attributes.icons
+            audioOrVideoControl.setTitleTextAttributes([ NSAttributedStringKey.font: font ], for: .focused) // Constants.FA.Fonts.Attributes.icons
         }
         if let font = UIFont(name: "FontAwesome", size: 34.0) {
-            audioOrVideoControl.setTitleTextAttributes([ NSFontAttributeName: font ], for: .highlighted) // Constants.FA.Fonts.Attributes.icons
+            audioOrVideoControl.setTitleTextAttributes([ NSAttributedStringKey.font: font ], for: .highlighted) // Constants.FA.Fonts.Attributes.icons
         }
 
         audioOrVideoControl.setTitle(Constants.FA.AUDIO, forSegmentAt: Constants.AV_SEGMENT_INDEX.AUDIO) // Audio
         audioOrVideoControl.setTitle(Constants.FA.VIDEO, forSegmentAt: Constants.AV_SEGMENT_INDEX.VIDEO) // Video
     }
     
-    func updateUI()
+    @objc func updateUI()
     {
         if (selectedMediaItem != nil) && (selectedMediaItem == globals.mediaPlayer.mediaItem) {
             if (globals.mediaPlayer.url != selectedMediaItem?.playingURL) {
@@ -1557,7 +1557,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         setupSlides()
     }
     
-    func doneSeeking()
+    @objc func doneSeeking()
     {
         print("DONE SEEKING")
         
@@ -1723,7 +1723,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         hidePageImage()
     }
     
-    func toggleSlidesPress(longPress:UILongPressGestureRecognizer)
+    @objc func toggleSlidesPress(longPress:UILongPressGestureRecognizer)
     {
         switch longPress.state {
         case .began:
@@ -1755,7 +1755,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
     
-    func toggleSlides()
+    @objc func toggleSlides()
     {
         if selectedMediaItem?.showing?.range(of: Showing.slides) == nil {
             if let swipeNextRecognizer = swipeNextRecognizer {
@@ -2100,7 +2100,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
     
-    func progressTimer()
+    @objc func progressTimer()
     {
         guard Thread.isMainThread else {
             userAlert(title: "Not Main Thread", message: "MediaViewController:progressTimer")

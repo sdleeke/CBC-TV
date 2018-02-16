@@ -84,7 +84,7 @@ class MediaItem : NSObject {
     
     var singleLoaded = false
 
-    func freeMemory()
+    @objc func freeMemory()
     {
 
     }
@@ -122,13 +122,13 @@ class MediaItem : NSObject {
     
     var serviceCode:String {
         get {
-            let afterClassCode = id.substring(from: classCode.endIndex)
+            let afterClassCode = String(id[classCode.endIndex...])
             
             let ymd = "YYMMDD"
             
-            let afterDate = afterClassCode.substring(from: ymd.endIndex)
+            let afterDate = String(afterClassCode[ymd.endIndex...])
             
-            let code = afterDate.substring(to: "x".endIndex)
+            let code = String(afterDate[..<"x".endIndex])
 
             return code
         }
@@ -137,13 +137,13 @@ class MediaItem : NSObject {
     var conferenceCode:String? {
         get {
             if serviceCode == "s" {
-                let afterClassCode = id.substring(from: classCode.endIndex)
+                let afterClassCode = String(id[classCode.endIndex...])
                 
-                var string = id.substring(to: classCode.endIndex)
+                var string = String(id[..<classCode.endIndex])
                 
                 let ymd = "YYMMDD"
                 
-                string = string + afterClassCode.substring(to: ymd.endIndex)
+                string = string + String(afterClassCode[..<ymd.endIndex])
                 
                 let s = "s"
                 
@@ -160,15 +160,15 @@ class MediaItem : NSObject {
     
     var repeatCode:String? {
         get {
-            let afterClassCode = id.substring(from: classCode.endIndex)
+            let afterClassCode = String(id[classCode.endIndex...])
             
-            var string = id.substring(to: classCode.endIndex)
+            var string = String(id[..<classCode.endIndex])
             
             let ymd = "YYMMDD"
             
-            string = string + afterClassCode.substring(to: ymd.endIndex) + serviceCode
+            string = string + String(afterClassCode[..<ymd.endIndex]) + serviceCode
             
-            let code = id.substring(from: string.endIndex)
+            let code = String(id[string.endIndex...])
             
             if !code.isEmpty  {
                 return code
@@ -426,7 +426,7 @@ class MediaItem : NSObject {
 //    {
 //        get {
 //            if let range = showing?.range(of: Showing.slides) {
-//                if let num = showing?.substring(from: range.upperBound) {
+//                if let num = String(showing?[range.upperBound...]) {
 //                    return Int(num)
 //                }
 //            }
@@ -538,7 +538,8 @@ class MediaItem : NSObject {
     
     var year:Int? {
         get {
-            if let range = date?.range(of: "-"), let year = date?.substring(to: range.lowerBound) {
+            if let date = date, let range = date.range(of: "-") {
+                let year = String(date[..<range.lowerBound])
                 return Int(year)
             } else {
                 return nil
@@ -555,7 +556,8 @@ class MediaItem : NSObject {
     
     var yearString:String! {
         get {
-            if let range = date?.range(of: "-"), let year = date?.substring(to: range.lowerBound) {
+            if let date = date, let range = date.range(of: "-") {
+                let year = String(date[..<range.lowerBound])
                 return year
             } else {
                 return "None"
@@ -629,17 +631,19 @@ class MediaItem : NSObject {
     var date:String? {
         get {
             if let range = dict?[Field.date]?.range(of: Constants.SINGLE_SPACE) {
-                return dict?[Field.date]?.substring(to: range.lowerBound) // last two characters
-            } else {
-                return nil
+                if let stringSubSequence = dict?[Field.date]?[..<range.lowerBound] {
+                    return String(stringSubSequence) // last two characters
+                }
             }
+
+            return nil
         }
     }
     
     var service:String? {
         get {
-            if let range = dict?[Field.date]?.range(of: Constants.SINGLE_SPACE) {
-                return dict?[Field.date]?.substring(from: range.upperBound) // last two characters
+            if let string = dict?[Field.date], let range = string.range(of: Constants.SINGLE_SPACE) {
+                return String(string[range.upperBound...]) // last two characters
             } else {
                 return nil
             }
@@ -791,7 +795,9 @@ class MediaItem : NSObject {
         get {
             if (dict?[Field.multi_part_name] == nil) {
                 if let range = title?.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) {
-                    if let seriesString = title?.substring(to: range.lowerBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) {
+                    if let stringSubSequence = title?[..<range.lowerBound] {
+                        let seriesString = String(stringSubSequence).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                        
                         dict?[Field.multi_part_name] = seriesString
                     }
                 }
@@ -804,9 +810,11 @@ class MediaItem : NSObject {
     var part:String? {
         get {
             if hasMultipleParts && (dict?[Field.part] == nil) {
-                if let range = title?.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) {
-                    if let partString = title?.substring(from: range.upperBound), let range = partString.range(of: ")") {
-                        dict?[Field.part] = partString.substring(to: range.lowerBound)
+                if let title = title, let range = title.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) {
+                    let partString = String(title[range.upperBound...])
+                    
+                    if let range = partString.range(of: ")") {
+                        dict?[Field.part] = String(partString[..<range.lowerBound])
                     }
                 }
             }
@@ -825,7 +833,7 @@ class MediaItem : NSObject {
                 
                 if possibleTag.range(of: "-") != nil {
                     while let range = possibleTag.range(of: "-") {
-                        let candidate = possibleTag.substring(to: range.lowerBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                        let candidate = String(possibleTag[..<range.lowerBound]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                         
                         if (Int(candidate) == nil) && !tags.contains(candidate) {
                             if let count = possibleTags[candidate] {
@@ -835,7 +843,7 @@ class MediaItem : NSObject {
                             }
                         }
                         
-                        possibleTag = possibleTag.substring(from: range.upperBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                        possibleTag = String(possibleTag[range.upperBound...]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                     }
                     
                     if !possibleTag.isEmpty {
@@ -1015,9 +1023,9 @@ class MediaItem : NSObject {
         var tagsSet = Set<String>()
         
         while let range = tags.range(of: Constants.TAGS_SEPARATOR) {
-            tag = tags.substring(to: range.lowerBound)
+            tag = String(tags[..<range.lowerBound])
             tagsSet.insert(tag)
-            tags = tags.substring(from: range.upperBound)
+            tags = String(tags[range.upperBound...])
         }
         
         tagsSet.insert(tags)
@@ -1084,11 +1092,11 @@ class MediaItem : NSObject {
                 return nil
             }
             
-            let tail = video.substring(from: Constants.BASE_URL.VIDEO_PREFIX.endIndex)
+            let tail = String(video[Constants.BASE_URL.VIDEO_PREFIX.endIndex...])
 //            print(tail)
             
             if let range = tail.range(of: ".m") {
-                let id = tail.substring(to: range.lowerBound)
+                let id = String(tail[..<range.lowerBound])
                 //            print(id)
                 return id
             } else {
@@ -1267,8 +1275,8 @@ class MediaItem : NSObject {
             
             if hasTitle, let title = title {
                 if let range = title.range(of: " (Part ") {
-                    let first = title.substring(to: range.upperBound)
-                    let second = title.substring(from: range.upperBound)
+                    let first = String(title[..<range.upperBound])
+                    let second = String(title[range.upperBound...])
                     let combined = first + Constants.UNBREAKABLE_SPACE + second // replace the space with an unbreakable one
                     string = string! + "\n\(combined)"
                 } else {

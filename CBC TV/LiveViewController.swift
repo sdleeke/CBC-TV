@@ -37,7 +37,7 @@ class LiveViewController: UIViewController
 
     }
 
-    func clearView()
+    @objc func clearView()
     {
         Thread.onMainThread {
             globals.mediaPlayer.view?.isHidden = true
@@ -45,7 +45,7 @@ class LiveViewController: UIViewController
         }
     }
     
-    func liveView()
+    @objc func liveView()
     {
         Thread.onMainThread {
             self.setupLivePlayerView()

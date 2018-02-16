@@ -65,7 +65,8 @@ func removeCacheFiles(fileExtension:String)
         
         for filename in array {
             if let range = filename.range(of: "." + fileExtension) {
-                let id = filename.substring(to: range.lowerBound)
+                // .substring(to:
+                let id = String(filename[..<range.lowerBound])
 
                 if globals.mediaRepository.index?[id] != nil {
                     let url = cachesURL.appendingPathComponent(filename)
@@ -108,7 +109,7 @@ func filesOfTypeInCache(_ fileType:String) -> [String]?
         
         for string in array {
             if let range = string.range(of: fileType) {
-                if fileType == string.substring(from: range.lowerBound) {
+                if fileType == String(string[range.lowerBound...]) {
                     files.append(string)
                 }
             }
@@ -458,8 +459,9 @@ func stringWithoutPrefixes(_ fromString:String?) -> String?
     var sortString = sourceString
     
     for prefix in prefixes {
-        if (sourceString?.endIndex >= prefix.endIndex) && (sourceString?.substring(to: prefix.endIndex).lowercased() == prefix.lowercased()) {
-            sortString = sourceString?.substring(from: prefix.endIndex)
+        // .substring(to:
+        if let string = sourceString, string.endIndex >= prefix.endIndex, String(string[..<prefix.endIndex]).lowercased() == prefix.lowercased() {
+            sortString = String(string[prefix.endIndex...])
             break
         }
     }
@@ -589,7 +591,7 @@ func versesFromScripture(_ scripture:String?) -> [Int]?
     //        let hyphen = string?.range(of: "-")
     //        let comma = string?.range(of: ",")
     
-    string = string.substring(from: colon.upperBound)
+    string = String(string[colon.upperBound...])
     
     var chars = Constants.EMPTY_STRING
     
@@ -1644,14 +1646,16 @@ func booksFromScriptureReference(_ scriptureReference:String?) -> [String]?
     for book in Constants.OLD_TESTAMENT_BOOKS {
         if let range = string.range(of: book) {
             otBooks.append(book)
-            string = string.substring(to: range.lowerBound) + Constants.SINGLE_SPACE + string.substring(from: range.upperBound)
+            // .substring(to:
+            string = String(string[..<range.lowerBound]) + Constants.SINGLE_SPACE + String(string[range.upperBound...])
         }
     }
     
     for book in Constants.NEW_TESTAMENT_BOOKS.reversed() {
         if let range = string.range(of: book) {
             books.append(book)
-            string = string.substring(to: range.lowerBound) + Constants.SINGLE_SPACE + string.substring(from: range.upperBound)
+            // .substring(to:
+            string = String(string[..<range.lowerBound]) + Constants.SINGLE_SPACE + String(string[range.upperBound...])
         }
     }
     
@@ -1921,16 +1925,22 @@ func bookNumberInBible(_ book:String?) -> Int?
 
 func tokenCountsFromString(_ string:String?) -> [(String,Int)]?
 {
+    guard string != nil else {
+        return nil
+    }
+    
     var tokenCounts = [(String,Int)]()
     
     if let tokens = tokensFromString(string) {
         for token in tokens {
             var count = 0
-            var string = string
+            guard var string = string else {
+                continue
+            }
             
-            while let range = string?.range(of: token, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) {
+            while let range = string.range(of: token, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) {
                 count += 1
-                string = string?.substring(from: range.upperBound)
+                string = String(string[range.upperBound...])
             }
             
             tokenCounts.append((token,count))
@@ -1951,7 +1961,8 @@ func tokensFromString(_ string:String?) -> [String]?
     var str = string.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     
     if let range = str.range(of: Constants.PART_INDICATOR_SINGULAR) {
-        str = str.substring(to: range.lowerBound)
+        // .substring(to:
+        str = String(str[..<range.lowerBound])
     }
     
     var token = Constants.EMPTY_STRING
@@ -1975,7 +1986,8 @@ func tokensFromString(_ string:String?) -> [String]?
             
             if token.lowercased() != "it's" {
                 if let range = token.lowercased().range(of: "'s") {
-                    token = token.substring(to: range.lowerBound)
+                    // .substring(to: 
+                    token = String(token[..<range.lowerBound])
                 }
             }
             
@@ -1992,7 +2004,7 @@ func tokensFromString(_ string:String?) -> [String]?
         }
     }
     
-    for char in str.characters {
+    for char in str {
         if UnicodeScalar(String(char)) != nil {
             if let unicodeScalar = UnicodeScalar(String(char)), CharacterSet(charactersIn: breakChars).contains(unicodeScalar) {
                 processToken()
@@ -2028,7 +2040,8 @@ func tokensAndCountsFromString(_ string:String?) -> [String:Int]?
     
     // TOKENIZING A TITLE RATHER THAN THE BODY, THIS MAY CAUSE PROBLEMS FOR BODY TEXT.
     if let range = str.range(of: Constants.PART_INDICATOR_SINGULAR) {
-        str = str.substring(to: range.lowerBound)
+        // .substring(to:
+        str = String(str[..<range.lowerBound])
     }
     
     var token = Constants.EMPTY_STRING
@@ -2052,7 +2065,8 @@ func tokensAndCountsFromString(_ string:String?) -> [String:Int]?
             
             if token.lowercased() != "it's" {
                 if let range = token.lowercased().range(of: "'s") {
-                    token = token.substring(to: range.lowerBound)
+                    // .substring(to:
+                    token = String(token[..<range.lowerBound])
                 }
             }
             
@@ -2073,7 +2087,7 @@ func tokensAndCountsFromString(_ string:String?) -> [String:Int]?
         }
     }
     
-    for char in str.characters {
+    for char in str {
         if UnicodeScalar(String(char)) != nil {
             if let unicodeScalar = UnicodeScalar(String(char)), CharacterSet(charactersIn: breakChars).contains(unicodeScalar) {
                 processToken()
@@ -2097,8 +2111,12 @@ func tokensAndCountsFromString(_ string:String?) -> [String:Int]?
 
 func lastNameFromName(_ name:String?) -> String?
 {
-    if let firstName = firstNameFromName(name), let range = name?.range(of: firstName) {
-        return name?.substring(from: range.upperBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+    guard let name = name else {
+        return nil
+    }
+
+    if let firstName = firstNameFromName(name), let range = name.range(of: firstName) {
+        return String(name[range.upperBound...]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     } else {
         return name
     }
@@ -2115,7 +2133,7 @@ func firstNameFromName(_ name:String?) -> String?
     var string:String
     
     if let title = titleFromName(name) {
-        string = name.substring(from: title.endIndex)
+        string = String(name[title.endIndex...])
     } else {
         string = name
     }
@@ -2144,7 +2162,7 @@ func titleFromName(_ name:String?) -> String?
     var title = Constants.EMPTY_STRING
     
     if name.range(of: ". ") != nil {
-        for char in name.characters {
+        for char in name {
             title.append(char)
             if String(char) == "." {
                 break
@@ -2427,9 +2445,10 @@ func tagsSetFromTagsString(_ tagsString:String?) -> Set<String>?
     var setOfTags = Set<String>()
     
     while let range = tags.range(of: Constants.TAGS_SEPARATOR) {
-        let tag = tags.substring(to: range.lowerBound)
+        // .substring(to:
+        let tag = String(tags[..<range.lowerBound])
         setOfTags.insert(tag)
-        tags = tags.substring(from: range.upperBound)
+        tags = String(tags[range.upperBound...])
     }
     
     if !tags.isEmpty {

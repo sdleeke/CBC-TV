@@ -154,7 +154,8 @@ class Section
                 indexHeaders = Array(Set(indexStrings
                     .map({ (string:String) -> String in
                         if string.endIndex >= a.endIndex {
-                            return string.substring(to: a.endIndex).uppercased()
+                            // .substring(to:
+                            return String(string[..<a.endIndex]).uppercased()
                         } else {
                             return string
                         }
@@ -192,7 +193,8 @@ class Section
                     
                     if indexHeadersTransform == nil {
                         if indexString.endIndex >= a.endIndex {
-                            header = indexString.substring(to: a.endIndex)
+                            // .substring(to: 
+                            header = String(indexString[..<a.endIndex])
                         }
                     } else {
                         header = indexHeadersTransform?(indexString)

@@ -11,7 +11,7 @@ import MediaPlayer
 import AVKit
 
 extension UIBarButtonItem {
-    func setTitleTextAttributes(_ attributes:[String:UIFont])
+    func setTitleTextAttributes(_ attributes:[NSAttributedStringKey:UIFont])
     {
         setTitleTextAttributes(attributes, for: UIControlState.normal)
         setTitleTextAttributes(attributes, for: UIControlState.disabled)
@@ -261,9 +261,15 @@ class MediaCategory {
     
     var names:[String]? {
         get {
-            return dicts?.keys.map({ (key:String) -> String in
-                return key
-            }).sorted()
+            guard let keys = dicts?.keys else {
+                return nil
+            }
+
+            return [String](keys).sorted()
+            
+//            return dicts?.keys.map({ (key:String) -> String in
+//                return key
+//            }).sorted()
         }
     }
     
@@ -800,9 +806,9 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
                 for event in streamEntries {
                     let streamEntry = StreamEntry(event)
                     
-                    if let start = streamEntry?.start, let text = streamEntry?.text {
-                        // All streaming to start 5 minutes before the scheduled start time
-                        if ((now.timeIntervalSince1970 + 5*60) >= Double(start)) && (now <= streamEntry?.endDate) {
+                    if let start = streamEntry?.start, let end = streamEntry?.end, let text = streamEntry?.text {
+                        // All streaming to start 10 minutes before and end 10 minutes after  the scheduled start time
+                        if ((now.timeIntervalSince1970 + 10*60) >= Double(start)) && ((now.timeIntervalSince1970 - 10*60) <= Double(end)) {
                             if streamStringIndex["Playing"] == nil {
                                 streamStringIndex["Playing"] = [String]()
                             }
@@ -840,9 +846,9 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
                 for event in streamEntries {
                     let streamEntry = StreamEntry(event)
                     
-                    if let start = streamEntry?.start {
-                        // All streaming to start 5 minutes before the scheduled start time
-                        if ((now.timeIntervalSince1970 + 5*60) >= Double(start)) && (now <= streamEntry?.endDate) {
+                    if let start = streamEntry?.start, let end = streamEntry?.end {
+                        // All streaming to start 10 minutes before and end 10 minutes after the scheduled start time
+                        if ((now.timeIntervalSince1970 + 10*60) >= Double(start)) && ((now.timeIntervalSince1970 - 10*60) <= Double(end)) {
                             if streamEntryIndex["Playing"] == nil {
                                 streamEntryIndex["Playing"] = [[String:Any]]()
                             }
@@ -962,7 +968,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         get {
             return globals.history?.reversed().filter({ (string:String) -> Bool in
                 if let range = string.range(of: Constants.TAGS_SEPARATOR) {
-                    let mediaItemID = string.substring(from: range.upperBound)
+                    let mediaItemID = String(string[range.upperBound...])
                     return globals.mediaRepository.index?[mediaItemID] != nil
                 } else {
                     return false
@@ -980,7 +986,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
                     var mediaItemID:String
                     
                     if let range = history.range(of: Constants.TAGS_SEPARATOR) {
-                        mediaItemID = history.substring(from: range.upperBound)
+                        mediaItemID = String(history[range.upperBound...])
                         
                         if let mediaItem = globals.mediaRepository.index?[mediaItemID] {
                             if let text = mediaItem.text {

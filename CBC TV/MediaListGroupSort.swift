@@ -172,7 +172,7 @@ class StringNode {
         while !isEmpty {
             if let stringNodes = stringNodes?.sorted(by: { $0.string < $1.string }) {
                 for stringNode in stringNodes {
-                    if stringNode.string?.endIndex >= fragment.endIndex, stringNode.string?.substring(to: fragment.endIndex) == fragment {
+                    if let string = stringNode.string, string.endIndex >= fragment.endIndex, String(string[..<fragment.endIndex]) == fragment {
                         foundNode = stringNode
                         break
                     }
@@ -183,7 +183,7 @@ class StringNode {
                 break
             }
             
-            fragment = fragment.substring(to: fragment.index(before: fragment.endIndex))
+            fragment = String(fragment[..<fragment.index(before: fragment.endIndex)])
             
             isEmpty = fragment.isEmpty
         }
@@ -237,35 +237,39 @@ class StringNode {
         var isEmpty = fragment.isEmpty
         
         while !isEmpty {
-            if string?.endIndex >= fragment.endIndex, string?.substring(to: fragment.endIndex) == fragment {
+            if let string = string, string.endIndex >= fragment.endIndex, String(string[..<fragment.endIndex]) == fragment {
                 break
             }
 
-            fragment = fragment.substring(to: fragment.index(before: fragment.endIndex))
+            fragment = String(fragment[..<fragment.index(before: fragment.endIndex)])
 
             isEmpty = fragment.isEmpty
         }
         
         if !isEmpty {
-            if let stringRemainder = string?.substring(from: fragment.endIndex), !stringRemainder.isEmpty {
-                let newNode = StringNode(stringRemainder)
-                newNode.stringNodes = stringNodes
+            if let stringSubSequence = string?[fragment.endIndex...] {
+                let stringRemainder = String(stringSubSequence)
                 
-                newNode.wordEnding = wordEnding
-                
-                if !wordEnding, let index = stringNodes?.index(where: { (stringNode:StringNode) -> Bool in
-                    return stringNode.string == Constants.WORD_ENDING
-                }) {
-                    stringNodes?.remove(at: index)
+                if !stringRemainder.isEmpty {
+                    let newNode = StringNode(stringRemainder)
+                    newNode.stringNodes = stringNodes
+                    
+                    newNode.wordEnding = wordEnding
+                    
+                    if !wordEnding, let index = stringNodes?.index(where: { (stringNode:StringNode) -> Bool in
+                        return stringNode.string == Constants.WORD_ENDING
+                    }) {
+                        stringNodes?.remove(at: index)
+                    }
+                    
+                    wordEnding = false
+                    
+                    string = fragment
+                    stringNodes = [newNode]
                 }
-                
-                wordEnding = false
-                
-                string = fragment
-                stringNodes = [newNode]
             }
             
-            let newStringRemainder = newString.substring(from: fragment.endIndex)
+            let newStringRemainder = String(newString[fragment.endIndex...])
             
             if !newStringRemainder.isEmpty {
                 addStringNode(newStringRemainder)
@@ -370,7 +374,8 @@ class MediaListGroupSort {
                     
                     if possibleTag.range(of: "-") != nil {
                         while let range = possibleTag.range(of: "-") {
-                            let candidate = possibleTag.substring(to: range.lowerBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                            // .substring(to:
+                            let candidate = String(possibleTag[..<range.lowerBound]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                             
                             if (Int(candidate) == nil) && !tags.contains(candidate) {
                                 if let count = possibleTags[candidate] {
@@ -380,7 +385,8 @@ class MediaListGroupSort {
                                 }
                             }
 
-                            possibleTag = possibleTag.substring(from: range.upperBound).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                            // .substring(from: 
+                            possibleTag = String(possibleTag[range.upperBound...]).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
                         }
                         
                         if !possibleTag.isEmpty {
