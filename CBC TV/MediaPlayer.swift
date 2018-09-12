@@ -193,7 +193,7 @@ class MediaPlayer : NSObject {
 //        menuPressRecognizer.allowedPressTypes = [NSNumber(value: UIPressType.menu.rawValue)]
 //        controller?.view.addGestureRecognizer(menuPressRecognizer)
         
-        controller?.delegate = globals
+        controller?.delegate = Globals.shared
         
         controller?.showsPlaybackControls = false
 
@@ -489,7 +489,7 @@ class MediaPlayer : NSObject {
         
         mediaItem?.atEnd = true
         
-        if globals.autoAdvance, let mediaItem = mediaItem, mediaItem.playing == Playing.audio, mediaItem.atEnd, mediaItem.multiPartMediaItems?.count > 1,
+        if Globals.shared.autoAdvance, let mediaItem = mediaItem, mediaItem.playing == Playing.audio, mediaItem.atEnd, mediaItem.multiPartMediaItems?.count > 1,
             let mediaItems = mediaItem.multiPartMediaItems, let index = mediaItems.index(of: mediaItem), index < (mediaItems.count - 1) {
             let nextMediaItem = mediaItems[index + 1]
             
@@ -665,7 +665,7 @@ class MediaPlayer : NSObject {
         
 //        guard (player?.status == .readyToPlay) && (currentItem?.status == .readyToPlay) else {
 //            playOnLoad = true
-//            globals.reloadPlayer()
+//            Globals.shared.reloadPlayer()
 //            return
 //        }
         
@@ -964,7 +964,7 @@ class MediaPlayer : NSObject {
             
         }
         didSet {
-            globals.mediaCategory.playing = mediaItem?.id
+            Globals.shared.mediaCategory.playing = mediaItem?.id
 
             if oldValue != nil {
                 // Remove playing icon if the previous mediaItem was playing.

@@ -34,7 +34,7 @@ class AboutViewController: UIViewController
         super.viewWillAppear(animated)
         setVersion()
         
-        guard globals.reachability.isReachable else {
+        guard Globals.shared.reachability.isReachable else {
             mapView.isHidden = true
             return
         }
@@ -69,7 +69,7 @@ class AboutViewController: UIViewController
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-        globals.freeMemory()
+        Globals.shared.freeMemory()
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)

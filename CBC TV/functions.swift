@@ -26,7 +26,7 @@ extension URL {
             return
         }
         
-        if globals.cacheDownloads, let image = UIImage(contentsOfFile: imageURL.path) {
+        if Globals.shared.cacheDownloads, let image = UIImage(contentsOfFile: imageURL.path) {
             //                    print("Image \(imageName) in file system")
             block(image)
         } else {
@@ -39,7 +39,7 @@ extension URL {
                 return
             }
             
-            if globals.cacheDownloads {
+            if Globals.shared.cacheDownloads {
                 DispatchQueue.global(qos: .background).async {
                     do {
                         try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
@@ -62,7 +62,7 @@ extension URL {
                 return nil
             }
             
-            if globals.cacheDownloads, let image = UIImage(contentsOfFile: imageURL.path) {
+            if Globals.shared.cacheDownloads, let image = UIImage(contentsOfFile: imageURL.path) {
                 //                    print("Image \(imageName) in file system")
                 return image
             } else {
@@ -75,7 +75,7 @@ extension URL {
                     return nil
                 }
                 
-                if globals.cacheDownloads {
+                if Globals.shared.cacheDownloads {
                     DispatchQueue.global(qos: .background).async {
                         do {
                             try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
@@ -151,7 +151,7 @@ func removeCacheFiles(fileExtension:String)
                 // .substring(to:
                 let id = String(filename[..<range.lowerBound])
 
-                if globals.mediaRepository.index?[id] != nil {
+                if Globals.shared.mediaRepository.index?[id] != nil {
                     let url = cachesURL.appendingPathComponent(filename)
                     
                     print(url.path)
@@ -207,7 +207,7 @@ func filesOfTypeInCache(_ fileType:String) -> [String]?
 
 func removeJSONFromFileSystemDirectory()
 {
-    if let filename = globals.mediaCategory.filename, let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) {
+    if let filename = Globals.shared.mediaCategory.filename, let jsonFileSystemURL = cachesURL()?.appendingPathComponent(filename) {
         do {
             try FileManager.default.removeItem(atPath: jsonFileSystemURL.path)
         } catch let error as NSError {
@@ -225,7 +225,7 @@ func jsonToFileSystemDirectory(key:String)
     
     let fileManager = FileManager.default
     
-    if let filename = globals.mediaCategory.filename, let jsonFileURL = cachesURL()?.appendingPathComponent(filename) {
+    if let filename = Globals.shared.mediaCategory.filename, let jsonFileURL = cachesURL()?.appendingPathComponent(filename) {
         // Check if file exist
         if (!fileManager.fileExists(atPath: jsonFileURL.path)){
             do {
@@ -287,7 +287,7 @@ func jsonToFileSystemDirectory(key:String)
 
 func jsonFromURL(url:String) -> Any?
 {
-    guard globals.reachability.isReachable, let url = URL(string: url) else {
+    guard Globals.shared.reachability.isReachable, let url = URL(string: url) else {
         return nil
     }
     
@@ -311,7 +311,7 @@ func jsonFromURL(url:String) -> Any?
 
 func jsonFromURL(url:String,filename:String) -> Any?
 {
-    guard globals.reachability.isReachable, let url = URL(string: url) else {
+    guard Globals.shared.reachability.isReachable, let url = URL(string: url) else {
         return jsonFromFileSystem(filename: filename)
     }
     
@@ -378,7 +378,7 @@ func jsonDataFromDocumentsDirectory() -> Any?
 {
     jsonToFileSystemDirectory(key:Constants.JSON.ARRAY_KEY.MEDIA_ENTRIES)
     
-    if let filename = globals.mediaCategory.filename, let jsonURL = cachesURL()?.appendingPathComponent(filename) {
+    if let filename = Globals.shared.mediaCategory.filename, let jsonURL = cachesURL()?.appendingPathComponent(filename) {
         if let data = try? Data(contentsOf: jsonURL) {
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: [])
@@ -397,7 +397,7 @@ func jsonDataFromDocumentsDirectory() -> Any?
 
 func jsonDataFromCachesDirectory() -> Any?
 {
-    if let filename = globals.mediaCategory.filename, let jsonURL = cachesURL()?.appendingPathComponent(filename) {
+    if let filename = Globals.shared.mediaCategory.filename, let jsonURL = cachesURL()?.appendingPathComponent(filename) {
         if let data = try? Data(contentsOf: jsonURL) {
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: [])
@@ -1812,14 +1812,14 @@ func multiPartMediaItems(_ mediaItem:MediaItem?) -> [MediaItem]?
     var multiPartMediaItems:[MediaItem]?
     
     if mediaItem.hasMultipleParts, let multiPartSort = mediaItem.multiPartSort {
-        if (globals.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL] == nil) {
-            let seriesMediaItems = globals.mediaRepository.list?.filter({ (testMediaItem:MediaItem) -> Bool in
+        if (Globals.shared.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL] == nil) {
+            let seriesMediaItems = Globals.shared.mediaRepository.list?.filter({ (testMediaItem:MediaItem) -> Bool in
                 return mediaItem.hasMultipleParts ? (testMediaItem.multiPartName == mediaItem.multiPartName) : (testMediaItem.id == mediaItem.id)
             })
             multiPartMediaItems = sortMediaItemsByYear(seriesMediaItems, sorting: SORTING.CHRONOLOGICAL)
         } else {
             if let multiPartSort = mediaItem.multiPartSort {
-                multiPartMediaItems = globals.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL]
+                multiPartMediaItems = Globals.shared.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL]
             }
         }
     } else {
@@ -2464,7 +2464,7 @@ func testMediaItemsTagsAndSeries()
 {
     print("Testing for mediaItem series and tags the same - start")
     
-    if let mediaItems = globals.mediaRepository.list {
+    if let mediaItems = Globals.shared.mediaRepository.list {
         for mediaItem in mediaItems {
             if (mediaItem.hasMultipleParts) && (mediaItem.hasTags) {
                 if (mediaItem.multiPartName == mediaItem.tags) {
@@ -2481,7 +2481,7 @@ func testMediaItemsForAudio()
 {
     print("Testing for audio - start")
     
-    for mediaItem in globals.mediaRepository.list! {
+    for mediaItem in Globals.shared.mediaRepository.list! {
         if (!mediaItem.hasAudio) {
             print("Audio missing in: \(mediaItem.title!)")
         } else {
@@ -2496,7 +2496,7 @@ func testMediaItemsForSpeaker()
 {
     print("Testing for speaker - start")
     
-    for mediaItem in globals.mediaRepository.list! {
+    for mediaItem in Globals.shared.mediaRepository.list! {
         if (!mediaItem.hasSpeaker) {
             print("Speaker missing in: \(mediaItem.title!)")
         }
@@ -2509,7 +2509,7 @@ func testMediaItemsForSeries()
 {
     print("Testing for mediaItems with \"(Part \" in the title but no series - start")
     
-    for mediaItem in globals.mediaRepository.list! {
+    for mediaItem in Globals.shared.mediaRepository.list! {
         if (mediaItem.title?.range(of: "(Part ", options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil) && mediaItem.hasMultipleParts {
             print("Series missing in: \(mediaItem.title!)")
         }

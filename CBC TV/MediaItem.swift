@@ -212,8 +212,8 @@ class MediaItem : NSObject {
             }
             
             var mediaItemParts:[MediaItem]?
-            if (globals.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL] == nil) {
-                mediaItemParts = globals.mediaRepository.list?.filter({ (testMediaItem:MediaItem) -> Bool in
+            if (Globals.shared.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL] == nil) {
+                mediaItemParts = Globals.shared.mediaRepository.list?.filter({ (testMediaItem:MediaItem) -> Bool in
                     if testMediaItem.hasMultipleParts {
                         return (testMediaItem.category == category) && (testMediaItem.multiPartName == multiPartName)
                     } else {
@@ -221,7 +221,7 @@ class MediaItem : NSObject {
                     }
                 })
             } else {
-                mediaItemParts = globals.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL]?.filter({ (testMediaItem:MediaItem) -> Bool in
+                mediaItemParts = Globals.shared.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL]?.filter({ (testMediaItem:MediaItem) -> Bool in
                     return (testMediaItem.multiPartName == multiPartName) && (testMediaItem.category == category)
                 })
             }
@@ -364,7 +364,7 @@ class MediaItem : NSObject {
         var mediaItems:[MediaItem]?
         
         if tagsSet.contains(tag) {
-            mediaItems = globals.media.all?.tagMediaItems?[tag]
+            mediaItems = Globals.shared.media.all?.tagMediaItems?[tag]
         }
         
         return mediaItems
@@ -395,19 +395,19 @@ class MediaItem : NSObject {
     
     var isInMediaPlayer:Bool {
         get {
-            return (self == globals.mediaPlayer.mediaItem)
+            return (self == Globals.shared.mediaPlayer.mediaItem)
         }
     }
     
     var isLoaded:Bool {
         get {
-            return isInMediaPlayer && globals.mediaPlayer.loaded
+            return isInMediaPlayer && Globals.shared.mediaPlayer.loaded
         }
     }
     
     var isPlaying:Bool {
         get {
-            return globals.mediaPlayer.url == playingURL
+            return Globals.shared.mediaPlayer.url == playingURL
         }
     }
     
@@ -435,8 +435,8 @@ class MediaItem : NSObject {
         
         set {
             if newValue != dict?[Field.playing] {
-                if globals.mediaPlayer.mediaItem == self {
-                    globals.mediaPlayer.stop()
+                if Globals.shared.mediaPlayer.mediaItem == self {
+                    Globals.shared.mediaPlayer.stop()
                 }
                 
                 dict?[Field.playing] = newValue
@@ -594,7 +594,7 @@ class MediaItem : NSObject {
 
     func singleJSONFromURL() -> [String:String]?
     {
-        guard globals.reachability.isReachable else {
+        guard Globals.shared.reachability.isReachable else {
             return nil
         }
         
@@ -959,18 +959,18 @@ class MediaItem : NSObject {
             }
             
             if let sortTag = stringWithoutPrefixes(tag) {
-                if globals.media.all?.tagMediaItems?[sortTag] != nil {
-                    if globals.media.all?.tagMediaItems?[sortTag]?.index(of: self) == nil {
-                        globals.media.all?.tagMediaItems?[sortTag]?.append(self)
-                        globals.media.all?.tagNames?[sortTag] = tag
+                if Globals.shared.media.all?.tagMediaItems?[sortTag] != nil {
+                    if Globals.shared.media.all?.tagMediaItems?[sortTag]?.index(of: self) == nil {
+                        Globals.shared.media.all?.tagMediaItems?[sortTag]?.append(self)
+                        Globals.shared.media.all?.tagNames?[sortTag] = tag
                     }
                 } else {
-                    globals.media.all?.tagMediaItems?[sortTag] = [self]
-                    globals.media.all?.tagNames?[sortTag] = tag
+                    Globals.shared.media.all?.tagMediaItems?[sortTag] = [self]
+                    Globals.shared.media.all?.tagNames?[sortTag] = tag
                 }
                 
-                if globals.media.tags.selected == tag, let selected = globals.media.tags.selected {
-                    globals.media.tagged[selected] = MediaListGroupSort(mediaItems: globals.media.all?.tagMediaItems?[sortTag])
+                if Globals.shared.media.tags.selected == tag, let selected = Globals.shared.media.tags.selected {
+                    Globals.shared.media.tagged[selected] = MediaListGroupSort(mediaItems: Globals.shared.media.all?.tagMediaItems?[sortTag])
                     
                     Thread.onMainThread { () -> (Void) in
                         NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil)
@@ -999,19 +999,19 @@ class MediaItem : NSObject {
         mediaItemSettings?[Field.tags] = tagsArrayToTagsString(tags)
         
         if let sortTag = stringWithoutPrefixes(tag) {
-            if let index = globals.media.all?.tagMediaItems?[sortTag]?.index(of: self) {
-                globals.media.all?.tagMediaItems?[sortTag]?.remove(at: index)
+            if let index = Globals.shared.media.all?.tagMediaItems?[sortTag]?.index(of: self) {
+                Globals.shared.media.all?.tagMediaItems?[sortTag]?.remove(at: index)
             }
             
-            if globals.media.all?.tagMediaItems?[sortTag]?.count == 0 {
-                _ = globals.media.all?.tagMediaItems?.removeValue(forKey: sortTag)
+            if Globals.shared.media.all?.tagMediaItems?[sortTag]?.count == 0 {
+                _ = Globals.shared.media.all?.tagMediaItems?.removeValue(forKey: sortTag)
             }
             
-            if globals.media.tags.selected == tag, let selected = globals.media.tags.selected {
-                globals.media.tagged[selected] = MediaListGroupSort(mediaItems: globals.media.all?.tagMediaItems?[sortTag])
+            if Globals.shared.media.tags.selected == tag, let selected = Globals.shared.media.tags.selected {
+                Globals.shared.media.tagged[selected] = MediaListGroupSort(mediaItems: Globals.shared.media.all?.tagMediaItems?[sortTag])
                 
                 Thread.onMainThread { () -> (Void) in
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil) // globals.media.tagged
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil) // Globals.shared.media.tagged
                 }
             }
             
@@ -1379,7 +1379,7 @@ class MediaItem : NSObject {
                     return nil
                 }
                 
-                return globals.mediaItemSettings?[mediaItem.id]?[key]
+                return Globals.shared.mediaItemSettings?[mediaItem.id]?[key]
             }
             set {
                 guard let mediaItem = mediaItem else {
@@ -1387,22 +1387,22 @@ class MediaItem : NSObject {
                     return
                 }
                 
-                if globals.mediaItemSettings == nil {
-                    globals.mediaItemSettings = [String:[String:String]]()
+                if Globals.shared.mediaItemSettings == nil {
+                    Globals.shared.mediaItemSettings = [String:[String:String]]()
                 }
-                if (globals.mediaItemSettings != nil) {
-                    if (globals.mediaItemSettings?[mediaItem.id] == nil) {
-                        globals.mediaItemSettings?[mediaItem.id] = [String:String]()
+                if (Globals.shared.mediaItemSettings != nil) {
+                    if (Globals.shared.mediaItemSettings?[mediaItem.id] == nil) {
+                        Globals.shared.mediaItemSettings?[mediaItem.id] = [String:String]()
                     }
-                    if (globals.mediaItemSettings?[mediaItem.id]?[key] != newValue) {
+                    if (Globals.shared.mediaItemSettings?[mediaItem.id]?[key] != newValue) {
                         //                        print("\(mediaItem)")
-                        globals.mediaItemSettings?[mediaItem.id]?[key] = newValue
+                        Globals.shared.mediaItemSettings?[mediaItem.id]?[key] = newValue
                         
                         // For a high volume of activity this can be very expensive.
-                        globals.saveSettingsBackground()
+                        Globals.shared.saveSettingsBackground()
                     }
                 } else {
-                    print("globals.settings == nil in Settings!")
+                    print("Globals.shared.settings == nil in Settings!")
                 }
             }
         }
@@ -1430,7 +1430,7 @@ class MediaItem : NSObject {
                     return nil
                 }
                 
-                return globals.multiPartSettings?[mediaItem.seriesID]?[key]
+                return Globals.shared.multiPartSettings?[mediaItem.seriesID]?[key]
             }
             set {
                 guard let mediaItem = mediaItem else {
@@ -1438,24 +1438,24 @@ class MediaItem : NSObject {
                     return
                 }
 
-                if globals.multiPartSettings == nil {
-                    globals.multiPartSettings = [String:[String:String]]()
+                if Globals.shared.multiPartSettings == nil {
+                    Globals.shared.multiPartSettings = [String:[String:String]]()
                 }
                 
-                guard (globals.multiPartSettings != nil) else {
-                    print("globals.viewSplits == nil in SeriesSettings!")
+                guard (Globals.shared.multiPartSettings != nil) else {
+                    print("Globals.shared.viewSplits == nil in SeriesSettings!")
                     return
                 }
                 
-                if (globals.multiPartSettings?[mediaItem.seriesID] == nil) {
-                    globals.multiPartSettings?[mediaItem.seriesID] = [String:String]()
+                if (Globals.shared.multiPartSettings?[mediaItem.seriesID] == nil) {
+                    Globals.shared.multiPartSettings?[mediaItem.seriesID] = [String:String]()
                 }
-                if (globals.multiPartSettings?[mediaItem.seriesID]?[key] != newValue) {
+                if (Globals.shared.multiPartSettings?[mediaItem.seriesID]?[key] != newValue) {
                     //                        print("\(mediaItem)")
-                    globals.multiPartSettings?[mediaItem.seriesID]?[key] = newValue
+                    Globals.shared.multiPartSettings?[mediaItem.seriesID]?[key] = newValue
                     
                     // For a high volume of activity this can be very expensive.
-                    globals.saveSettingsBackground()
+                    Globals.shared.saveSettingsBackground()
                 }
             }
         }

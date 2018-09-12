@@ -40,7 +40,7 @@ class LiveViewController: UIViewController
     @objc func clearView()
     {
         Thread.onMainThread {
-            globals.mediaPlayer.view?.isHidden = true
+            Globals.shared.mediaPlayer.view?.isHidden = true
             self.logo.isHidden = false
         }
     }
@@ -50,7 +50,7 @@ class LiveViewController: UIViewController
         Thread.onMainThread {
             self.setupLivePlayerView()
             
-            globals.mediaPlayer.view?.isHidden = false
+            Globals.shared.mediaPlayer.view?.isHidden = false
             self.logo.isHidden = true
         }
     }
@@ -89,7 +89,7 @@ class LiveViewController: UIViewController
     {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-        globals.freeMemory()
+        Globals.shared.freeMemory()
     }
 
     @IBOutlet weak var logo: UIImageView!
@@ -100,26 +100,26 @@ class LiveViewController: UIViewController
             return
         }
         
-        if (globals.mediaPlayer.url != URL(string:Constants.URL.LIVE_STREAM)) {
-            globals.mediaPlayer.pause() // IfPlaying
+        if (Globals.shared.mediaPlayer.url != URL(string:Constants.URL.LIVE_STREAM)) {
+            Globals.shared.mediaPlayer.pause() // IfPlaying
 
-            globals.mediaPlayer.setup(url: URL(string:Constants.URL.LIVE_STREAM),playOnLoad:true)
-            globals.mediaPlayer.setupPlayingInfoCenter()
+            Globals.shared.mediaPlayer.setup(url: URL(string:Constants.URL.LIVE_STREAM),playOnLoad:true)
+            Globals.shared.mediaPlayer.setupPlayingInfoCenter()
         }
         
-        globals.mediaPlayer.showsPlaybackControls = true
+        Globals.shared.mediaPlayer.showsPlaybackControls = true
         
 //        splitViewController.preferredDisplayMode = .primaryHidden
         
-        if (globals.mediaPlayer.view != nil) {
-            globals.mediaPlayer.view?.isHidden = true
-            globals.mediaPlayer.view?.removeFromSuperview()
+        if (Globals.shared.mediaPlayer.view != nil) {
+            Globals.shared.mediaPlayer.view?.isHidden = true
+            Globals.shared.mediaPlayer.view?.removeFromSuperview()
             
-            globals.mediaPlayer.view?.frame = splitViewController.view.bounds // self.view.bounds // webView.bounds
+            Globals.shared.mediaPlayer.view?.frame = splitViewController.view.bounds // self.view.bounds // webView.bounds
             
             view.translatesAutoresizingMaskIntoConstraints = false //This will fail without this
             
-            if let view = globals.mediaPlayer.view {
+            if let view = Globals.shared.mediaPlayer.view {
                 splitViewController.view.addSubview(view)
                 
                 let top = NSLayoutConstraint(item: view, attribute: NSLayoutAttribute.top, relatedBy: NSLayoutRelation.equal, toItem: view.superview, attribute: NSLayoutAttribute.top, multiplier: 1.0, constant: 0.0)
@@ -150,7 +150,7 @@ class LiveViewController: UIViewController
 
             DispatchQueue.global(qos: .background).async {
                 Thread.sleep(forTimeInterval: 0.1)
-                globals.mediaPlayer.play()
+                Globals.shared.mediaPlayer.play()
             }
         }
     }

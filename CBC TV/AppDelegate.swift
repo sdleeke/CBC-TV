@@ -35,11 +35,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             splitViewController.delegate = self
         }
     
-        globals = Globals()
+//        globals = Globals()
 
-        globals.addAccessoryEvents()
+        Globals.shared.addAccessoryEvents()
         
-        globals.startAudio()
+        Globals.shared.startAudio()
 
         return true
     }
@@ -61,8 +61,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
         print("applicationDidEnterBackground")
         
-        if globals.mediaPlayer.isPlaying && (globals.mediaPlayer.mediaItem?.playing == Playing.video) { // && (globals.mediaPlayer.pip != .started)
-            globals.mediaPlayer.pause()
+        if Globals.shared.mediaPlayer.isPlaying && (Globals.shared.mediaPlayer.mediaItem?.playing == Playing.video) { // && (Globals.shared.mediaPlayer.pip != .started)
+            Globals.shared.mediaPlayer.pause()
         }
         
         Thread.onMainThread { () -> (Void) in
@@ -85,7 +85,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
         print("applicationDidBecomeActive")
         
-        globals.mediaPlayer.setupPlayingInfoCenter()
+        Globals.shared.mediaPlayer.setupPlayingInfoCenter()
         
         Thread.onMainThread { () -> (Void) in
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)

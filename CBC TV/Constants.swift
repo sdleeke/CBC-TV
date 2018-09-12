@@ -129,7 +129,7 @@ enum Constants {
             
             static let CATEGORY = MEDIA + "&categoryID="
             
-            static let CATEGORY_MEDIA = CATEGORY + (globals.mediaCategory.selectedID ?? "1")
+            static let CATEGORY_MEDIA = CATEGORY + (Globals.shared.mediaCategory.selectedID ?? "1")
             
             static let SINGLE = BASE + "single&mediacode="
         }

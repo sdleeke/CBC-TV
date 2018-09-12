@@ -137,7 +137,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         
         var view = mediaItemNotesAndSlides
         
-        if globals.mediaPlayer.isZoomed {
+        if Globals.shared.mediaPlayer.isZoomed {
             view = splitViewController?.view
         }
         
@@ -163,7 +163,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     
     @objc func swipeNext(swipe:UISwipeGestureRecognizer)
     {
-        guard globals.mediaPlayer.isZoomed else {
+        guard Globals.shared.mediaPlayer.isZoomed else {
             return
         }
         
@@ -212,7 +212,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     
     @objc func swipePrev(swipe:UISwipeGestureRecognizer)
     {
-        guard globals.mediaPlayer.isZoomed else {
+        guard Globals.shared.mediaPlayer.isZoomed else {
             return
         }
         
@@ -310,7 +310,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         
         var view:UIView! = mediaItemNotesAndSlides
 
-        if globals.mediaPlayer.isZoomed, let svcView = splitViewController?.view {
+        if Globals.shared.mediaPlayer.isZoomed, let svcView = splitViewController?.view {
             view = svcView
         }
         
@@ -511,8 +511,8 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_UI), object: oldValue)
             }
             
-            if (selectedMediaItem != nil) && (selectedMediaItem != globals.mediaPlayer.mediaItem) {
-                globals.mediaPlayer.stop()
+            if (selectedMediaItem != nil) && (selectedMediaItem != Globals.shared.mediaPlayer.mediaItem) {
+                Globals.shared.mediaPlayer.stop()
                 
                 setupVideo()
                 
@@ -527,7 +527,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             if (selectedMediaItem != nil) {
                 mediaItems = selectedMediaItem?.multiPartMediaItems // mediaItemsInMediaItemSeries(selectedMediaItem)
 
-                globals.selectedMediaItem.detail = selectedMediaItem
+                Globals.shared.selectedMediaItem.detail = selectedMediaItem
                 
                 setupTitle()
                 
@@ -540,7 +540,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 mediaItems = nil
             }
             
-            if (selectedMediaItem != nil) && (selectedMediaItem == globals.mediaPlayer.mediaItem) {
+            if (selectedMediaItem != nil) && (selectedMediaItem == Globals.shared.mediaPlayer.mediaItem) {
                 removePlayerObserver()
             }
             
@@ -563,7 +563,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     }
     @IBAction func prevSlideAction(_ sender: UIButton)
     {
-        guard !globals.mediaPlayer.isZoomed else {
+        guard !Globals.shared.mediaPlayer.isZoomed else {
             return
         }
         
@@ -579,7 +579,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     }
     @IBAction func nextSlideAction(_ sender: UIButton)
     {
-        guard !globals.mediaPlayer.isZoomed else {
+        guard !Globals.shared.mediaPlayer.isZoomed else {
             return
         }
 
@@ -594,12 +594,12 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     }
     @IBAction func slidesButtonAction(_ sender: UIButton)
     {
-        guard !globals.mediaPlayer.isZoomed else {
+        guard !Globals.shared.mediaPlayer.isZoomed else {
             return
         }
 
         if selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
-            if selectedMediaItem?.playing == Playing.video, globals.mediaPlayer.mediaItem == selectedMediaItem {
+            if selectedMediaItem?.playing == Playing.video, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem {
                 self.selectedMediaItem?.showing = Showing.video
             } else {
                 self.selectedMediaItem?.showing = Showing.none
@@ -620,7 +620,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     
     @IBAction func audioOrVideoSelection(sender: UISegmentedControl)
     {
-        guard !globals.mediaPlayer.isZoomed else {
+        guard !Globals.shared.mediaPlayer.isZoomed else {
             return
         }
         
@@ -638,10 +638,10 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                     break
                     
                 case Playing.video:
-                    if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
-                        globals.mediaPlayer.stop() // IfPlaying
+                    if (Globals.shared.mediaPlayer.mediaItem == selectedMediaItem) {
+                        Globals.shared.mediaPlayer.stop() // IfPlaying
                         
-                        globals.mediaPlayer.view?.isHidden = true
+                        Globals.shared.mediaPlayer.view?.isHidden = true
                         
                         setupSpinner()
                         
@@ -654,8 +654,8 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                     selectedMediaItem?.playing = Playing.audio // Must come before setupNoteAndSlides()
                     
                     // Unlike CBC on iOS, don't load the player.
-                    //                if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
-                    //                    globals.setupPlayer(selectedMediaItem, playOnLoad: false)
+                    //                if (Globals.shared.mediaPlayer.mediaItem == selectedMediaItem) {
+                    //                    Globals.shared.setupPlayer(selectedMediaItem, playOnLoad: false)
                     //                }
                     
                     playerURL(url: selectedMediaItem?.playingURL)
@@ -675,8 +675,8 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             if let playing = selectedMediaItem?.playing {
                 switch playing {
                 case Playing.audio:
-                    if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
-                        globals.mediaPlayer.stop() // IfPlaying
+                    if (Globals.shared.mediaPlayer.mediaItem == selectedMediaItem) {
+                        Globals.shared.mediaPlayer.stop() // IfPlaying
                         
                         setupSpinner()
                         
@@ -689,8 +689,8 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                     selectedMediaItem?.playing = Playing.video // Must come before setupNoteAndSlides()
                     
                     // Unlike CBC on iOS, don't load the player.
-                    //                if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
-                    //                    globals.setupPlayer(selectedMediaItem, playOnLoad: false)
+                    //                if (Globals.shared.mediaPlayer.mediaItem == selectedMediaItem) {
+                    //                    Globals.shared.setupPlayer(selectedMediaItem, playOnLoad: false)
                     //                }
                     
                     playerURL(url: selectedMediaItem?.playingURL)
@@ -724,15 +724,15 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     }
     @IBAction func restartButtonAction(_ sender: UIButton)
     {
-        guard !globals.mediaPlayer.isZoomed else {
+        guard !Globals.shared.mediaPlayer.isZoomed else {
             return
         }
         
-        guard globals.mediaPlayer.loaded else {
+        guard Globals.shared.mediaPlayer.loaded else {
             return
         }
         
-        globals.mediaPlayer.seek(to: 0)
+        Globals.shared.mediaPlayer.seek(to: 0)
     }
     
     @IBOutlet weak var skipBackwardButton: UIButton!
@@ -743,19 +743,19 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     }
     @IBAction func skipBackwardButtonAction(_ sender: UIButton)
     {
-        guard !globals.mediaPlayer.isZoomed else {
+        guard !Globals.shared.mediaPlayer.isZoomed else {
             return
         }
 
-        guard globals.mediaPlayer.loaded else {
+        guard Globals.shared.mediaPlayer.loaded else {
             return
         }
         
-        guard let currentTime = globals.mediaPlayer.currentTime else {
+        guard let currentTime = Globals.shared.mediaPlayer.currentTime else {
             return
         }
         
-        globals.mediaPlayer.seek(to: currentTime.seconds - Constants.SKIP_TIME_INTERVAL)
+        Globals.shared.mediaPlayer.seek(to: currentTime.seconds - Constants.SKIP_TIME_INTERVAL)
     }
     
     @IBOutlet weak var skipForwardButton: UIButton!
@@ -766,19 +766,19 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     }
     @IBAction func skipForwardButtonAction(_ sender: UIButton)
     {
-        guard !globals.mediaPlayer.isZoomed else {
+        guard !Globals.shared.mediaPlayer.isZoomed else {
             return
         }
         
-        guard globals.mediaPlayer.loaded else {
+        guard Globals.shared.mediaPlayer.loaded else {
             return
         }
         
-        guard let currentTime = globals.mediaPlayer.currentTime else {
+        guard let currentTime = Globals.shared.mediaPlayer.currentTime else {
             return
         }
         
-        globals.mediaPlayer.seek(to: currentTime.seconds + Constants.SKIP_TIME_INTERVAL)
+        Globals.shared.mediaPlayer.seek(to: currentTime.seconds + Constants.SKIP_TIME_INTERVAL)
     }
     
     @IBOutlet weak var spinner: UIActivityIndicatorView!
@@ -805,16 +805,16 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 
     @IBAction func playPause(_ sender: UIButton)
     {
-        guard !globals.mediaPlayer.isZoomed else {
+        guard !Globals.shared.mediaPlayer.isZoomed else {
             return
         }
         
-        guard (selectedMediaItem != nil) && (globals.mediaPlayer.mediaItem == selectedMediaItem) else {
+        guard (selectedMediaItem != nil) && (Globals.shared.mediaPlayer.mediaItem == selectedMediaItem) else {
             playNewMediaItem(selectedMediaItem)
             return
         }
 
-        guard let state = globals.mediaPlayer.state else {
+        guard let state = Globals.shared.mediaPlayer.state else {
             return
         }
         
@@ -830,14 +830,14 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
         case .playing:
             showState("playing")
-            globals.mediaPlayer.pause()
+            Globals.shared.mediaPlayer.pause()
             setupPlayPauseButton()
             setupSpinner()
             break
             
         case .paused:
             showState("paused")
-            if globals.mediaPlayer.loaded && (globals.mediaPlayer.url == selectedMediaItem?.playingURL) {
+            if Globals.shared.mediaPlayer.loaded && (Globals.shared.mediaPlayer.url == selectedMediaItem?.playingURL) {
                 playCurrentMediaItem(selectedMediaItem)
             } else {
                 playNewMediaItem(selectedMediaItem)
@@ -850,13 +850,13 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
         case .seekingForward:
             showState("seekingForward")
-            globals.mediaPlayer.pause()
+            Globals.shared.mediaPlayer.pause()
             setupPlayPauseButton()
             break
             
         case .seekingBackward:
             showState("seekingBackward")
-            globals.mediaPlayer.pause()
+            Globals.shared.mediaPlayer.pause()
             setupPlayPauseButton()
             break
         }
@@ -877,7 +877,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             break
         
         case Showing.video:
-            result = !globals.mediaPlayer.loaded
+            result = !Globals.shared.mediaPlayer.loaded
             break
             
         default:
@@ -934,10 +934,10 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         parentView = mediaItemNotesAndSlides
         tableView.isScrollEnabled = true
 
-        if globals.mediaPlayer.isZoomed {
+        if Globals.shared.mediaPlayer.isZoomed {
             parentView = splitViewController.view
             
-            if longPressRecognizer == nil, let selectedMediaItem = selectedMediaItem, selectedMediaItem.playing == Playing.video, globals.mediaPlayer.mediaItem == selectedMediaItem {
+            if longPressRecognizer == nil, let selectedMediaItem = selectedMediaItem, selectedMediaItem.playing == Playing.video, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem {
                 longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(toggleSlidesPress(longPress:)))
                 longPressRecognizer?.delegate = self
                 
@@ -986,7 +986,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        guard globals.mediaPlayer.loaded else {
+        guard Globals.shared.mediaPlayer.loaded else {
             return
         }
         
@@ -994,11 +994,11 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        guard (selectedMediaItem == globals.mediaPlayer.mediaItem) else {
+        guard (selectedMediaItem == Globals.shared.mediaPlayer.mediaItem) else {
             return
         }
 
-        if globals.mediaPlayer.playOnLoad {
+        if Globals.shared.mediaPlayer.playOnLoad {
             if (selectedMediaItem?.playing == Playing.video) && (selectedMediaItem?.showing != Showing.video) {
                 if selectedMediaItem?.showing?.range(of: Showing.slides) == nil {
                     selectedMediaItem?.showing = Showing.video
@@ -1007,27 +1007,27 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
         
         if (selectedMediaItem?.playing == Playing.video) && (selectedMediaItem?.showing == Showing.video) {
-            globals.mediaPlayer.view?.isHidden = false
+            Globals.shared.mediaPlayer.view?.isHidden = false
             
-            if let view = globals.mediaPlayer.view {
-                if globals.mediaPlayer.mediaItem?.showing?.range(of: Showing.slides) == nil {
+            if let view = Globals.shared.mediaPlayer.view {
+                if Globals.shared.mediaPlayer.mediaItem?.showing?.range(of: Showing.slides) == nil {
                     mediaItemNotesAndSlides.bringSubview(toFront: view)
                 }
             }
         }
 
-        if globals.mediaPlayer.playOnLoad {
-            if let atEnd = globals.mediaPlayer.mediaItem?.atEnd, atEnd {
-                globals.mediaPlayer.mediaItem?.currentTime = Constants.ZERO
-                globals.mediaPlayer.seek(to: 0)
-                globals.mediaPlayer.mediaItem?.atEnd = false
+        if Globals.shared.mediaPlayer.playOnLoad {
+            if let atEnd = Globals.shared.mediaPlayer.mediaItem?.atEnd, atEnd {
+                Globals.shared.mediaPlayer.mediaItem?.currentTime = Constants.ZERO
+                Globals.shared.mediaPlayer.seek(to: 0)
+                Globals.shared.mediaPlayer.mediaItem?.atEnd = false
             }
-            globals.mediaPlayer.playOnLoad = false
+            Globals.shared.mediaPlayer.playOnLoad = false
             
             // Just for the delay
             DispatchQueue.global(qos: .background).async(execute: {
                 Thread.onMainThread {
-                    globals.mediaPlayer.play()
+                    Globals.shared.mediaPlayer.play()
                 }
             })
         }
@@ -1052,9 +1052,9 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        if (selectedMediaItem == globals.mediaPlayer.mediaItem) {
+        if (selectedMediaItem == Globals.shared.mediaPlayer.mediaItem) {
             if (selectedMediaItem?.showing == Showing.video) {
-                globals.mediaPlayer.stop()
+                Globals.shared.mediaPlayer.stop()
             }
             
             updateUI()
@@ -1067,9 +1067,9 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        if (selectedMediaItem == globals.mediaPlayer.mediaItem) {
+        if (selectedMediaItem == Globals.shared.mediaPlayer.mediaItem) {
             if (selectedMediaItem?.showing == Showing.video) {
-                globals.mediaPlayer.stop()
+                Globals.shared.mediaPlayer.stop()
             }
             
             updateUI()
@@ -1082,8 +1082,8 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        if let mediaItem = globals.mediaPlayer.mediaItem, (selectedMediaItem?.multiPartMediaItems?.index(of: mediaItem) != nil) {
-            selectedMediaItem = globals.mediaPlayer.mediaItem
+        if let mediaItem = Globals.shared.mediaPlayer.mediaItem, (selectedMediaItem?.multiPartMediaItems?.index(of: mediaItem) != nil) {
+            selectedMediaItem = Globals.shared.mediaPlayer.mediaItem
             scrollToMediaItem(selectedMediaItem, select: true, position: UITableViewScrollPosition.none)
         } else {
             removeProgressObserver()
@@ -1098,7 +1098,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     
     @objc func updateView()
     {
-        selectedMediaItem = globals.selectedMediaItem.detail
+        selectedMediaItem = Globals.shared.selectedMediaItem.detail
         
         tableView.isHidden = false
         tableView.reloadData()
@@ -1140,16 +1140,16 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     {
         print("play pause button pressed")
         
-        if let state = globals.mediaPlayer.state {
+        if let state = Globals.shared.mediaPlayer.state {
             switch state {
             case .playing:
-                globals.mediaPlayer.pause()
+                Globals.shared.mediaPlayer.pause()
                 
             case .paused:
-                globals.mediaPlayer.play()
+                Globals.shared.mediaPlayer.play()
                 
             case .stopped:
-                if (selectedMediaItem != nil) && (globals.mediaPlayer.mediaItem != selectedMediaItem) {
+                if (selectedMediaItem != nil) && (Globals.shared.mediaPlayer.mediaItem != selectedMediaItem) {
                     playNewMediaItem(selectedMediaItem)
                 }
 
@@ -1157,7 +1157,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 break
             }
         } else {
-            if (selectedMediaItem != nil) && (globals.mediaPlayer.mediaItem != selectedMediaItem) {
+            if (selectedMediaItem != nil) && (Globals.shared.mediaPlayer.mediaItem != selectedMediaItem) {
                 playNewMediaItem(selectedMediaItem)
             }
         }
@@ -1182,7 +1182,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 
         if (selectedMediaItem == nil) {
             //Will only happen on an iPad
-            selectedMediaItem = globals.selectedMediaItem.detail
+            selectedMediaItem = Globals.shared.selectedMediaItem.detail
         }
     }
 
@@ -1198,7 +1198,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
         
         guard let selectedMediaItem = selectedMediaItem, let showing = selectedMediaItem.showing, let playing = selectedMediaItem.playing else {
-            globals.mediaPlayer.view?.isHidden = true
+            Globals.shared.mediaPlayer.view?.isHidden = true
             return
         }
         
@@ -1233,16 +1233,16 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 break
 
             case Playing.video:
-                if (globals.mediaPlayer.mediaItem != nil) && (globals.mediaPlayer.mediaItem == selectedMediaItem) {
+                if (Globals.shared.mediaPlayer.mediaItem != nil) && (Globals.shared.mediaPlayer.mediaItem == selectedMediaItem) {
                     // Video is in the player
-                    logo.isHidden = globals.mediaPlayer.loaded
-                    globals.mediaPlayer.view?.isHidden = !globals.mediaPlayer.loaded
+                    logo.isHidden = Globals.shared.mediaPlayer.loaded
+                    Globals.shared.mediaPlayer.view?.isHidden = !Globals.shared.mediaPlayer.loaded
                     
                     if selectedMediaItem.showing?.range(of: Showing.slides) == nil {
                         selectedMediaItem.showing = Showing.video
                     }
                     
-                    if (globals.mediaPlayer.player != nil) {
+                    if (Globals.shared.mediaPlayer.player != nil) {
                         // Why is this commented out?
 //                        if let view = lobals.mediaPlayer.view {
 //                            mediaItemNotesAndSlides.bringSubview(toFront: view)
@@ -1274,24 +1274,24 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 break
                 
             case Playing.video:
-                if (globals.mediaPlayer.mediaItem == selectedMediaItem) {
-                    if let hasVideo = globals.mediaPlayer.mediaItem?.hasVideo, hasVideo, globals.mediaPlayer.mediaItem?.playing == Playing.video {
-                        if globals.mediaPlayer.loaded {
-                            globals.mediaPlayer.view?.isHidden = false
+                if (Globals.shared.mediaPlayer.mediaItem == selectedMediaItem) {
+                    if let hasVideo = Globals.shared.mediaPlayer.mediaItem?.hasVideo, hasVideo, Globals.shared.mediaPlayer.mediaItem?.playing == Playing.video {
+                        if Globals.shared.mediaPlayer.loaded {
+                            Globals.shared.mediaPlayer.view?.isHidden = false
                         }
                         if selectedMediaItem.showing?.range(of: Showing.slides) == nil {
                             selectedMediaItem.showing = Showing.video
-                            if let view = globals.mediaPlayer.view {
+                            if let view = Globals.shared.mediaPlayer.view {
                                 mediaItemNotesAndSlides.bringSubview(toFront: view)
                             }
                         }
                     } else {
                         selectedMediaItem.showing = Showing.none
-                        globals.mediaPlayer.view?.isHidden = true
+                        Globals.shared.mediaPlayer.view?.isHidden = true
                         setupPoster()
                     }
                 } else {
-                    globals.mediaPlayer.view?.isHidden = true
+                    Globals.shared.mediaPlayer.view?.isHidden = true
                     setupPoster()
                 }
                 break
@@ -1375,10 +1375,10 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 //            print(state)
         }
 
-        if (selectedMediaItem == globals.mediaPlayer.mediaItem) {
-            playPauseButton.isEnabled = globals.mediaPlayer.loaded || globals.mediaPlayer.loadFailed
+        if (selectedMediaItem == Globals.shared.mediaPlayer.mediaItem) {
+            playPauseButton.isEnabled = Globals.shared.mediaPlayer.loaded || Globals.shared.mediaPlayer.loadFailed
             
-            if let state = globals.mediaPlayer.state {
+            if let state = Globals.shared.mediaPlayer.state {
                 switch state {
                 case .playing:
                     showState("Playing -> Pause")
@@ -1406,14 +1406,14 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 //        playPauseButton.isEnabled = playPauseButton.isEnabled && (selectedMediaItem.showing?.range(of: Showing.slides) == nil)
         playPauseButton.isHidden = false
         
-        skipForwardButton.isEnabled = playPauseButton.isEnabled && globals.mediaPlayer.loaded
-        skipForwardButton.isHidden = playPauseButton.isHidden && globals.mediaPlayer.loaded
+        skipForwardButton.isEnabled = playPauseButton.isEnabled && Globals.shared.mediaPlayer.loaded
+        skipForwardButton.isHidden = playPauseButton.isHidden && Globals.shared.mediaPlayer.loaded
         
-        skipBackwardButton.isEnabled = playPauseButton.isEnabled && globals.mediaPlayer.loaded
-        skipBackwardButton.isHidden = playPauseButton.isHidden && globals.mediaPlayer.loaded
+        skipBackwardButton.isEnabled = playPauseButton.isEnabled && Globals.shared.mediaPlayer.loaded
+        skipBackwardButton.isHidden = playPauseButton.isHidden && Globals.shared.mediaPlayer.loaded
         
-        restartButton.isEnabled = playPauseButton.isEnabled && globals.mediaPlayer.loaded
-        restartButton.isHidden = playPauseButton.isHidden && globals.mediaPlayer.loaded
+        restartButton.isEnabled = playPauseButton.isEnabled && Globals.shared.mediaPlayer.loaded
+        restartButton.isHidden = playPauseButton.isHidden && Globals.shared.mediaPlayer.loaded
     }
     
     fileprivate func setupTitle()
@@ -1424,7 +1424,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 
         attrTitleString.append(NSAttributedString(string: Constants.CBC.LONG,   attributes: Constants.Fonts.Attributes.title3)) // Grey
 
-        if !globals.mediaPlayer.isZoomed {
+        if !Globals.shared.mediaPlayer.isZoomed {
             if let title = selectedMediaItem?.title {
                 titleString = title
             } else {
@@ -1539,7 +1539,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        if self.selectedMediaItem?.showing != Showing.slides, self.selectedMediaItem?.playing != Playing.video, globals.mediaPlayer.mediaItem != self.selectedMediaItem {
+        if self.selectedMediaItem?.showing != Showing.slides, self.selectedMediaItem?.playing != Playing.video, Globals.shared.mediaPlayer.mediaItem != self.selectedMediaItem {
             startAnimating()
         }
 
@@ -1548,7 +1548,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 Thread.onMainThread {
                     imageView.image = posterImage
                     
-                    if self.selectedMediaItem?.showing != Showing.slides, self.selectedMediaItem?.playing != Playing.video, globals.mediaPlayer.mediaItem != self.selectedMediaItem {
+                    if self.selectedMediaItem?.showing != Showing.slides, self.selectedMediaItem?.playing != Playing.video, Globals.shared.mediaPlayer.mediaItem != self.selectedMediaItem {
                         self.stopAnimating()
                         self.mediaItemNotesAndSlides.bringSubview(toFront: imageView)
                     }
@@ -1570,7 +1570,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                             break
                             
                         case Showing.video:
-                            if (globals.mediaPlayer.mediaItem != self.selectedMediaItem) || !globals.mediaPlayer.loaded {
+                            if (Globals.shared.mediaPlayer.mediaItem != self.selectedMediaItem) || !Globals.shared.mediaPlayer.loaded {
                                 self.stopAnimating()
                                 self.logo.isHidden = false
                                 self.mediaItemNotesAndSlides.bringSubview(toFront: self.logo)
@@ -1595,12 +1595,12 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     
     @objc func updateUI()
     {
-        if (selectedMediaItem != nil) && (selectedMediaItem == globals.mediaPlayer.mediaItem) {
-            if (globals.mediaPlayer.url != selectedMediaItem?.playingURL) {
-                globals.mediaPlayer.pause()
-                globals.mediaPlayer.setup(selectedMediaItem,playOnLoad:false)
+        if (selectedMediaItem != nil) && (selectedMediaItem == Globals.shared.mediaPlayer.mediaItem) {
+            if (Globals.shared.mediaPlayer.url != selectedMediaItem?.playingURL) {
+                Globals.shared.mediaPlayer.pause()
+                Globals.shared.mediaPlayer.setup(selectedMediaItem,playOnLoad:false)
             } else {
-                if globals.mediaPlayer.loadFailed {
+                if Globals.shared.mediaPlayer.loadFailed {
                     setupPoster()
                 }
             }
@@ -1621,7 +1621,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         
         setupPoster()
         
-        setupPlayerView(globals.mediaPlayer.view)
+        setupPlayerView(Globals.shared.mediaPlayer.view)
         
         setupVideo()
         setupSlides()
@@ -1631,14 +1631,14 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     {
         print("DONE SEEKING")
         
-        globals.mediaPlayer.checkDidPlayToEnd()
+        Globals.shared.mediaPlayer.checkDidPlayToEnd()
     }
     
 //    var showingSlides = false
 //    {
 //        didSet {
 //            if !showingSlides {
-//                if selectedMediaItem?.playing == Playing.video, globals.mediaPlayer.mediaItem == selectedMediaItem {
+//                if selectedMediaItem?.playing == Playing.video, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem {
 //                    selectedMediaItem?.showing = Showing.video
 //                } else {
 //                    selectedMediaItem?.showing = Showing.none
@@ -1792,7 +1792,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 //            return
 //        }
         
-        if selectedMediaItem?.playing == Playing.video, globals.mediaPlayer.mediaItem == selectedMediaItem {
+        if selectedMediaItem?.playing == Playing.video, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem {
             self.selectedMediaItem?.showing = Showing.video
         } else {
             self.selectedMediaItem?.showing = Showing.none
@@ -1806,7 +1806,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         switch longPress.state {
         case .began:
             if selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
-                if selectedMediaItem?.playing == Playing.video, globals.mediaPlayer.mediaItem == selectedMediaItem {
+                if selectedMediaItem?.playing == Playing.video, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem {
                     self.selectedMediaItem?.showing = Showing.video
                 } else {
                     self.selectedMediaItem?.showing = Showing.none
@@ -1869,7 +1869,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 //                }
 //            }
 //        } else {
-//            if selectedMediaItem?.playing == Playing.video, globals.mediaPlayer.mediaItem == selectedMediaItem {
+//            if selectedMediaItem?.playing == Playing.video, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem {
 //                self.selectedMediaItem?.showing = Showing.video
 //            } else {
 //                self.selectedMediaItem?.showing = Showing.none
@@ -1921,10 +1921,10 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 
         addNotifications()
 
-        if selectedMediaItem != nil, globals.mediaPlayer.mediaItem == selectedMediaItem, globals.mediaPlayer.isPaused,
-            let hasCurrentTime = globals.mediaPlayer.mediaItem?.hasCurrentTime, hasCurrentTime,
-            let currentTime = globals.mediaPlayer.mediaItem?.currentTime {
-            globals.mediaPlayer.seek(to: Double(currentTime))
+        if selectedMediaItem != nil, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem, Globals.shared.mediaPlayer.isPaused,
+            let hasCurrentTime = Globals.shared.mediaPlayer.mediaItem?.hasCurrentTime, hasCurrentTime,
+            let currentTime = Globals.shared.mediaPlayer.mediaItem?.currentTime {
+            Globals.shared.mediaPlayer.seek(to: Double(currentTime))
         }
 
         updateUI()
@@ -1956,7 +1956,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         super.didReceiveMemoryWarning()
         print("didReceiveMemoryWarning: \(String(describing: selectedMediaItem?.title))")
         // Dispose of any resources that can be recreated.
-        globals.freeMemory()
+        Globals.shared.freeMemory()
     }
     
     /*
@@ -2043,19 +2043,19 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     
     fileprivate func setProgressAndTimesToAudio()
     {
-        guard let state = globals.mediaPlayer.state else {
+        guard let state = Globals.shared.mediaPlayer.state else {
             return
         }
         
-        guard let length = globals.mediaPlayer.duration?.seconds, length > 0 else {
+        guard let length = Globals.shared.mediaPlayer.duration?.seconds, length > 0 else {
             return
         }
         
-        guard let playerCurrentTime = globals.mediaPlayer.currentTime?.seconds, playerCurrentTime >= 0, playerCurrentTime <= length else {
+        guard let playerCurrentTime = Globals.shared.mediaPlayer.currentTime?.seconds, playerCurrentTime >= 0, playerCurrentTime <= length else {
             return
         }
 
-        guard let mediaItemCurrentTime = globals.mediaPlayer.mediaItem?.currentTime, let playingCurrentTime = Double(mediaItemCurrentTime), playingCurrentTime >= 0, playingCurrentTime <= length else {
+        guard let mediaItemCurrentTime = Globals.shared.mediaPlayer.mediaItem?.currentTime, let playingCurrentTime = Double(mediaItemCurrentTime), playingCurrentTime >= 0, playingCurrentTime <= length else {
             return
         }
 
@@ -2067,7 +2067,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         case .playing:
             progress = playerCurrentTime / length
             
-            if globals.mediaPlayer.loaded {
+            if Globals.shared.mediaPlayer.loaded {
                 //                            print("playing")
                 //                            print("progress.value",progress.value)
                 //                            print("progress",progress)
@@ -2146,8 +2146,8 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        if (globals.mediaPlayer.state != .stopped) && (globals.mediaPlayer.mediaItem == selectedMediaItem) {
-            if !globals.mediaPlayer.loadFailed {
+        if (Globals.shared.mediaPlayer.state != .stopped) && (Globals.shared.mediaPlayer.mediaItem == selectedMediaItem) {
+            if !Globals.shared.mediaPlayer.loadFailed {
                 setProgressAndTimesToAudio()
             } else {
                 elapsed.isHidden = true
@@ -2191,11 +2191,11 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
     
-        guard (selectedMediaItem == globals.mediaPlayer.mediaItem) else {
+        guard (selectedMediaItem == Globals.shared.mediaPlayer.mediaItem) else {
             return
         }
         
-        guard let state = globals.mediaPlayer.state else {
+        guard let state = Globals.shared.mediaPlayer.state else {
             return
         }
         
@@ -2217,7 +2217,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
             setupSpinner()
             
-            if globals.mediaPlayer.loaded {
+            if Globals.shared.mediaPlayer.loaded {
                 setProgressAndTimesToAudio()
                 setupPlayPauseButton()
             }
@@ -2228,7 +2228,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
             setupSpinner()
             
-            if globals.mediaPlayer.loaded {
+            if Globals.shared.mediaPlayer.loaded {
                 setProgressAndTimesToAudio()
                 setupPlayPauseButton()
             }
@@ -2253,9 +2253,9 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         progressObserver?.invalidate()
         progressObserver = nil
         
-        if globals.mediaPlayer.progressTimerReturn != nil {
-            globals.mediaPlayer.player?.removeTimeObserver(globals.mediaPlayer.progressTimerReturn!)
-            globals.mediaPlayer.progressTimerReturn = nil
+        if Globals.shared.mediaPlayer.progressTimerReturn != nil {
+            Globals.shared.mediaPlayer.player?.removeTimeObserver(Globals.shared.mediaPlayer.progressTimerReturn!)
+            Globals.shared.mediaPlayer.progressTimerReturn = nil
         }
     }
     
@@ -2267,7 +2267,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             self.progressObserver = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.PROGRESS, target: self, selector: #selector(self.progressTimer), userInfo: nil, repeats: true)
         }
 
-//        globals.mediaPlayer.progressTimerReturn = globals.mediaPlayer.player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.1,Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { [weak self] (time:CMTime) in
+//        Globals.shared.mediaPlayer.progressTimerReturn = Globals.shared.mediaPlayer.player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.1,Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { [weak self] (time:CMTime) in
 //            self?.progressTimer()
 //        })
     }
@@ -2278,13 +2278,13 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        assert(globals.mediaPlayer.mediaItem == mediaItem)
+        assert(Globals.shared.mediaPlayer.mediaItem == mediaItem)
         
         var seekToTime:CMTime?
 
         if mediaItem.hasCurrentTime {
             if mediaItem.atEnd {
-                print("playPause globals.mediaPlayer.currentTime and globals.player.playing!.currentTime reset to 0!")
+                print("playPause Globals.shared.mediaPlayer.currentTime and Globals.shared.player.playing!.currentTime reset to 0!")
                 mediaItem.currentTime = Constants.ZERO
                 seekToTime = CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution)
                 mediaItem.atEnd = false
@@ -2300,7 +2300,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
 
         if seekToTime != nil {
-            let loadedTimeRanges = (globals.mediaPlayer.player?.currentItem?.loadedTimeRanges as? [CMTimeRange])?.filter({ (cmTimeRange:CMTimeRange) -> Bool in
+            let loadedTimeRanges = (Globals.shared.mediaPlayer.player?.currentItem?.loadedTimeRanges as? [CMTimeRange])?.filter({ (cmTimeRange:CMTimeRange) -> Bool in
                 if let seekToTime = seekToTime {
                     return cmTimeRange.containsTime(seekToTime)
                 } else {
@@ -2308,7 +2308,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 }
             })
 
-            let seekableTimeRanges = (globals.mediaPlayer.player?.currentItem?.seekableTimeRanges as? [CMTimeRange])?.filter({ (cmTimeRange:CMTimeRange) -> Bool in
+            let seekableTimeRanges = (Globals.shared.mediaPlayer.player?.currentItem?.seekableTimeRanges as? [CMTimeRange])?.filter({ (cmTimeRange:CMTimeRange) -> Bool in
                 if let seekToTime = seekToTime {
                     return cmTimeRange.containsTime(seekToTime)
                 } else {
@@ -2317,9 +2317,9 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             })
 
             if (loadedTimeRanges != nil) || (seekableTimeRanges != nil) {
-                globals.mediaPlayer.seek(to: seekToTime?.seconds)
+                Globals.shared.mediaPlayer.seek(to: seekToTime?.seconds)
 
-                globals.mediaPlayer.play()
+                Globals.shared.mediaPlayer.play()
                 
                 setupPlayPauseButton()
             } else {
@@ -2334,23 +2334,23 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        globals.mediaPlayer.stop() // IfPlaying
+        Globals.shared.mediaPlayer.stop() // IfPlaying
         
-        globals.mediaPlayer.view?.removeFromSuperview()
+        Globals.shared.mediaPlayer.view?.removeFromSuperview()
         
-        globals.mediaPlayer.mediaItem = mediaItem
+        Globals.shared.mediaPlayer.mediaItem = mediaItem
         
-        globals.mediaPlayer.unload()
+        Globals.shared.mediaPlayer.unload()
         
         setupSpinner()
         
         removeProgressObserver()
         
         //This guarantees a fresh start.
-        globals.mediaPlayer.setup(mediaItem, playOnLoad: true)
+        Globals.shared.mediaPlayer.setup(mediaItem, playOnLoad: true)
         
         if (mediaItem.hasVideo && (mediaItem.playing == Playing.video)) {
-            setupPlayerView(globals.mediaPlayer.view)
+            setupPlayerView(Globals.shared.mediaPlayer.view)
         }
         
         addProgressObserver()
@@ -2463,7 +2463,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        guard (selectedMediaItem == globals.mediaPlayer.mediaItem) else {
+        guard (selectedMediaItem == Globals.shared.mediaPlayer.mediaItem) else {
             if spinner.isAnimating {
                 spinner.stopAnimating()
                 spinner.isHidden = true
@@ -2471,14 +2471,14 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        if !globals.mediaPlayer.loaded && !globals.mediaPlayer.loadFailed {
+        if !Globals.shared.mediaPlayer.loaded && !Globals.shared.mediaPlayer.loadFailed {
             if !spinner.isAnimating {
                 spinner.isHidden = false
                 spinner.startAnimating()
             }
         } else {
-            if globals.mediaPlayer.isPlaying {
-                if let currentTime = globals.mediaPlayer.mediaItem?.currentTime, let seconds = Double(currentTime), globals.mediaPlayer.currentTime?.seconds > seconds {
+            if Globals.shared.mediaPlayer.isPlaying {
+                if let currentTime = Globals.shared.mediaPlayer.mediaItem?.currentTime, let seconds = Double(currentTime), Globals.shared.mediaPlayer.currentTime?.seconds > seconds {
                     if spinner.isAnimating {
                         spinner.isHidden = true
                         spinner.stopAnimating()
@@ -2548,17 +2548,17 @@ extension MediaViewController : UITableViewDelegate
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
-        guard !globals.mediaPlayer.isZoomed else {
+        guard !Globals.shared.mediaPlayer.isZoomed else {
             return
         }
         
-        guard (globals.mediaPlayer.url != URL(string:Constants.URL.LIVE_STREAM)) else {
+        guard (Globals.shared.mediaPlayer.url != URL(string:Constants.URL.LIVE_STREAM)) else {
             print("Player is LIVE STREAMING.")
             return
         }
         
-        if let mediaItem = mediaItems?[indexPath.row], (selectedMediaItem != mediaItem) || (globals.history == nil) {
-            globals.addToHistory(mediaItem)
+        if let mediaItem = mediaItems?[indexPath.row], (selectedMediaItem != mediaItem) || (Globals.shared.history == nil) {
+            Globals.shared.addToHistory(mediaItem)
         }
         
         selectedMediaItem = mediaItems?[indexPath.row]

@@ -300,17 +300,17 @@ class MediaListGroupSort {
             return
         }
         
-        if !globals.search.active {
+        if !Globals.shared.search.active {
             searches = nil
         } else {
             // Is this risky, to try and delete all but the current search?
             if let keys = searches?.keys {
                 for key in keys {
-                    //                    print(key,globals.search.text)
-                    if key != globals.search.text {
+                    //                    print(key,Globals.shared.search.text)
+                    if key != Globals.shared.search.text {
                         searches?[key] = nil
                     } else {
-                        //                        print(key,globals.search.text)
+                        //                        print(key,Globals.shared.search.text)
                     }
                 }
             }
@@ -421,7 +421,7 @@ class MediaListGroupSort {
     
     var mediaItems:[MediaItem]? {
         get {
-            return mediaItems(grouping: globals.grouping,sorting: globals.sorting)
+            return mediaItems(grouping: Globals.shared.grouping,sorting: Globals.shared.sorting)
         }
     }
     
@@ -608,25 +608,25 @@ class MediaListGroupSort {
         
         var headerStrings:[String]? {
             get {
-                return mlgs?.sectionTitles(grouping: globals.grouping,sorting: globals.sorting)
+                return mlgs?.sectionTitles(grouping: Globals.shared.grouping,sorting: Globals.shared.sorting)
             }
         }
         
         var counts:[Int]? {
             get {
-                return mlgs?.sectionCounts(grouping: globals.grouping,sorting: globals.sorting)
+                return mlgs?.sectionCounts(grouping: Globals.shared.grouping,sorting: Globals.shared.sorting)
             }
         }
         
         var indexes:[Int]? {
             get {
-                return mlgs?.sectionIndexes(grouping: globals.grouping,sorting: globals.sorting)
+                return mlgs?.sectionIndexes(grouping: Globals.shared.grouping,sorting: Globals.shared.sorting)
             }
         }
         
         var indexStrings:[String]? {
             get {
-                return mlgs?.sectionIndexTitles(grouping: globals.grouping,sorting: globals.sorting)
+                return mlgs?.sectionIndexTitles(grouping: Globals.shared.grouping,sorting: Globals.shared.sorting)
             }
         }
     }
@@ -743,7 +743,7 @@ class MediaListGroupSort {
     
     var sectionIndexes:[Int]? {
         get {
-            return sectionIndexes(grouping: globals.grouping,sorting: globals.sorting)
+            return sectionIndexes(grouping: Globals.shared.grouping,sorting: Globals.shared.sorting)
         }
     }
     
@@ -812,7 +812,7 @@ class MediaListGroupSort {
         groupNames = MediaGroupNames()
         groupSort = MediaGroupSort()
         
-        sortGroup(globals.grouping)
+        sortGroup(Globals.shared.grouping)
 
         tagMediaItems = [String:[MediaItem]]()
         tagNames = [String:String]()

@@ -118,21 +118,21 @@ class MediaRepository {
                 }
             }
             
-            globals.groupings = Constants.groupings
-            globals.groupingTitles = Constants.GroupingTitles
+            Globals.shared.groupings = Constants.groupings
+            Globals.shared.groupingTitles = Constants.GroupingTitles
 
             if classes?.count > 0 {
-                globals.groupings.append(GROUPING.CLASS)
-                globals.groupingTitles.append(Grouping.Class)
+                Globals.shared.groupings.append(GROUPING.CLASS)
+                Globals.shared.groupingTitles.append(Grouping.Class)
             }
             
             if events?.count > 0 {
-                globals.groupings.append(GROUPING.EVENT)
-                globals.groupingTitles.append(Grouping.Event)
+                Globals.shared.groupings.append(GROUPING.EVENT)
+                Globals.shared.groupingTitles.append(Grouping.Event)
             }
             
-            if let grouping = globals.grouping, !globals.groupings.contains(grouping) {
-                globals.grouping = GROUPING.YEAR
+            if let grouping = Globals.shared.grouping, !Globals.shared.groupings.contains(grouping) {
+                Globals.shared.grouping = GROUPING.YEAR
             }
         }
     }
@@ -151,17 +151,17 @@ class Tags {
     
     var selected:String? {
         get {
-            return globals.mediaCategory.tag
+            return Globals.shared.mediaCategory.tag
         }
         set {
             if let newValue = newValue {
-                if (globals.media.tagged[newValue] == nil) {
-                    if globals.media.all == nil {
+                if (Globals.shared.media.tagged[newValue] == nil) {
+                    if Globals.shared.media.all == nil {
                         //This is filtering, i.e. searching all mediaItems => s/b in background
-                        globals.media.tagged[newValue] = MediaListGroupSort(mediaItems: mediaItemsWithTag(globals.mediaRepository.list, tag: newValue))
+                        Globals.shared.media.tagged[newValue] = MediaListGroupSort(mediaItems: mediaItemsWithTag(Globals.shared.mediaRepository.list, tag: newValue))
                     } else {
                         if let tag = stringWithoutPrefixes(newValue) {
-                            globals.media.tagged[newValue] = MediaListGroupSort(mediaItems: globals.media.all?.tagMediaItems?[tag])
+                            Globals.shared.media.tagged[newValue] = MediaListGroupSort(mediaItems: Globals.shared.media.all?.tagMediaItems?[tag])
                         }
                     }
                 }
@@ -169,7 +169,7 @@ class Tags {
 
             }
             
-            globals.mediaCategory.tag = newValue
+            Globals.shared.mediaCategory.tag = newValue
         }
     }
 }
@@ -235,8 +235,8 @@ class Media {
                 break
             }
             
-            if globals.search.active {
-                if let searchText = globals.search.text?.uppercased() {
+            if Globals.shared.search.active {
+                if let searchText = Globals.shared.search.text?.uppercased() {
                     mediaItems = mediaItems?.searches?[searchText] 
                 }
             }
@@ -406,15 +406,15 @@ class SelectedMediaItem {
         get {
             var selectedMediaItem:MediaItem?
             
-            if let selectedMediaItemID = globals.mediaCategory.selectedInMaster {
-                selectedMediaItem = globals.mediaRepository.index?[selectedMediaItemID]
+            if let selectedMediaItemID = Globals.shared.mediaCategory.selectedInMaster {
+                selectedMediaItem = Globals.shared.mediaRepository.index?[selectedMediaItemID]
             }
             
             return selectedMediaItem
         }
         
         set {
-            globals.mediaCategory.selectedInMaster = newValue?.id
+            Globals.shared.mediaCategory.selectedInMaster = newValue?.id
         }
     }
     
@@ -422,15 +422,15 @@ class SelectedMediaItem {
         get {
             var selectedMediaItem:MediaItem?
             
-            if let selectedMediaItemID = globals.mediaCategory.selectedInDetail {
-                selectedMediaItem = globals.mediaRepository.index?[selectedMediaItemID]
+            if let selectedMediaItemID = Globals.shared.mediaCategory.selectedInDetail {
+                selectedMediaItem = Globals.shared.mediaRepository.index?[selectedMediaItemID]
             }
 
             return selectedMediaItem
         }
         
         set {
-            globals.mediaCategory.selectedInDetail = newValue?.id
+            Globals.shared.mediaCategory.selectedInDetail = newValue?.id
         }
     }
 }
@@ -466,7 +466,7 @@ class Search {
             
         }
         didSet {
-            if (text != oldValue) && !globals.isLoading {
+            if (text != oldValue) && !Globals.shared.isLoading {
                 if extant {
                     UserDefaults.standard.set(text, forKey: Constants.SEARCH_TEXT)
                     UserDefaults.standard.synchronize()
@@ -484,7 +484,7 @@ class Search {
         }
         set {
             // Setting to nil can cause a crash.
-            globals.media.toSearch?.searches = [String:MediaListGroupSort]()
+            Globals.shared.media.toSearch?.searches = [String:MediaListGroupSort]()
             
             UserDefaults.standard.set(newValue, forKey: Constants.USER_SETTINGS.SEARCH_TRANSCRIPTS)
             UserDefaults.standard.synchronize()
@@ -492,7 +492,7 @@ class Search {
     }
 }
 
-var globals:Globals!
+//var globals:Globals!
 
 class StreamEntry {
     init?(_ dict:[String:Any]?)
@@ -569,6 +569,8 @@ class StreamEntry {
 
 class Globals : NSObject, AVPlayerViewControllerDelegate
 {
+    static var shared = Globals()
+    
     var popoverNavCon: UINavigationController?
 
     func playerViewControllerShouldAutomaticallyDismissAtPictureInPictureStart(_ playerViewController: AVPlayerViewController) -> Bool
@@ -695,14 +697,14 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         get {
             var string:String?
             
-            if let mediaCategory = globals.mediaCategory.selected, !mediaCategory.isEmpty {
+            if let mediaCategory = Globals.shared.mediaCategory.selected, !mediaCategory.isEmpty {
                 string = mediaCategory
                 
-                if let tag = globals.media.tags.selected, string != nil {
+                if let tag = Globals.shared.media.tags.selected, string != nil {
                     string = string! + ", " + tag
                 }
                 
-                if globals.search.valid, let search = globals.search.text, string != nil {
+                if Globals.shared.search.valid, let search = Globals.shared.search.text, string != nil {
                     string = string! + ", \"\(search)\""
                 }
             }
@@ -716,21 +718,21 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
     }
     
     func searchText() -> String? {
-        return globals.search.text
+        return Globals.shared.search.text
     }
     
     var contextString:String? {
         get {
             var string:String?
             
-            if let mediaCategory = globals.mediaCategory.selected {
+            if let mediaCategory = Globals.shared.mediaCategory.selected {
                 string = mediaCategory
                 
-                if let tag = globals.media.tags.selected {
+                if let tag = Globals.shared.media.tags.selected {
                     string = ((string != nil) ? string! + ":" : "") + tag
                 }
                 
-                if globals.search.valid, let search = globals.search.text {
+                if Globals.shared.search.valid, let search = Globals.shared.search.text {
                     string = ((string != nil) ? string! + ":" : "") + search
                 }
             }
@@ -757,11 +759,11 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         get {
             var string:String?
             
-            if let sorting = globals.sorting {
+            if let sorting = Globals.shared.sorting {
                 string = ((string != nil) ? string! + ":" : "") + sorting
             }
             
-            if let grouping = globals.grouping {
+            if let grouping = Globals.shared.grouping {
                 string = ((string != nil) ? string! + ":" : "") + grouping
             }
             
@@ -966,10 +968,10 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
     
     var relevantHistory:[String]? {
         get {
-            return globals.history?.reversed().filter({ (string:String) -> Bool in
+            return Globals.shared.history?.reversed().filter({ (string:String) -> Bool in
                 if let range = string.range(of: Constants.TAGS_SEPARATOR) {
                     let mediaItemID = String(string[range.upperBound...])
-                    return globals.mediaRepository.index?[mediaItemID] != nil
+                    return Globals.shared.mediaRepository.index?[mediaItemID] != nil
                 } else {
                     return false
                 }
@@ -988,7 +990,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
                     if let range = history.range(of: Constants.TAGS_SEPARATOR) {
                         mediaItemID = String(history[range.upperBound...])
                         
-                        if let mediaItem = globals.mediaRepository.index?[mediaItemID] {
+                        if let mediaItem = Globals.shared.mediaRepository.index?[mediaItemID] {
                             if let text = mediaItem.text {
                                 list.append(text)
                             } else {

@@ -211,7 +211,7 @@ class PopoverTableViewController : UIViewController
     override func viewWillDisappear(_ animated: Bool)
     {
         super.viewWillDisappear(animated)
-        globals.popoverNavCon = nil
+        Globals.shared.popoverNavCon = nil
     }
     
     func updateTitle()
@@ -350,7 +350,7 @@ class PopoverTableViewController : UIViewController
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-        globals.freeMemory()
+        Globals.shared.freeMemory()
     }
 }
 
@@ -512,7 +512,7 @@ extension PopoverTableViewController : UITableViewDataSource
         
         switch purpose {
         case .selectingCategory:
-            if (globals.mediaCategory.names?[index] == globals.mediaCategory.selected) {
+            if (Globals.shared.mediaCategory.names?[index] == Globals.shared.mediaCategory.selected) {
                 cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headlineGrey)
             } else {
                 cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headline)
@@ -520,7 +520,7 @@ extension PopoverTableViewController : UITableViewDataSource
             break
             
         case .selectingGrouping:
-            if (globals.groupings[index] == globals.grouping) {
+            if (Globals.shared.groupings[index] == Globals.shared.grouping) {
                 cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headlineGrey)
             } else {
                 cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headline)
@@ -528,7 +528,7 @@ extension PopoverTableViewController : UITableViewDataSource
             break
             
         case .selectingSorting:
-            if (Constants.sortings[index] == globals.sorting) {
+            if (Constants.sortings[index] == Globals.shared.sorting) {
                 cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headlineGrey)
             } else {
                 cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headline)
@@ -536,13 +536,13 @@ extension PopoverTableViewController : UITableViewDataSource
             break
             
         case .selectingTags:
-            guard let showing = globals.media.tags.showing else {
+            guard let showing = Globals.shared.media.tags.showing else {
                 break
             }
             
             switch showing {
             case Constants.TAGGED:
-                if let tagsArray = tagsArrayFromTagsString(globals.media.tags.selected), tagsArray.index(of: string) != nil {
+                if let tagsArray = tagsArrayFromTagsString(Globals.shared.media.tags.selected), tagsArray.index(of: string) != nil {
                     cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headlineGrey)
                 } else {
                     cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headline)
@@ -550,7 +550,7 @@ extension PopoverTableViewController : UITableViewDataSource
                 break
                 
             case Constants.ALL:
-                if ((globals.media.tags.selected == nil) && (string == Constants.All)) {
+                if ((Globals.shared.media.tags.selected == nil) && (string == Constants.All)) {
                     cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headlineGrey)
                 } else {
                     cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headline)
