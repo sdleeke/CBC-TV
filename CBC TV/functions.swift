@@ -10,6 +10,89 @@ import Foundation
 import MediaPlayer
 import AVKit
 
+extension String {
+    var url : URL?
+    {
+        get {
+            return URL(string: self)
+        }
+    }
+}
+
+extension URL {
+    func image(block:((UIImage)->()))
+    {
+        guard let imageURL = cachesURL()?.appendingPathComponent(self.lastPathComponent) else {
+            return
+        }
+        
+        if globals.cacheDownloads, let image = UIImage(contentsOfFile: imageURL.path) {
+            //                    print("Image \(imageName) in file system")
+            block(image)
+        } else {
+            //                    print("Image \(imageName) not in file system")
+            guard let data = try? Data(contentsOf: self) else {
+                return
+            }
+            
+            guard let image = UIImage(data: data) else {
+                return
+            }
+            
+            if globals.cacheDownloads {
+                DispatchQueue.global(qos: .background).async {
+                    do {
+                        try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+                        print("Image \(self.lastPathComponent) saved to file system")
+                    } catch let error as NSError {
+                        NSLog(error.localizedDescription)
+                        print("Image \(self.lastPathComponent) not saved to file system")
+                    }
+                }
+            }
+            
+            block(image)
+        }
+    }
+    
+    var image : UIImage?
+    {
+        get {
+            guard let imageURL = cachesURL()?.appendingPathComponent(self.lastPathComponent) else {
+                return nil
+            }
+            
+            if globals.cacheDownloads, let image = UIImage(contentsOfFile: imageURL.path) {
+                //                    print("Image \(imageName) in file system")
+                return image
+            } else {
+                //                    print("Image \(imageName) not in file system")
+                guard let data = try? Data(contentsOf: self) else {
+                    return nil
+                }
+                
+                guard let image = UIImage(data: data) else {
+                    return nil
+                }
+                
+                if globals.cacheDownloads {
+                    DispatchQueue.global(qos: .background).async {
+                        do {
+                            try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+                            print("Image \(self.lastPathComponent) saved to file system")
+                        } catch let error as NSError {
+                            NSLog(error.localizedDescription)
+                            print("Image \(self.lastPathComponent) not saved to file system")
+                        }
+                    }
+                }
+                
+                return image
+            }
+        }
+    }
+}
+
 func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
     switch (lhs, rhs) {
     case let (l?, r?):

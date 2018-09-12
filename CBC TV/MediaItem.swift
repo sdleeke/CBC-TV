@@ -84,6 +84,33 @@ class MediaItem : NSObject {
     
     var singleLoaded = false
 
+    var posterImageURL:URL?
+    {
+        get {
+            guard let year = year, let id = id else {
+                return nil
+            }
+            
+            if dict?[Field.poster] == nil {
+                dict?[Field.poster] = Constants.BASE_URL.MEDIA + "\(year)/\(id)" + "poster.jpg"
+            }
+            
+            return dict?[Field.poster]?.url
+        }
+    }
+    
+    func posterImage(block:((UIImage?)->()))
+    {
+        posterImageURL?.image(block:block)
+    }
+    
+    var posterImage:UIImage?
+    {
+        get {
+            return posterImageURL?.image
+        }
+    }
+    
     @objc func freeMemory()
     {
 
@@ -95,7 +122,7 @@ class MediaItem : NSObject {
         self.dict = dict
         
         Thread.onMainThread { () -> (Void) in
-            NotificationCenter.default.addObserver(self, selector: #selector(MediaItem.freeMemory), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FREE_MEMORY), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(self.freeMemory), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FREE_MEMORY), object: nil)
         }
     }
     

@@ -9,13 +9,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CBC TV/MediaTableViewController.swift"
-            timestampString = "540478363.282339"
+            filePath = "CBC TV/MediaViewController.swift"
+            timestampString = "557933602.655877"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "208"
-            endingLineNumber = "208"
-            landmarkName = "rowClickedAtIndex(_:strings:purpose:)"
+            startingLineNumber = "1702"
+            endingLineNumber = "1702"
+            landmarkName = "setupSlides()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -25,13 +25,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CBC TV/MediaTableViewController.swift"
-            timestampString = "540478363.282416"
+            filePath = "CBC TV/MediaViewController.swift"
+            timestampString = "557933602.656665"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1609"
-            endingLineNumber = "1609"
-            landmarkName = "menuButtonAction(tap:)"
+            startingLineNumber = "1703"
+            endingLineNumber = "1703"
+            landmarkName = "setupSlides()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -41,14 +41,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CBC TV/MediaTableViewController.swift"
-            timestampString = "540478363.282479"
+            filePath = "CBC TV/MediaViewController.swift"
+            timestampString = "557933602.656997"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1608"
-            endingLineNumber = "1608"
-            landmarkName = "menuButtonAction(tap:)"
-            landmarkType = "7">
+            startingLineNumber = "1676"
+            endingLineNumber = "1676"
+            landmarkName = "loadingSlides"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

@@ -297,6 +297,17 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             nextSlidebutton.isEnabled = true
         }
 
+        nextSlidebutton.isHidden = false
+        prevSlideButton.isHidden = false
+        
+        if nextSlidebutton.isEnabled, !prevSlideButton.isEnabled {
+            preferredFocusView = nextSlidebutton
+        }
+        
+        if !nextSlidebutton.isEnabled, prevSlideButton.isEnabled {
+            preferredFocusView = prevSlideButton
+        }
+        
         var view:UIView! = mediaItemNotesAndSlides
 
         if globals.mediaPlayer.isZoomed, let svcView = splitViewController?.view {
@@ -304,7 +315,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
         
         if swipeNextRecognizer == nil {
-            swipeNextRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.swipeNext(swipe:)))
+            swipeNextRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(swipeNext(swipe:)))
             swipeNextRecognizer?.direction = .left
             swipeNextRecognizer?.delegate = self
             if let swipeNextRecognizer = swipeNextRecognizer {
@@ -313,7 +324,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
         
         if swipePrevRecognizer == nil {
-            swipePrevRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(MediaViewController.swipePrev(swipe:)))
+            swipePrevRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(swipePrev(swipe:)))
             swipePrevRecognizer?.direction = .right
             swipePrevRecognizer?.delegate = self
             if let swipePrevRecognizer = swipePrevRecognizer {
@@ -331,6 +342,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         imgView.image = pageImages[pageNum]
 
         view.addSubview(imgView)
+        view.bringSubview(toFront: imgView)
 
 //        imgView.frame.origin = view.bounds.origin
 
@@ -344,7 +356,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 //        prevButton.layer.cornerRadius = 10
 //        prevButton.clipsToBounds = true
 //
-//        prevButton.addTarget(self, action: #selector(MediaViewController.prevSlide), for: UIControlEvents.touchUpInside)
+//        prevButton.addTarget(self, action: #selector(prevSlide), for: UIControlEvents.touchUpInside)
 //        prevButton.isHidden = false
 //        prevButton.isEnabled = true
         
@@ -369,7 +381,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 //        nextButton.layer.cornerRadius = 10
 //        nextButton.clipsToBounds = true
 //
-//        nextButton.addTarget(self, action: #selector(MediaViewController.nextSlide), for: UIControlEvents.touchUpInside)
+//        nextButton.addTarget(self, action: #selector(nextSlide), for: UIControlEvents.touchUpInside)
 //        nextButton.isHidden = false
 //        nextButton.isEnabled = true
         
@@ -520,7 +532,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 setupTitle()
                 
                 Thread.onMainThread {
-                    NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_UI), object: self.selectedMediaItem) //
+                    NotificationCenter.default.addObserver(self, selector: #selector(self.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_UI), object: self.selectedMediaItem) //
                 }
             } else {
                 // We always select, never deselect, so this should not be done.  If we set this to nil it is for some other reason, like clearing the UI.
@@ -530,6 +542,10 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
             if (selectedMediaItem != nil) && (selectedMediaItem == globals.mediaPlayer.mediaItem) {
                 removePlayerObserver()
+            }
+            
+            if oldValue != selectedMediaItem {
+                pageImages = nil
             }
         }
     }
@@ -878,6 +894,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     @IBOutlet weak var mediaItemNotesAndSlides: UIView!
 
     @IBOutlet weak var logo: UIImageView!
+    @IBOutlet weak var imageView: UIImageView!
     
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
@@ -921,7 +938,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             parentView = splitViewController.view
             
             if longPressRecognizer == nil, let selectedMediaItem = selectedMediaItem, selectedMediaItem.playing == Playing.video, globals.mediaPlayer.mediaItem == selectedMediaItem {
-                longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(MediaViewController.toggleSlidesPress(longPress:)))
+                longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(toggleSlidesPress(longPress:)))
                 longPressRecognizer?.delegate = self
                 
                 if let longPressRecognizer = longPressRecognizer {
@@ -959,6 +976,8 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         view.superview?.addConstraint(height)
         
         view.superview?.setNeedsLayout()
+        
+        view.superview?.bringSubview(toFront: view)
     }
     
     @objc func readyToPlay()
@@ -1149,11 +1168,11 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         // Do any additional setup after loading the view.
         super.viewDidLoad()
 
-        let menuPressRecognizer = UITapGestureRecognizer(target: self, action: #selector(MediaViewController.menuButtonAction(tap:)))
+        let menuPressRecognizer = UITapGestureRecognizer(target: self, action: #selector(menuButtonAction(tap:)))
         menuPressRecognizer.allowedPressTypes = [NSNumber(value: UIPressType.menu.rawValue)]
         view.addGestureRecognizer(menuPressRecognizer)
         
-        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(MediaViewController.playPauseButtonAction(tap:)))
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(playPauseButtonAction(tap:)))
         tapRecognizer.allowedPressTypes = [NSNumber(value: UIPressType.playPause.rawValue)];
         view.addGestureRecognizer(tapRecognizer)
         
@@ -1180,12 +1199,6 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         
         guard let selectedMediaItem = selectedMediaItem, let showing = selectedMediaItem.showing, let playing = selectedMediaItem.playing else {
             globals.mediaPlayer.view?.isHidden = true
-            
-            logo.isHidden = !shouldShowLogo()
-            
-            if !logo.isHidden {
-                mediaItemNotesAndSlides.bringSubview(toFront: self.logo)
-            }
             return
         }
         
@@ -1216,8 +1229,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             //This should not happen unless it is playing video.
             switch playing {
             case Playing.audio:
-                logo.isHidden = false
-                mediaItemNotesAndSlides.bringSubview(toFront: logo)
+                setupPoster()
                 break
 
             case Playing.video:
@@ -1236,20 +1248,17 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 //                            mediaItemNotesAndSlides.bringSubview(toFront: view)
 //                        }
                     } else {
-                        logo.isHidden = false
-                        mediaItemNotesAndSlides.bringSubview(toFront: logo)
+                        setupPoster()
                     }
                 } else {
                     // Video is NOT in the player
-                    logo.isHidden = false
-                    mediaItemNotesAndSlides.bringSubview(toFront: logo)
+                    setupPoster()
                 }
                 break
                 
             default:
                 if (selectedMediaItem.showing?.range(of: Showing.slides) == nil) {
-                    logo.isHidden = false
-                    mediaItemNotesAndSlides.bringSubview(toFront: logo)
+                    setupPoster()
                 }
                 break
             }
@@ -1261,8 +1270,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
             switch playing {
             case Playing.audio:
-                globals.mediaPlayer.view?.isHidden = true
-                logo.isHidden = false
+                setupPoster()
                 break
                 
             case Playing.video:
@@ -1280,13 +1288,11 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                     } else {
                         selectedMediaItem.showing = Showing.none
                         globals.mediaPlayer.view?.isHidden = true
-                        logo.isHidden = false
-                        mediaItemNotesAndSlides.bringSubview(toFront: logo)
+                        setupPoster()
                     }
                 } else {
                     globals.mediaPlayer.view?.isHidden = true
-                    logo.isHidden = false
-                    mediaItemNotesAndSlides.bringSubview(toFront: logo)
+                    setupPoster()
                 }
                 break
                 
@@ -1297,8 +1303,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
         default:
             if !loadingSlides, (selectedMediaItem.showing?.range(of: Showing.slides) == nil) || (pageImages == nil) {
-                logo.isHidden = false
-                mediaItemNotesAndSlides.bringSubview(toFront: logo)
+                setupPoster()
             }
             break
         }
@@ -1526,6 +1531,68 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         audioOrVideoControl.setTitle(Constants.FA.VIDEO, forSegmentAt: Constants.AV_SEGMENT_INDEX.VIDEO) // Video
     }
     
+    func setupPoster()
+    {
+        guard let imageView = imageView else {
+            logo.isHidden = false
+            mediaItemNotesAndSlides.bringSubview(toFront: logo)
+            return
+        }
+        
+        if self.selectedMediaItem?.showing != Showing.slides, self.selectedMediaItem?.playing != Playing.video, globals.mediaPlayer.mediaItem != self.selectedMediaItem {
+            startAnimating()
+        }
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            if let posterImage = self.selectedMediaItem?.posterImage { // (image:UIImage?) in
+                Thread.onMainThread {
+                    imageView.image = posterImage
+                    
+                    if self.selectedMediaItem?.showing != Showing.slides, self.selectedMediaItem?.playing != Playing.video, globals.mediaPlayer.mediaItem != self.selectedMediaItem {
+                        self.stopAnimating()
+                        self.mediaItemNotesAndSlides.bringSubview(toFront: imageView)
+                    }
+                    
+                    if self.selectedMediaItem?.showing == Showing.slides, self.loadingSlides {
+                        self.mediaItemNotesAndSlides.bringSubview(toFront: self.logo)
+                    }
+                }
+            } else {
+                Thread.onMainThread {
+                    if let showing = self.selectedMediaItem?.showing {
+                        switch showing {
+                        case Showing.slides:
+                            if self.loadingSlides {
+                                self.logo.isHidden = false
+                                self.mediaItemNotesAndSlides.bringSubview(toFront: self.logo)
+                                self.startAnimating()
+                            }
+                            break
+                            
+                        case Showing.video:
+                            if (globals.mediaPlayer.mediaItem != self.selectedMediaItem) || !globals.mediaPlayer.loaded {
+                                self.stopAnimating()
+                                self.logo.isHidden = false
+                                self.mediaItemNotesAndSlides.bringSubview(toFront: self.logo)
+                            }
+                            break
+                            
+                        default:
+                            self.stopAnimating()
+                            self.logo.isHidden = false
+                            self.mediaItemNotesAndSlides.bringSubview(toFront: self.logo)
+                            break
+                        }
+                    } else {
+                        self.stopAnimating()
+                        self.logo.isHidden = false
+                        self.mediaItemNotesAndSlides.bringSubview(toFront: self.logo)
+                    }
+                }
+            }
+        }
+    }
+    
     @objc func updateUI()
     {
         if (selectedMediaItem != nil) && (selectedMediaItem == globals.mediaPlayer.mediaItem) {
@@ -1534,15 +1601,12 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 globals.mediaPlayer.setup(selectedMediaItem,playOnLoad:false)
             } else {
                 if globals.mediaPlayer.loadFailed {
-                    logo.isHidden = false
-                    mediaItemNotesAndSlides.bringSubview(toFront: logo)
+                    setupPoster()
                 }
             }
         }
         
 //        tableView.isUserInteractionEnabled = selectedMediaItem?.showing?.range(of: Showing.slides) == nil
-        
-        setupPlayerView(globals.mediaPlayer.view)
         
         //These are being added here for the case when this view is opened and the mediaItem selected is playing already
         addProgressObserver()
@@ -1552,8 +1616,14 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         setupPlayPauseButton()
         setupSpinner()
         setupProgressAndTimes()
-        setupVideo()
 
+        // From here on the order is critical
+        
+        setupPoster()
+        
+        setupPlayerView(globals.mediaPlayer.view)
+        
+        setupVideo()
         setupSlides()
     }
     
@@ -1601,6 +1671,11 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 //    }
     
     var loadingSlides = false
+    {
+        didSet {
+            
+        }
+    }
     
     func setupSlides()
     {
@@ -1622,8 +1697,6 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
 
-        nextSlidebutton.isHidden = false
-        prevSlideButton.isHidden = false
         slidesControlView.isHidden = false
 
         if let pageNum = pageNum {
@@ -1645,6 +1718,9 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
         
         if !loadingSlides, pageImages == nil {
+            nextSlidebutton.isHidden = true
+            prevSlideButton.isHidden = true
+            
             loadingSlides = true
             
             Thread.onMainThread {
@@ -1659,14 +1735,15 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 
                     if (fileManager.fileExists(atPath: fileSystemURL.path)){
                         if let pdfDocument = self.openPDF(url: fileSystemURL) {
+                            self.setupPageImages(pdfDocument: pdfDocument)
+
                             Thread.onMainThread {
-                                self.setupPageImages(pdfDocument: pdfDocument)
-                                self.loadingSlides = false
-                                self.stopAnimating()
-                                
                                 if self.selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
                                     self.showPageImage()
                                 }
+
+                                self.loadingSlides = false
+                                self.stopAnimating()
                             }
                         }
                     } else {
@@ -1677,21 +1754,22 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                                 
                                 do {
                                     try data.write(to: fileSystemURL)
-
-                                    if let pdfDocument = self.openPDF(url: fileSystemURL) {
-                                        Thread.onMainThread {
-                                            self.setupPageImages(pdfDocument: pdfDocument)
-                                            self.loadingSlides = false
-                                            self.stopAnimating()
-
-                                            if self.selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
-                                                self.showPageImage()
-                                            }
-                                        }
-                                    }
                                 } catch let error as NSError {
                                     print("slides could not be read from the file system.")
                                     NSLog(error.localizedDescription)
+                                }
+
+                                if let pdfDocument = self.openPDF(url: fileSystemURL) {
+                                    self.setupPageImages(pdfDocument: pdfDocument)
+
+                                    Thread.onMainThread {
+                                        if self.selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
+                                            self.showPageImage()
+                                        }
+                                        
+                                        self.loadingSlides = false
+                                        self.stopAnimating()
+                                    }
                                 }
                             } catch let error as NSError {
                                 print("slides could not be read from the url.")
@@ -1805,31 +1883,33 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     {
         // Shouldn't some or all of these have object values of selectedMediaItem?
 
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.toggleSlides), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOW_SLIDES), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.toggleSlides), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.HIDE_SLIDES), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(toggleSlides), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOW_SLIDES), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(toggleSlides), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.HIDE_SLIDES), object: nil)
 
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.playPause(_:)), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PLAY_PAUSE), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(playPause(_:)), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PLAY_PAUSE), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.doneSeeking), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(doneSeeking), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DONE_SEEKING), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.showPlaying), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOW_PLAYING), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.paused), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PAUSED), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(showPlaying), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOW_PLAYING), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(paused), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PAUSED), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.failedToLoad), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_LOAD), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.failedToPlay), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(failedToLoad), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_LOAD), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(failedToPlay), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.readyToPlay), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.READY_TO_PLAY), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.setupPlayPauseButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(readyToPlay), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.READY_TO_PLAY), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(setupPlayPauseButton), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
         
         if (splitViewController != nil) {
-            NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.updateView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(MediaViewController.clearView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(updateView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(clearView), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
         }
     }
     
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
+        
+        logo.isHidden = true
         
         if mediaItems == nil {
             tableView.isHidden = true
@@ -2184,7 +2264,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         removeProgressObserver()
         
         Thread.onMainThread {
-            self.progressObserver = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.PROGRESS, target: self, selector: #selector(MediaViewController.progressTimer), userInfo: nil, repeats: true)
+            self.progressObserver = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.PROGRESS, target: self, selector: #selector(self.progressTimer), userInfo: nil, repeats: true)
         }
 
 //        globals.mediaPlayer.progressTimerReturn = globals.mediaPlayer.player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(0.1,Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { [weak self] (time:CMTime) in
@@ -2317,6 +2397,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
         
         Thread.onMainThread {
+            self.mediaItemNotesAndSlides.bringSubview(toFront: self.container)
             self.container.isHidden = false
             self.loadingView.isHidden = false
             self.actInd.startAnimating()
@@ -2483,12 +2564,14 @@ extension MediaViewController : UITableViewDelegate
         selectedMediaItem = mediaItems?[indexPath.row]
         
         preferredFocusView = playPauseButton
-        
-        setupSpinner()
-        setupAudioOrVideo()
-        setupPlayPauseButton()
-        setupProgressAndTimes()
-        setupVideo()
+
+        updateUI()
+//        setupSpinner()
+//        setupAudioOrVideo()
+//        setupPlayPauseButton()
+//        setupProgressAndTimes()
+//        setupVideo()
+//        setupPoster()
     }
 
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath)

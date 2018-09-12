@@ -311,7 +311,7 @@ class MediaTableViewCell: UITableViewCell
             
             if (mediaItem != nil) {
                 Thread.onMainThread { () -> (Void) in
-                    NotificationCenter.default.addObserver(self, selector: #selector(MediaTableViewCell.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_CELL), object: self.mediaItem)
+                    NotificationCenter.default.addObserver(self, selector: #selector(self.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_CELL), object: self.mediaItem)
                 }
             }
             

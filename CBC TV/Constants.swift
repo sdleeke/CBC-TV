@@ -42,6 +42,8 @@ enum Field {
     static let className = "class"
     static let eventName = "event"
     
+    static let poster = "poster"
+    
     static let multi_part_name = "multi part name"
     static let multi_part_name_sort = "multi part name sort"
 

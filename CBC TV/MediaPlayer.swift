@@ -188,9 +188,10 @@ class MediaPlayer : NSObject {
         
         controller = AVPlayerViewController()
         
-        let menuPressRecognizer = UITapGestureRecognizer(target: controller, action: #selector(MediaTableViewController.menuButtonAction(tap:)))
-        menuPressRecognizer.allowedPressTypes = [NSNumber(value: UIPressType.menu.rawValue)]
-        controller?.view.addGestureRecognizer(menuPressRecognizer)
+        // This should not access a selector outside of the object.
+//        let menuPressRecognizer = UITapGestureRecognizer(target: controller, action: #selector(MediaTableViewController.menuButtonAction(tap:)))
+//        menuPressRecognizer.allowedPressTypes = [NSNumber(value: UIPressType.menu.rawValue)]
+//        controller?.view.addGestureRecognizer(menuPressRecognizer)
         
         controller?.delegate = globals
         
@@ -591,7 +592,7 @@ class MediaPlayer : NSObject {
     func observe()
     {
         Thread.onMainThread { () -> (Void) in
-            self.playerObserverTimer = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.PLAYER, target: self, selector: #selector(MediaPlayer.playerObserver), userInfo: nil, repeats: true)
+            self.playerObserverTimer = Timer.scheduledTimer(timeInterval: Constants.TIMER_INTERVAL.PLAYER, target: self, selector: #selector(self.playerObserver), userInfo: nil, repeats: true)
         }
         
         unobserve()
@@ -617,7 +618,7 @@ class MediaPlayer : NSObject {
         })
         
         Thread.onMainThread { () -> (Void) in
-            NotificationCenter.default.addObserver(self, selector: #selector(MediaPlayer.didPlayToEnd), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(self.didPlayToEnd), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
         }
         //
         //        // Why was this put here?  To set the initial state.
