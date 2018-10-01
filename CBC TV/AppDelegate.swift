@@ -50,9 +50,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
         print("applicationWillResignActive")
         
-        Thread.onMainThread { () -> (Void) in
-            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.WILL_RESIGN_ACTIVE), object: nil)
-        }
+//        Thread.onMainThread { () -> (Void) in
+//            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.WILL_RESIGN_ACTIVE), object: nil)
+//        }
     }
 
     func applicationDidEnterBackground(_ application: UIApplication)
@@ -65,9 +65,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             Globals.shared.mediaPlayer.pause()
         }
         
-        Thread.onMainThread { () -> (Void) in
-            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.DID_ENTER_BACKGROUND), object: nil)
-        }
+//        Thread.onMainThread { () -> (Void) in
+//            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.DID_ENTER_BACKGROUND), object: nil)
+//        }
     }
 
     func applicationWillEnterForeground(_ application: UIApplication)
@@ -75,9 +75,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
         print("applicationWillEnterForeground")
         
-        Thread.onMainThread { () -> (Void) in
-            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
-        }
+//        Thread.onMainThread { () -> (Void) in
+//            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
+//        }
     }
 
     func applicationDidBecomeActive(_ application: UIApplication)
@@ -87,18 +87,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         
         Globals.shared.mediaPlayer.setupPlayingInfoCenter()
         
-        Thread.onMainThread { () -> (Void) in
-            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)
-        }
+//        Thread.onMainThread { () -> (Void) in
+//            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)
+//        }
     }
 
     func applicationWillTerminate(_ application: UIApplication)
     {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         print("applicationWillTerminate")
-        Thread.onMainThread { () -> (Void) in
-            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.WILL_TERMINATE), object: nil)
-        }
+        
+//        Thread.onMainThread { () -> (Void) in
+//            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.WILL_TERMINATE), object: nil)
+//        }
     }
 }
 
