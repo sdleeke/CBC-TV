@@ -10,75 +10,6 @@ import Foundation
 import UIKit
 import AVKit
 
-class SearchHit {
-    var mediaItem:MediaItem?
-    
-    var searchText:String?
-    
-    init(_ mediaItem:MediaItem?,_ searchText:String?)
-    {
-        self.mediaItem = mediaItem
-        self.searchText = searchText
-    }
-    
-    var title:Bool {
-        get {
-            guard let searchText = searchText else {
-                return false
-            }
-            return mediaItem?.title?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
-        }
-    }
-    var formattedDate:Bool {
-        get {
-            guard let searchText = searchText else {
-                return false
-            }
-            return mediaItem?.formattedDate?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
-        }
-    }
-    var speaker:Bool {
-        get {
-            guard let searchText = searchText else {
-                return false
-            }
-            return mediaItem?.speaker?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
-        }
-    }
-    var scriptureReference:Bool {
-        get {
-            guard let searchText = searchText else {
-                return false
-            }
-            return mediaItem?.scriptureReference?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
-        }
-    }
-    var className:Bool {
-        get {
-            guard let searchText = searchText else {
-                return false
-            }
-            return mediaItem?.className?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
-        }
-    }
-    var eventName:Bool {
-        get {
-            guard let searchText = searchText else {
-                return false
-            }
-            return mediaItem?.eventName?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
-        }
-    }
-    var tags:Bool {
-        get {
-            guard let searchText = searchText else {
-                return false
-            }
-            return mediaItem?.tags?.range(of:searchText, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil
-        }
-    }
-}
-
 class MediaItem : NSObject {
     var dict:[String:String]?
     
@@ -343,11 +274,6 @@ class MediaItem : NSObject {
     {
         let searchHit = SearchHit(self,searchText)
         
-//        if searchHit.tags {
-//            print(self)
-//            print(tags)
-//        }
-        
         return searchHit.title || searchHit.formattedDate || searchHit.speaker || searchHit.scriptureReference || searchHit.className || searchHit.eventName || searchHit.tags
     }
         
@@ -445,28 +371,9 @@ class MediaItem : NSObject {
         }
     }
     
-//    var wasShowing:String? = Showing.none //This is an arbitrary choice
-    
     var pageImages:[UIImage]?
 
     var pageNum:Int?
-//    {
-//        get {
-//            if let range = showing?.range(of: Showing.slides) {
-//                if let num = String(showing?[range.upperBound...]) {
-//                    return Int(num)
-//                }
-//            }
-//            
-//            return nil
-//        }
-//        
-//        set {
-//            if let num = newValue, showing?.range(of: Showing.slides) != nil {
-//                showing = "\(Showing.slides)\(num)"
-//            }
-//        }
-//    }
 
     var showing:String? {
         get {
@@ -1109,8 +1016,6 @@ class MediaItem : NSObject {
     
     var videoID:String? {
         get {
-//            print(video)
-            
             guard let video = video else {
                 return nil
             }
@@ -1120,7 +1025,6 @@ class MediaItem : NSObject {
             }
             
             let tail = String(video[Constants.BASE_URL.VIDEO_PREFIX.endIndex...])
-//            print(tail)
             
             if let range = tail.range(of: ".m") {
                 let id = String(tail[..<range.lowerBound])
@@ -1172,7 +1076,6 @@ class MediaItem : NSObject {
     
     var audioURL:URL? {
         get {
-//            print(audio)
             guard let audio = audio else {
                 return nil
             }
@@ -1217,7 +1120,6 @@ class MediaItem : NSObject {
                 dict?[Field.notes] = Constants.BASE_URL.MEDIA + "\(year)/\(id)" + Field.notes + Constants.FILENAME_EXTENSION.PDF
             }
             
-            //            print(dict?[Field.notes])
             return dict?[Field.notes]
         }
     }
@@ -1267,22 +1169,24 @@ class MediaItem : NSObject {
         }
     }
 
-    var books:[String]? {
+    var books:[String]?
+    {
         get {
             return booksFromScriptureReference(scriptureReference)
         }
     } //Derived from scripture
     
-    lazy var fullDate:Date?  = {
+    lazy var fullDate:Date? = {
         [unowned self] in
         if self.hasDate, let date = self.date {
             return Date(dateString:date)
         } else {
             return nil
         }
-    }()//Derived from date
+    }() //Derived from date
     
-    var text : String? {
+    var text : String?
+    {
         get {
             var string:String?
             
@@ -1327,7 +1231,8 @@ class MediaItem : NSObject {
         }
     }
     
-    override var description : String {
+    override var description : String
+    {
         //This requires that date, service, title, and speaker fields all be non-nil
         
         var mediaItemString = "MediaItem: "
@@ -1363,104 +1268,11 @@ class MediaItem : NSObject {
         return mediaItemString
     }
     
-    class MediaItemSettings {
-        weak var mediaItem:MediaItem?
-        
-        init(mediaItem:MediaItem?) {
-            if (mediaItem == nil) {
-                print("nil mediaItem in Settings init!")
-            }
-            self.mediaItem = mediaItem
-        }
-        
-        subscript(key:String) -> String? {
-            get {
-                guard let mediaItem = mediaItem else {
-                    return nil
-                }
-                
-                return Globals.shared.mediaItemSettings?[mediaItem.id]?[key]
-            }
-            set {
-                guard let mediaItem = mediaItem else {
-                    print("mediaItem == nil in Settings!")
-                    return
-                }
-                
-                if Globals.shared.mediaItemSettings == nil {
-                    Globals.shared.mediaItemSettings = [String:[String:String]]()
-                }
-                if (Globals.shared.mediaItemSettings != nil) {
-                    if (Globals.shared.mediaItemSettings?[mediaItem.id] == nil) {
-                        Globals.shared.mediaItemSettings?[mediaItem.id] = [String:String]()
-                    }
-                    if (Globals.shared.mediaItemSettings?[mediaItem.id]?[key] != newValue) {
-                        //                        print("\(mediaItem)")
-                        Globals.shared.mediaItemSettings?[mediaItem.id]?[key] = newValue
-                        
-                        // For a high volume of activity this can be very expensive.
-                        Globals.shared.saveSettingsBackground()
-                    }
-                } else {
-                    print("Globals.shared.settings == nil in Settings!")
-                }
-            }
-        }
-    }
-    
     lazy var mediaItemSettings:MediaItemSettings? = {
         [unowned self] in
         return MediaItemSettings(mediaItem:self)
     }()
-    
-    class MultiPartSettings {
-        weak var mediaItem:MediaItem?
         
-        init(mediaItem:MediaItem?) {
-            if (mediaItem == nil) {
-                print("nil mediaItem in Settings init!")
-            }
-            self.mediaItem = mediaItem
-        }
-        
-        subscript(key:String) -> String? {
-            get {
-                guard let mediaItem = mediaItem else {
-                    print("mediaItem == nil in MultiPartSettings!")
-                    return nil
-                }
-                
-                return Globals.shared.multiPartSettings?[mediaItem.seriesID]?[key]
-            }
-            set {
-                guard let mediaItem = mediaItem else {
-                    print("mediaItem == nil in MultiPartSettings!")
-                    return
-                }
-
-                if Globals.shared.multiPartSettings == nil {
-                    Globals.shared.multiPartSettings = [String:[String:String]]()
-                }
-                
-                guard (Globals.shared.multiPartSettings != nil) else {
-                    print("Globals.shared.viewSplits == nil in SeriesSettings!")
-                    return
-                }
-                
-                if (Globals.shared.multiPartSettings?[mediaItem.seriesID] == nil) {
-                    Globals.shared.multiPartSettings?[mediaItem.seriesID] = [String:String]()
-                }
-                if (Globals.shared.multiPartSettings?[mediaItem.seriesID]?[key] != newValue) {
-                    //                        print("\(mediaItem)")
-                    Globals.shared.multiPartSettings?[mediaItem.seriesID]?[key] = newValue
-                    
-                    // For a high volume of activity this can be very expensive.
-                    Globals.shared.saveSettingsBackground()
-                }
-            }
-        }
-    }
-    
     lazy var multiPartSettings:MultiPartSettings? = {
         [unowned self] in
         return MultiPartSettings(mediaItem:self)

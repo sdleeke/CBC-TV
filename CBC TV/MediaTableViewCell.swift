@@ -45,31 +45,35 @@ class MediaTableViewCell: UITableViewCell
 
         let titleString = NSMutableAttributedString()
         
-        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText).formattedDate, searchHit, let formattedDate = mediaItem?.formattedDate {
-            var string:String?
-            var before:String?
-            var after:String?
-            
-            if let range = formattedDate.lowercased().range(of: searchText.lowercased()) {
-                before = String(formattedDate[..<range.lowerBound])
-                string = String(formattedDate[range])
-                after = String(formattedDate[range.upperBound...])
-                
-                if let before = before {
-                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
-                }
-                if let string = string {
-                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
-                }
-                if let after = after {
-                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
-                }
-            }
-        } else {
-            if let formattedDate = mediaItem?.formattedDate {
-                titleString.append(NSAttributedString(string:formattedDate, attributes: Constants.Fonts.Attributes.body))
-            }
+        if let formattedDate = mediaItem?.formattedDate?.highlighted(searchText) {
+            titleString.append(formattedDate)
         }
+
+//        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText).formattedDate, searchHit, let formattedDate = mediaItem?.formattedDate {
+//            var string:String?
+//            var before:String?
+//            var after:String?
+//
+//            if let range = formattedDate.lowercased().range(of: searchText.lowercased()) {
+//                before = String(formattedDate[..<range.lowerBound])
+//                string = String(formattedDate[range])
+//                after = String(formattedDate[range.upperBound...])
+//
+//                if let before = before {
+//                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
+//                }
+//                if let string = string {
+//                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
+//                }
+//                if let after = after {
+//                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
+//                }
+//            }
+//        } else {
+//            if let formattedDate = mediaItem?.formattedDate {
+//                titleString.append(NSAttributedString(string:formattedDate, attributes: Constants.Fonts.Attributes.body))
+//            }
+//        }
         
         if !titleString.string.isEmpty {
             titleString.append(NSAttributedString(string: Constants.SINGLE_SPACE))
@@ -78,43 +82,53 @@ class MediaTableViewCell: UITableViewCell
             titleString.append(NSAttributedString(string: service, attributes: Constants.Fonts.Attributes.body))
         }
 
-        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText).speaker, searchHit, let speaker = mediaItem?.speaker {
-            var string:String?
-            var before:String?
-            var after:String?
-            
-            if let range = speaker.lowercased().range(of: searchText.lowercased()) {
-                before = String(speaker[..<range.lowerBound])
-                string = String(speaker[range])
-                after = String(speaker[range.upperBound...])
-                
-                if !titleString.string.isEmpty {
-                    titleString.append(NSAttributedString(string: Constants.SINGLE_SPACE))
-                }
-                
-                if let before = before {
-                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
-                }
-                if let string = string {
-                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
-                }
-                if let after = after {
-                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
-                }
-            }
-        } else {
+        if let speaker = mediaItem?.speaker?.highlighted(searchText) {
             if !titleString.string.isEmpty {
                 titleString.append(NSAttributedString(string: Constants.SINGLE_SPACE))
             }
-            if let speaker = mediaItem?.speaker {
-                titleString.append(NSAttributedString(string:speaker, attributes: Constants.Fonts.Attributes.body))
-            }
+            titleString.append(speaker)
         }
+        
+//        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText).speaker, searchHit, let speaker = mediaItem?.speaker {
+//            var string:String?
+//            var before:String?
+//            var after:String?
+//
+//            if let range = speaker.lowercased().range(of: searchText.lowercased()) {
+//                before = String(speaker[..<range.lowerBound])
+//                string = String(speaker[range])
+//                after = String(speaker[range.upperBound...])
+//
+//                if !titleString.string.isEmpty {
+//                    titleString.append(NSAttributedString(string: Constants.SINGLE_SPACE))
+//                }
+//
+//                if let before = before {
+//                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
+//                }
+//                if let string = string {
+//                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
+//                }
+//                if let after = after {
+//                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
+//                }
+//            }
+//        } else {
+//            if !titleString.string.isEmpty {
+//                titleString.append(NSAttributedString(string: Constants.SINGLE_SPACE))
+//            }
+//            if let speaker = mediaItem?.speaker {
+//                titleString.append(NSAttributedString(string:speaker, attributes: Constants.Fonts.Attributes.body))
+//            }
+//        }
         
         var title:String?
         
+        title = mediaItem?.title
+
         if searchText != nil {
             // This causes searching for "(Part " to present a blank title.
+            // We do it to avoid text line wrapping between Part and the number.
             if  let rangeBefore = mediaItem?.title?.range(of: " (Part"),
                 let rangeAfter = mediaItem?.title?.range(of: " (Part "),
                 let string = mediaItem?.title {
@@ -122,145 +136,171 @@ class MediaTableViewCell: UITableViewCell
                 let second = String(string[rangeAfter.upperBound...])
                 title = first + Constants.UNBREAKABLE_SPACE + second // replace the space with an unbreakable one
             }
-        } else {
-            title = mediaItem?.title
         }
         
-        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText).title, searchHit {
-            var string:String?
-            var before:String?
-            var after:String?
+        if let title = title?.highlighted(searchText) {
+            if !titleString.string.isEmpty {
+                titleString.append(NSAttributedString(string: "\n"))
+            }
             
-            if let title = title, let range = title.lowercased().range(of: searchText.lowercased()) {
-                before = String(title[..<range.lowerBound])
-                string = String(title[range])
-                after = String(title[range.upperBound...])
-                
-                if !titleString.string.isEmpty {
-                    titleString.append(NSAttributedString(string: "\n"))
-                }
-                
-                if let before = before {
-                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.headline))
-                }
-                if let string = string {
-                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.headlineHighlighted))
-                }
-                if let after = after {
-                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.headline))
-                }
-            }
-        } else {
-            if let title = title {
-                if !titleString.string.isEmpty {
-                    titleString.append(NSAttributedString(string: "\n"))
-                }
-                
-                titleString.append(NSAttributedString(string: title,   attributes: Constants.Fonts.Attributes.headline))
-            }
+            titleString.append(title)
         }
         
-        if let searchHit = mediaItem?.searchHit(searchText).scriptureReference, searchHit, let scriptureReference = mediaItem?.scriptureReference {
-            var string:String?
-            var before:String?
-            var after:String?
+//        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText).title, searchHit {
+//            var string:String?
+//            var before:String?
+//            var after:String?
+//
+//            if let title = title, let range = title.lowercased().range(of: searchText.lowercased()) {
+//                before = String(title[..<range.lowerBound])
+//                string = String(title[range])
+//                after = String(title[range.upperBound...])
+//
+//                if !titleString.string.isEmpty {
+//                    titleString.append(NSAttributedString(string: "\n"))
+//                }
+//
+//                if let before = before {
+//                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.headline))
+//                }
+//                if let string = string {
+//                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.headlineHighlighted))
+//                }
+//                if let after = after {
+//                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.headline))
+//                }
+//            }
+//        } else {
+//            if let title = title {
+//                if !titleString.string.isEmpty {
+//                    titleString.append(NSAttributedString(string: "\n"))
+//                }
+//
+//                titleString.append(NSAttributedString(string: title,   attributes: Constants.Fonts.Attributes.headline))
+//            }
+//        }
+        
+        if let scriptureReference = mediaItem?.scriptureReference?.highlighted(searchText) {
+            if !titleString.string.isEmpty {
+                titleString.append(NSAttributedString(string: "\n"))
+            }
             
-            if let searchText = searchText, let range = scriptureReference.lowercased().range(of: searchText.lowercased()) {
-                before = String(scriptureReference[..<range.lowerBound])
-                string = String(scriptureReference[range])
-                after = String(scriptureReference[range.upperBound...])
-                
-                if !titleString.string.isEmpty {
-                    titleString.append(NSAttributedString(string: "\n"))
-                }
-                
-                if let before = before {
-                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
-                }
-                if let string = string {
-                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
-                }
-                if let after = after {
-                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
-                }
-            }
-        } else {
-            if let scriptureReference = mediaItem?.scriptureReference {
-                if !titleString.string.isEmpty {
-                    titleString.append(NSAttributedString(string: "\n"))
-                }
-                
-                titleString.append(NSAttributedString(string: scriptureReference,   attributes: Constants.Fonts.Attributes.body))
-            }
+            titleString.append(scriptureReference)
         }
         
-        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText), searchHit.className {
-            var string:String?
-            var before:String?
-            var after:String?
+//        if let searchHit = mediaItem?.searchHit(searchText).scriptureReference, searchHit, let scriptureReference = mediaItem?.scriptureReference {
+//            var string:String?
+//            var before:String?
+//            var after:String?
+//
+//            if let searchText = searchText, let range = scriptureReference.lowercased().range(of: searchText.lowercased()) {
+//                before = String(scriptureReference[..<range.lowerBound])
+//                string = String(scriptureReference[range])
+//                after = String(scriptureReference[range.upperBound...])
+//
+//                if !titleString.string.isEmpty {
+//                    titleString.append(NSAttributedString(string: "\n"))
+//                }
+//
+//                if let before = before {
+//                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
+//                }
+//                if let string = string {
+//                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
+//                }
+//                if let after = after {
+//                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
+//                }
+//            }
+//        } else {
+//            if let scriptureReference = mediaItem?.scriptureReference {
+//                if !titleString.string.isEmpty {
+//                    titleString.append(NSAttributedString(string: "\n"))
+//                }
+//
+//                titleString.append(NSAttributedString(string: scriptureReference,   attributes: Constants.Fonts.Attributes.body))
+//            }
+//        }
+        
+        if let className = mediaItem?.className?.highlighted(searchText) {
+            if !titleString.string.isEmpty {
+                titleString.append(NSAttributedString(string: "\n"))
+            }
             
-            if let className = mediaItem?.className, let range = className.lowercased().range(of: searchText.lowercased()) {
-                before = String(className[..<range.lowerBound])
-                string = String(className[range])
-                after = String(className[range.upperBound...])
-                
-                if !titleString.string.isEmpty {
-                    titleString.append(NSAttributedString(string: "\n"))
-                }
-                
-                if let before = before {
-                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
-                }
-                if let string = string {
-                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
-                }
-                if let after = after {
-                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
-                }
+            titleString.append(className)
+        }
+
+//        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText), searchHit.className {
+//            var string:String?
+//            var before:String?
+//            var after:String?
+//
+//            if let className = mediaItem?.className, let range = className.lowercased().range(of: searchText.lowercased()) {
+//                before = String(className[..<range.lowerBound])
+//                string = String(className[range])
+//                after = String(className[range.upperBound...])
+//
+//                if let before = before {
+//                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
+//                }
+//                if let string = string {
+//                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
+//                }
+//                if let after = after {
+//                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
+//                }
+//            }
+//        } else {
+//            if let className = mediaItem?.className {
+//                if !titleString.string.isEmpty {
+//                    titleString.append(NSAttributedString(string: "\n"))
+//                }
+//
+//                titleString.append(NSAttributedString(string: className, attributes: Constants.Fonts.Attributes.body))
+//            }
+//        }
+        
+        if let eventName = mediaItem?.eventName?.highlighted(searchText) {
+            if !titleString.string.isEmpty {
+                titleString.append(NSAttributedString(string: "\n"))
             }
-        } else {
-            if let className = mediaItem?.className {
-                if !titleString.string.isEmpty {
-                    titleString.append(NSAttributedString(string: "\n"))
-                }
-                
-                titleString.append(NSAttributedString(string: className, attributes: Constants.Fonts.Attributes.body))
-            }
+            
+            titleString.append(eventName)
         }
         
-        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText), searchHit.eventName {
-            var string:String?
-            var before:String?
-            var after:String?
-            
-            if let eventName = mediaItem?.eventName, let range = eventName.lowercased().range(of: searchText.lowercased()) {
-                before = String(eventName[..<range.lowerBound])
-                string = String(eventName[range])
-                after = String(eventName[range.upperBound...])
-                
-                if !titleString.string.isEmpty {
-                    titleString.append(NSAttributedString(string: "\n"))
-                }
-                
-                if let before = before {
-                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
-                }
-                if let string = string {
-                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
-                }
-                if let after = after {
-                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
-                }
-            }
-        } else {
-            if let eventName = mediaItem?.eventName {
-                if !titleString.string.isEmpty {
-                    titleString.append(NSAttributedString(string: "\n"))
-                }
-                
-                titleString.append(NSAttributedString(string: eventName, attributes: Constants.Fonts.Attributes.body))
-            }
-        }
+//        if let searchText = searchText, let searchHit = mediaItem?.searchHit(searchText), searchHit.eventName {
+//            var string:String?
+//            var before:String?
+//            var after:String?
+//            
+//            if let eventName = mediaItem?.eventName, let range = eventName.lowercased().range(of: searchText.lowercased()) {
+//                before = String(eventName[..<range.lowerBound])
+//                string = String(eventName[range])
+//                after = String(eventName[range.upperBound...])
+//                
+//                if !titleString.string.isEmpty {
+//                    titleString.append(NSAttributedString(string: "\n"))
+//                }
+//                
+//                if let before = before {
+//                    titleString.append(NSAttributedString(string: before,   attributes: Constants.Fonts.Attributes.body))
+//                }
+//                if let string = string {
+//                    titleString.append(NSAttributedString(string: string,   attributes: Constants.Fonts.Attributes.bodyHighlighted))
+//                }
+//                if let after = after {
+//                    titleString.append(NSAttributedString(string: after,   attributes: Constants.Fonts.Attributes.body))
+//                }
+//            }
+//        } else {
+//            if let eventName = mediaItem?.eventName {
+//                if !titleString.string.isEmpty {
+//                    titleString.append(NSAttributedString(string: "\n"))
+//                }
+//                
+//                titleString.append(NSAttributedString(string: eventName, attributes: Constants.Fonts.Attributes.body))
+//            }
+//        }
         
         Thread.onMainThread { () -> (Void) in
             self.title.attributedText = titleString
@@ -322,28 +362,6 @@ class MediaTableViewCell: UITableViewCell
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var icons: UILabel!
     
-//    override func addSubview(_ view: UIView)
-//    {
-//        super.addSubview(view)
-//        
-//        guard let confirmationClass: AnyClass = NSClassFromString("UITableViewCellDeleteConfirmationView") else {
-//            return
-//        }
-//        
-//        let buttonFont = UIFont(name: Constants.FA.name, size: Constants.FA.ACTION_ICONS_FONT_SIZE)
-//        
-//        // replace default font in swipe buttons
-//        let s = subviews.flatMap({$0}).filter { $0.isKind(of: confirmationClass) }
-//        
-//        for sub in s {
-//            for button in sub.subviews {
-//                if let b = button as? UIButton {
-//                    b.titleLabel?.font = buttonFont
-//                }
-//            }
-//        }
-//    }
-
     func setupIcons()
     {
         guard Thread.isMainThread else {

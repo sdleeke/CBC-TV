@@ -29,8 +29,6 @@ class PopoverTableViewController : UIViewController
 {
     var selectedText:String!
 
-//    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
     @IBOutlet weak var tableView: UITableView! {
         didSet {
             tableView.mask = nil
@@ -133,18 +131,11 @@ class PopoverTableViewController : UIViewController
         
         //This makes accurate scrolling to sections impossible but since we don't use scrollToRowAtIndexPath with
         //the popover, this makes multi-line rows possible.
-
         tableView.estimatedRowHeight = tableView.rowHeight
         tableView.rowHeight = UITableViewAutomaticDimension
 
         tableView.allowsSelection = allowsSelection
         tableView.allowsMultipleSelection = allowsMultipleSelection
-        
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)
@@ -313,8 +304,6 @@ class PopoverTableViewController : UIViewController
     func addNotifications()
     {
         NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
-
-//        NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.WILL_RESIGN_ACTIVE), object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool)
@@ -333,12 +322,8 @@ class PopoverTableViewController : UIViewController
             }
 
             tableView.reloadData()
-            
-//            activityIndicator?.stopAnimating()
-//            activityIndicator?.isHidden = true
         } else {
-//            activityIndicator?.stopAnimating()
-//            activityIndicator?.isHidden = true
+
         }
         
         setPreferredContentSize()
@@ -403,7 +388,6 @@ extension PopoverTableViewController : UITableViewDataSource
     func sectionIndexTitles(for tableView: UITableView) -> [String]?
     {
         if section.showIndex {
-            //        if let active = self.searchController?.isActive, active {
             return section.indexHeaders
         } else {
             return nil
@@ -438,7 +422,6 @@ extension PopoverTableViewController : UITableViewDataSource
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int)
     {
         if let header = view as? UITableViewHeaderFooterView {
-            //            print(header.textLabel?.text)
             header.textLabel?.text = nil
         }
     }
@@ -609,13 +592,7 @@ extension PopoverTableViewController : UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool
-    {
-//        let index = section.index(indexPath)
-//        
-//        guard let strings = section.strings else {
-//            return false
-//        }
-        
+    {        
         guard shouldSelect == nil else {
             if let shouldSelect = shouldSelect?(indexPath) {
                 return shouldSelect

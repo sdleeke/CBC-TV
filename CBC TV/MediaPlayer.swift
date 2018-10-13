@@ -188,22 +188,11 @@ class MediaPlayer : NSObject {
         
         controller = AVPlayerViewController()
         
-        // This should not access a selector outside of the object.
-//        let menuPressRecognizer = UITapGestureRecognizer(target: controller, action: #selector(MediaTableViewController.menuButtonAction(tap:)))
-//        menuPressRecognizer.allowedPressTypes = [NSNumber(value: UIPressType.menu.rawValue)]
-//        controller?.view.addGestureRecognizer(menuPressRecognizer)
-        
         controller?.delegate = Globals.shared
         
         controller?.showsPlaybackControls = false
 
-        // Just replacing the item will not cause a timeout when the player can't load.
-//        if player == nil {
-//            player = AVPlayer(url: url)
-//        } else {
-//            player?.replaceCurrentItem(with: AVPlayerItem(url: url))
-//        }
-        
+        // Just replacing the current item will not cause a timeout when the player can't load.
         player = AVPlayer(url: url)
         
         if #available(iOS 10.0, *) {
@@ -334,11 +323,11 @@ class MediaPlayer : NSObject {
                             break
                             
                         case .seekingBackward:
-                            //                                pause()
+//                            pause()
                             break
                             
                         case .seekingForward:
-                            //                                pause()
+//                            pause()
                             break
                             
                         case .stopped:
@@ -364,11 +353,11 @@ class MediaPlayer : NSObject {
                             break
                             
                         case .seekingBackward:
-                            //                                play()
+//                            play()
                             break
                             
                         case .seekingForward:
-                            //                                play()
+//                            play()
                             break
                             
                         case .stopped:
@@ -620,9 +609,6 @@ class MediaPlayer : NSObject {
         Thread.onMainThread { () -> (Void) in
             NotificationCenter.default.addObserver(self, selector: #selector(self.didPlayToEnd), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
         }
-        //
-        //        // Why was this put here?  To set the initial state.
-        //        pause()
     }
     
     func unobserve()
@@ -663,12 +649,6 @@ class MediaPlayer : NSObject {
             return
         }
         
-//        guard (player?.status == .readyToPlay) && (currentItem?.status == .readyToPlay) else {
-//            playOnLoad = true
-//            Globals.shared.reloadPlayer()
-//            return
-//        }
-        
         switch url.absoluteString {
         case Constants.URL.LIVE_STREAM:
             stateTime = PlayerStateTime(state:.playing)
@@ -688,8 +668,6 @@ class MediaPlayer : NSObject {
             }
             break
         }
-        
-//        controller?.allowsPictureInPicturePlayback = true
         
         setupPlayingInfoCenter()
     }
@@ -741,8 +719,6 @@ class MediaPlayer : NSObject {
             break
             
         default:
-//            killPIP = true
-            
             updateCurrentTimeExact()
             
             NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_PLAY_PAUSE), object: nil)
@@ -814,9 +790,6 @@ class MediaPlayer : NSObject {
         if (seekToTime == 0) {
             print("seekToTime == 0")
         }
-        
-        //    print(seekToTime)
-        //    print(seekToTime.description)
         
         if (seekToTime >= 0) {
             mediaItem?.currentTime = seekToTime.description
@@ -977,8 +950,6 @@ class MediaPlayer : NSObject {
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
                 
                 // For some reason setting player to nil is LETHAL.
-//                player = nil
-//                stateTime = nil
             }
         }
     }
@@ -1043,10 +1014,6 @@ class MediaPlayer : NSObject {
             nowPlayingInfo[MPMediaItemPropertyPlaybackDuration]          = duration?.seconds
             nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime]  = currentTime?.seconds
             nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate]         = rate
-            
-            //    print("\(mediaItemInfo.count)")
-            
-            //                print(nowPlayingInfo)
             
             Thread.onMainThread { () -> (Void) in
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo

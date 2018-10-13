@@ -10,6 +10,19 @@
 		1701E20A1EE4AA5C00D30202 /* PopoverTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1701E2091EE4AA5C00D30202 /* PopoverTableViewController.swift */; };
 		1701E20C1EE4AD3600D30202 /* PopoverTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1701E20B1EE4AD3600D30202 /* PopoverTableViewCell.swift */; };
 		172A2B5A1EDDA0FA00C6F993 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172A2B591EDDA0FA00C6F993 /* AboutViewController.swift */; };
+		1731F6062171F6EC00609DE6 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F6052171F6EC00609DE6 /* extensions.swift */; };
+		1731F6082171F83A00609DE6 /* StreamEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F6072171F83A00609DE6 /* StreamEntry.swift */; };
+		1731F60A2171F85A00609DE6 /* Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F6092171F85A00609DE6 /* Search.swift */; };
+		1731F60C2171F89A00609DE6 /* Media.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F60B2171F89A00609DE6 /* Media.swift */; };
+		1731F60E2171F8B300609DE6 /* Tags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F60D2171F8B300609DE6 /* Tags.swift */; };
+		1731F6102171F8C800609DE6 /* MediaRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F60F2171F8C800609DE6 /* MediaRepository.swift */; };
+		1731F6122171F8EA00609DE6 /* MediaCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F6112171F8EA00609DE6 /* MediaCategory.swift */; };
+		1731F6142171F91300609DE6 /* SelectedMediaItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F6132171F91300609DE6 /* SelectedMediaItem.swift */; };
+		1731F6162171F99100609DE6 /* Streaming.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F6152171F99100609DE6 /* Streaming.swift */; };
+		1731F6182171FC1000609DE6 /* StringNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F6172171FC1000609DE6 /* StringNode.swift */; };
+		1731F61A2171FC4100609DE6 /* SearchHit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F6192171FC4100609DE6 /* SearchHit.swift */; };
+		1731F61C2171FCDA00609DE6 /* MediaItemSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F61B2171FCDA00609DE6 /* MediaItemSettings.swift */; };
+		1731F61E2171FD1200609DE6 /* MultiPartSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1731F61D2171FD1200609DE6 /* MultiPartSettings.swift */; };
 		1741BDCB1EDCB8F900A79AAE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1741BDCA1EDCB8F900A79AAE /* Images.xcassets */; };
 		174E1A0C1ED084DA00D10AB5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E1A0B1ED084DA00D10AB5 /* AppDelegate.swift */; };
 		174E1A131ED084DA00D10AB5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 174E1A111ED084DA00D10AB5 /* Main.storyboard */; };
@@ -52,6 +65,19 @@
 		1701E2091EE4AA5C00D30202 /* PopoverTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverTableViewController.swift; sourceTree = "<group>"; };
 		1701E20B1EE4AD3600D30202 /* PopoverTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverTableViewCell.swift; sourceTree = "<group>"; };
 		172A2B591EDDA0FA00C6F993 /* AboutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
+		1731F6052171F6EC00609DE6 /* extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
+		1731F6072171F83A00609DE6 /* StreamEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamEntry.swift; sourceTree = "<group>"; };
+		1731F6092171F85A00609DE6 /* Search.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Search.swift; sourceTree = "<group>"; };
+		1731F60B2171F89A00609DE6 /* Media.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Media.swift; sourceTree = "<group>"; };
+		1731F60D2171F8B300609DE6 /* Tags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tags.swift; sourceTree = "<group>"; };
+		1731F60F2171F8C800609DE6 /* MediaRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaRepository.swift; sourceTree = "<group>"; };
+		1731F6112171F8EA00609DE6 /* MediaCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCategory.swift; sourceTree = "<group>"; };
+		1731F6132171F91300609DE6 /* SelectedMediaItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedMediaItem.swift; sourceTree = "<group>"; };
+		1731F6152171F99100609DE6 /* Streaming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Streaming.swift; sourceTree = "<group>"; };
+		1731F6172171FC1000609DE6 /* StringNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringNode.swift; sourceTree = "<group>"; };
+		1731F6192171FC4100609DE6 /* SearchHit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchHit.swift; sourceTree = "<group>"; };
+		1731F61B2171FCDA00609DE6 /* MediaItemSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaItemSettings.swift; sourceTree = "<group>"; };
+		1731F61D2171FD1200609DE6 /* MultiPartSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiPartSettings.swift; sourceTree = "<group>"; };
 		1741BDCA1EDCB8F900A79AAE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		174E1A081ED084DA00D10AB5 /* CBC TV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "CBC TV.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		174E1A0B1ED084DA00D10AB5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = AppDelegate.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -128,13 +154,26 @@
 			isa = PBXGroup;
 			children = (
 				174E1A0B1ED084DA00D10AB5 /* AppDelegate.swift */,
-				17B3ABFA1ED8AF870086B9E7 /* functions.swift */,
-				17B3ABEA1ED8A34E0086B9E7 /* Constants.swift */,
-				179EFD561F55BDB600766AB1 /* Section.swift */,
 				17B3ABE81ED8A34E0086B9E7 /* Globals.swift */,
+				17B3ABFA1ED8AF870086B9E7 /* functions.swift */,
+				1731F6052171F6EC00609DE6 /* extensions.swift */,
+				17B3ABEA1ED8A34E0086B9E7 /* Constants.swift */,
+				1731F6092171F85A00609DE6 /* Search.swift */,
+				179EFD561F55BDB600766AB1 /* Section.swift */,
+				1731F6072171F83A00609DE6 /* StreamEntry.swift */,
+				1731F60D2171F8B300609DE6 /* Tags.swift */,
+				1731F60B2171F89A00609DE6 /* Media.swift */,
+				1731F60F2171F8C800609DE6 /* MediaRepository.swift */,
+				1731F6112171F8EA00609DE6 /* MediaCategory.swift */,
+				1731F6132171F91300609DE6 /* SelectedMediaItem.swift */,
+				1731F6152171F99100609DE6 /* Streaming.swift */,
+				1731F6172171FC1000609DE6 /* StringNode.swift */,
 				17B3ABE91ED8A34E0086B9E7 /* MediaPlayer.swift */,
 				17B3ABEE1ED8A35C0086B9E7 /* MediaListGroupSort.swift */,
+				1731F6192171FC4100609DE6 /* SearchHit.swift */,
 				17B3ABEF1ED8A35C0086B9E7 /* MediaItem.swift */,
+				1731F61B2171FCDA00609DE6 /* MediaItemSettings.swift */,
+				1731F61D2171FD1200609DE6 /* MultiPartSettings.swift */,
 				17B3ABF61ED8A4420086B9E7 /* MediaTableViewCell.swift */,
 				17B3ABE41ED8A2EC0086B9E7 /* MediaTableViewController.swift */,
 				17B3ABE61ED8A32A0086B9E7 /* MediaViewController.swift */,
@@ -317,19 +356,32 @@
 			buildActionMask = 2147483647;
 			files = (
 				17B3ABE51ED8A2EC0086B9E7 /* MediaTableViewController.swift in Sources */,
+				1731F6062171F6EC00609DE6 /* extensions.swift in Sources */,
+				1731F60E2171F8B300609DE6 /* Tags.swift in Sources */,
 				1701E20A1EE4AA5C00D30202 /* PopoverTableViewController.swift in Sources */,
 				17A035991FAF3F010098CEF3 /* LiveViewController.swift in Sources */,
 				174E1A0C1ED084DA00D10AB5 /* AppDelegate.swift in Sources */,
 				1701E20C1EE4AD3600D30202 /* PopoverTableViewCell.swift in Sources */,
+				1731F61E2171FD1200609DE6 /* MultiPartSettings.swift in Sources */,
+				1731F6082171F83A00609DE6 /* StreamEntry.swift in Sources */,
 				17B3ABF11ED8A35C0086B9E7 /* MediaItem.swift in Sources */,
 				17B3ABEB1ED8A34E0086B9E7 /* Globals.swift in Sources */,
+				1731F61C2171FCDA00609DE6 /* MediaItemSettings.swift in Sources */,
+				1731F6142171F91300609DE6 /* SelectedMediaItem.swift in Sources */,
 				17B3ABF01ED8A35C0086B9E7 /* MediaListGroupSort.swift in Sources */,
 				17B3ABED1ED8A34E0086B9E7 /* Constants.swift in Sources */,
 				17B3ABE71ED8A32A0086B9E7 /* MediaViewController.swift in Sources */,
+				1731F60A2171F85A00609DE6 /* Search.swift in Sources */,
 				172A2B5A1EDDA0FA00C6F993 /* AboutViewController.swift in Sources */,
+				1731F60C2171F89A00609DE6 /* Media.swift in Sources */,
+				1731F61A2171FC4100609DE6 /* SearchHit.swift in Sources */,
+				1731F6102171F8C800609DE6 /* MediaRepository.swift in Sources */,
 				17B3ABFB1ED8AF870086B9E7 /* functions.swift in Sources */,
 				17B3ABF31ED8A36A0086B9E7 /* Reachability.swift in Sources */,
+				1731F6182171FC1000609DE6 /* StringNode.swift in Sources */,
+				1731F6162171F99100609DE6 /* Streaming.swift in Sources */,
 				17B3ABEC1ED8A34E0086B9E7 /* MediaPlayer.swift in Sources */,
+				1731F6122171F8EA00609DE6 /* MediaCategory.swift in Sources */,
 				179EFD571F55BDB600766AB1 /* Section.swift in Sources */,
 				17B3ABF71ED8A4420086B9E7 /* MediaTableViewCell.swift in Sources */,
 			);

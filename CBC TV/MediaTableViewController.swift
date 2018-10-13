@@ -57,14 +57,11 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
         
         switch jsonSource {
         case .download:
-//            navigationItem.title = "Downloading Media List"
-//            let categoriesFileName = Constants.JSON.FILENAME.CATEGORIES
-//            downloadJSON(url:Constants.JSON.URL.CATEGORIES,filename:categoriesFileName)
             break
             
         case .direct:
             loadMediaItems()
-                {
+            {
                     self.loadCompletion()
             }
             break
@@ -82,8 +79,6 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
         guard let string = strings?[index] else {
             return
         }
-
-//        splitViewController?.preferredDisplayMode = .allVisible
 
         switch purpose {
         case .selectingMenu:
@@ -207,7 +202,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
             case Constants.Strings.Live:
                 preferredFocusView = nil
                 
-                if  Globals.shared.streamEntries?.count > 0, Globals.shared.reachability.isReachable,
+                if  Globals.shared.streaming.entries?.count > 0, Globals.shared.reachability.isReachable,
                     let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
                     let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
                     navigationController.modalPresentationStyle = .fullScreen
@@ -222,15 +217,6 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                             let sortedKeys = [String](keys).sorted()
                             return sortedKeys[indexPath.section] == "Playing"
                         }
-                        
-//                    popover.shouldSelect = { (indexPath:IndexPath) -> Bool in
-//                        if let keys:[String] = popover.section.stringIndex?.keys.map({ (string:String) -> String in
-//                            return string
-//                        }).sorted() {
-//                            // We have to use sorted() because the order of keys is undefined.
-//                            // We are assuming they are presented in sort order in the tableView
-//                            return keys[indexPath.section] == "Playing"
-//                        }
 
                         return false
                     }
@@ -245,48 +231,25 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                             if key == "Playing" {
                                 self.dismiss(animated: true, completion: nil)
                                 
-                                if let streamEntry = StreamEntry(Globals.shared.streamEntryIndex?[key]?[indexPath.row]) {
+                                if let streamEntry = StreamEntry(Globals.shared.streaming.entryIndex?[key]?[indexPath.row]) {
                                     self.performSegue(withIdentifier: Constants.SEGUE.SHOW_LIVE, sender: streamEntry)
                                 }
                             }
                         }
-                        
-//                    popover.didSelect = { (indexPath:IndexPath) -> Void in
-//                        if let keys:[String] = popover.section.stringIndex?.keys.map({ (string:String) -> String in
-//                            return string
-//                        }).sorted() {
-//                            // We have to use sorted() because the order of keys is undefined.
-//                            // We are assuming they are presented in sort order in the tableView
-//                            let key = keys[indexPath.section]
-//
-//                            if key == "Playing" {
-//                                self.dismiss(animated: true, completion: nil)
-//                                if let streamEntry = StreamEntry(Globals.shared.streamEntryIndex?[key]?[indexPath.row]) {
-//                                    self.performSegue(withIdentifier: Constants.SEGUE.SHOW_LIVE, sender: streamEntry)
-//                                }
-//                            }
-//                        }
-                        
                     }
                     
                     // Makes no sense w/o section.showIndex also being true - UNLESS you're using section.stringIndex
                     popover.section.showHeaders = true
                     
                     present(navigationController, animated: true, completion: {
-                        // This is an alternative to popover.stringsFunction
-//                        popover.activityIndicator.isHidden = false
-//                        popover.activityIndicator.startAnimating()
                         popover.startAnimating()
 
                         self.loadLive() {
-                            popover.section.stringIndex = Globals.shared.streamStringIndex
+                            popover.section.stringIndex = Globals.shared.streaming.stringIndex
                             popover.tableView.reloadData()
 
                             popover.stopAnimating()
 
-//                            popover.activityIndicator.stopAnimating()
-//                            popover.activityIndicator.isHidden = true
-                        
                             popover.setPreferredContentSize()
                         }
                     })
@@ -836,7 +799,7 @@ class MediaTableViewController : UIViewController
             Thread.sleep(forTimeInterval: 0.25)
             
             if let liveEvents = jsonFromURL(url: "https://api.countrysidebible.org/cache/streamEntries.json") as? [String:Any] {
-                Globals.shared.streamEntries = liveEvents["streamEntries"] as? [[String:Any]]
+                Globals.shared.streaming.entries = liveEvents["streamEntries"] as? [[String:Any]]
                 
                 Thread.onMainThread(block: {
                     completion?()
@@ -1100,9 +1063,6 @@ class MediaTableViewController : UIViewController
         
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
-
-//        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.WILL_ENTER_FORGROUND), object: nil)
-//        NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.DID_BECOME_ACTIVE), object: nil)
     }
    
     override func viewDidLoad()
@@ -1582,31 +1542,9 @@ class MediaTableViewController : UIViewController
                             //Nothing to show
                             strings.append("Library")
                         }
-//                            if let count = splitViewController?.viewControllers.count, let mvc = self.splitViewController?.viewControllers[count - 1] as? MediaViewController {
-////                                if let mvc = nvc.topViewController as? MediaViewController {
-//                                    if (mvc.selectedMediaItem != nil) {
-//                                        if (mvc.selectedMediaItem != Globals.shared.mediaPlayer.mediaItem) {
-//                                            // The mediaItemPlaying is not the one showing
-//                                            strings.append("Current Selection")
-//                                        } else {
-//                                            // The mediaItemPlaying is the one showing
-//                                        }
-//                                    } else {
-//                                        // The mediaItemPlaying can't be showing because there is not selectedMediaItem.
-//                                        strings.append("Current Selection")
-//                                    }
-////                                } else {
-////                                    // About is showing
-////                                    strings.append("Current Selection")
-////                                }
-//                            }
-//                        } else {
-//                            //Nothing to show
-//                            strings.append("Library")
-//                        }
                     }
                     
-                    if Globals.shared.streamEntries?.count > 0, Globals.shared.reachability.isReachable {
+                    if Globals.shared.streaming.entries?.count > 0, Globals.shared.reachability.isReachable {
                         strings.append(Constants.Strings.Live)
                     }
                     
@@ -1743,7 +1681,6 @@ class MediaTableViewController : UIViewController
         
         switch jsonSource {
         case .download:
-//            downloadJSON()
             break
             
         case .direct:
@@ -1960,8 +1897,6 @@ extension MediaTableViewController : UITableViewDataSource
         
         cell.hideUI()
         
-        cell.searchText = Globals.shared.search.active ? Globals.shared.search.text : nil
-        
         // Configure the cell
         if let indexes = Globals.shared.display.section.indexes, let mediaItems = Globals.shared.display.mediaItems {
             if indexPath.section < indexes.count {
@@ -1978,6 +1913,8 @@ extension MediaTableViewController : UITableViewDataSource
             print("No mediaItem for cell!")
         }
         
+        cell.searchText = Globals.shared.search.active ? Globals.shared.search.text : nil
+
         return cell
     }
     

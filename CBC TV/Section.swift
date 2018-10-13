@@ -193,7 +193,6 @@ class Section
                     
                     if indexHeadersTransform == nil {
                         if indexString.endIndex >= a.endIndex {
-                            // .substring(to: 
                             header = String(indexString[..<a.endIndex])
                         }
                     } else {
@@ -206,7 +205,7 @@ class Section
                         if stringIndex[header] == nil {
                             stringIndex[header] = [String]()
                         }
-                        //                print(testString,string)
+        //                print(testString,string)
                         stringIndex[header]?.append(indexString)
                     }
                 }

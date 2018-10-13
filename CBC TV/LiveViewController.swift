@@ -67,12 +67,7 @@ class LiveViewController: UIViewController
 
         addNotifications()
         
-//        logo.isHidden = true
-        
         setupLivePlayerView()
-
-//        navigationItem.title = streamEntry?.name
-        
     }
     
     override func viewDidAppear(_ animated: Bool)
@@ -108,8 +103,6 @@ class LiveViewController: UIViewController
         }
         
         Globals.shared.mediaPlayer.showsPlaybackControls = true
-        
-//        splitViewController.preferredDisplayMode = .primaryHidden
         
         if (Globals.shared.mediaPlayer.view != nil) {
             Globals.shared.mediaPlayer.view?.isHidden = true
