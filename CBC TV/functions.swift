@@ -333,28 +333,11 @@ func jsonDataFromCachesDirectory() -> Any?
 
 func stringWithoutPrefixes(_ fromString:String?) -> String?
 {
-    if let range = fromString?.range(of: "A is "), range.lowerBound == "a".startIndex {
-        return fromString
+    guard let fromString = fromString else {
+        return nil
     }
     
-    let sourceString = fromString?.replacingOccurrences(of: Constants.QUOTE, with: Constants.EMPTY_STRING).replacingOccurrences(of: "...", with: Constants.EMPTY_STRING)
-    
-    let prefixes = ["A ","An ","The "] // "And ",
-    
-    var sortString = sourceString
-    
-    for prefix in prefixes {
-        if let string = sourceString, string.endIndex >= prefix.endIndex, String(string[..<prefix.endIndex]).lowercased() == prefix.lowercased() {
-            sortString = String(string[prefix.endIndex...])
-            break
-        }
-    }
-
-    if sortString == "" {
-        print(sortString as Any)
-    }
-
-    return sortString
+    return fromString.withoutPrefixes
 }
 
 func mediaItemSections(_ mediaItems:[MediaItem]?,sorting:String?,grouping:String?) -> [String]?

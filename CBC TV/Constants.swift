@@ -495,6 +495,8 @@ enum Constants {
     static let LEFT_DOUBLE_QUOTE = "\u{201C}"
     static let RIGHT_DOUBLE_QUOTE = "\u{201D}"
     
+    static let DOUBLE_QUOTE = "\""
+    
     static let SINGLE_QUOTES = LEFT_SINGLE_QUOTE + RIGHT_SINGLE_QUOTE
     
     static let DOUBLE_QUOTES = LEFT_DOUBLE_QUOTE + RIGHT_DOUBLE_QUOTE

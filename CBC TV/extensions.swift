@@ -99,6 +99,123 @@ extension String
     }
 }
 
+extension Double {
+    var secondsToHMS : String?
+    {
+        get {
+            let hours = max(Int(self / (60*60)),0)
+            let mins = max(Int((self - (Double(hours) * 60*60)) / 60),0)
+            let sec = max(Int(self.truncatingRemainder(dividingBy: 60)),0)
+            
+            var string:String
+            
+            if (hours > 0) {
+                string = "\(String(format: "%d",hours)):"
+            } else {
+                string = Constants.EMPTY_STRING
+            }
+            
+            string += "\(String(format: "%02d",mins)):\(String(format: "%02d",sec))"
+            
+            return string
+        }
+    }
+}
+
+extension String
+{
+    var withoutPrefixes : String
+    {
+        get {
+            if let range = self.range(of: "A is "), range.lowerBound == "a".startIndex {
+                return self
+            }
+            
+            let sourceString = self.replacingOccurrences(of: Constants.DOUBLE_QUOTE, with: Constants.EMPTY_STRING).replacingOccurrences(of: "...", with: Constants.EMPTY_STRING)
+            
+            let prefixes = ["A ","An ","The "] // "And ",
+            
+            var sortString = sourceString
+            
+            for prefix in prefixes {
+                if (sourceString.endIndex >= prefix.endIndex) && (String(sourceString[..<prefix.endIndex]).lowercased() == prefix.lowercased()) {
+                    sortString = String(sourceString[prefix.endIndex...])
+                    break
+                }
+            }
+            
+            return sortString
+        }
+    }
+    
+    var hmsToSeconds : Double?
+    {
+        get {
+            guard self.range(of: ":") != nil else {
+                return nil
+            }
+            
+            var str = self.replacingOccurrences(of: ",", with: ".")
+            
+            var numbers = [Double]()
+            
+            repeat {
+                if let index = str.range(of: ":") {
+                    let numberString = String(str[..<index.lowerBound])
+                    
+                    if let number = Double(numberString) {
+                        numbers.append(number)
+                    }
+                    
+                    str = String(str[index.upperBound...])
+                }
+            } while str.range(of: ":") != nil
+            
+            if !str.isEmpty {
+                if let number = Double(str) {
+                    numbers.append(number)
+                }
+            }
+            
+            var seconds = 0.0
+            var counter = 0.0
+            
+            for number in numbers.reversed() {
+                seconds = seconds + (counter != 0 ? number * pow(60.0,counter) : number)
+                counter += 1
+            }
+            
+            return seconds
+        }
+    }
+    
+    var secondsToHMS : String?
+    {
+        get {
+            guard let timeNow = Double(self) else {
+                return nil
+            }
+            
+            let hours = max(Int(timeNow / (60*60)),0)
+            let mins = max(Int((timeNow - (Double(hours) * 60*60)) / 60),0)
+            let sec = max(Int(timeNow.truncatingRemainder(dividingBy: 60)),0)
+            let fraction = timeNow - Double(Int(timeNow))
+            
+            var hms:String
+            
+            if (hours > 0) {
+                hms = "\(String(format: "%02d",hours)):"
+            } else {
+                hms = "00:"
+            }
+            
+            hms = hms + "\(String(format: "%02d",mins)):\(String(format: "%02d",sec)).\(String(format: "%03d",Int(fraction * 1000)))"
+            
+            return hms
+        }
+    }
+}
+
 extension String
 {
     func highlighted(_ searchText:String?) -> NSAttributedString
