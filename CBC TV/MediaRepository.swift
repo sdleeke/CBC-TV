@@ -8,7 +8,8 @@
 
 import Foundation
 
-class MediaRepository {
+class MediaRepository
+{
     var list:[MediaItem]? { //Not in any specific order
         willSet {
             

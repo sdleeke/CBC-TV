@@ -9,6 +9,24 @@
 import Foundation
 import UIKit
 
+extension UIColor
+{
+    // MARK: UIColor extension
+    
+    convenience init(red: Int, green: Int, blue: Int) {
+        let newRed = CGFloat(red)/255
+        let newGreen = CGFloat(green)/255
+        let newBlue = CGFloat(blue)/255
+        
+        self.init(red: newRed, green: newGreen, blue: newBlue, alpha: 1.0)
+    }
+    
+    static func controlBlue() -> UIColor
+    {
+        return UIColor(red: 14, green: 122, blue: 254)
+    }
+}
+
 extension UIBarButtonItem {
     func setTitleTextAttributes(_ attributes:[NSAttributedStringKey:UIFont])
     {
@@ -64,11 +82,19 @@ extension Thread {
     }
 }
 
-extension String {
+extension String
+{
     var url : URL?
     {
         get {
             return URL(string: self)
+        }
+    }
+    
+    var fileSystemURL : URL?
+    {
+        get {
+            return url?.fileSystemURL
         }
     }
 }
@@ -98,38 +124,53 @@ extension String
         return highlightedString
     }
 }
-extension URL {
-    func image(block:((UIImage)->()))
+
+fileprivate var queue = DispatchQueue(label: UUID().uuidString)
+
+extension URL
+{
+    var fileSystemURL : URL?
     {
-        guard let imageURL = cachesURL()?.appendingPathComponent(self.lastPathComponent) else {
+        return cachesURL()?.appendingPathComponent(self.lastPathComponent)
+    }
+    
+    var downloaded : Bool
+    {
+        get {
+            if let fileSystemURL = fileSystemURL {
+                return FileManager.default.fileExists(atPath: fileSystemURL.path)
+            } else {
+                return false
+            }
+        }
+    }
+
+    var data : Data?
+    {
+        get {
+            return try? Data(contentsOf: self)
+        }
+    }
+    
+    func delete()
+    {
+        guard let fileSystemURL = fileSystemURL else {
             return
         }
         
-        if Globals.shared.cacheDownloads, let image = UIImage(contentsOfFile: imageURL.path) {
-            //                    print("Image \(imageName) in file system")
-            block(image)
-        } else {
-            //                    print("Image \(imageName) not in file system")
-            guard let data = try? Data(contentsOf: self) else {
-                return
+        // Check if file exists and if so, delete it.
+        if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
+            do {
+                try FileManager.default.removeItem(at: fileSystemURL)
+            } catch let error as NSError {
+                print("failed to delete download: \(error.localizedDescription)")
             }
-            
-            guard let image = UIImage(data: data) else {
-                return
-            }
-            
-            if Globals.shared.cacheDownloads {
-                DispatchQueue.global(qos: .background).async {
-                    do {
-                        try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
-                        print("Image \(self.lastPathComponent) saved to file system")
-                    } catch let error as NSError {
-                        NSLog(error.localizedDescription)
-                        print("Image \(self.lastPathComponent) not saved to file system")
-                    }
-                }
-            }
-            
+        }
+    }
+    
+    func image(block:((UIImage)->()))
+    {
+        if let image = image {
             block(image)
         }
     }
@@ -137,15 +178,13 @@ extension URL {
     var image : UIImage?
     {
         get {
-            guard let imageURL = cachesURL()?.appendingPathComponent(self.lastPathComponent) else {
+            guard let imageURL = fileSystemURL else {
                 return nil
             }
             
-            if Globals.shared.cacheDownloads, let image = UIImage(contentsOfFile: imageURL.path) {
-                //                    print("Image \(imageName) in file system")
+            if Globals.shared.cacheDownloads, imageURL.downloaded, let image = UIImage(contentsOfFile: imageURL.path) {
                 return image
             } else {
-                //                    print("Image \(imageName) not in file system")
                 guard let data = try? Data(contentsOf: self) else {
                     return nil
                 }
@@ -156,12 +195,18 @@ extension URL {
                 
                 if Globals.shared.cacheDownloads {
                     DispatchQueue.global(qos: .background).async {
-                        do {
-                            try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
-                            print("Image \(self.lastPathComponent) saved to file system")
-                        } catch let error as NSError {
-                            NSLog(error.localizedDescription)
-                            print("Image \(self.lastPathComponent) not saved to file system")
+                        queue.sync {
+                            guard !imageURL.downloaded else {
+                                return
+                            }
+                            
+                            do {
+                                try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
+                                print("Image \(self.lastPathComponent) saved to file system")
+                            } catch let error as NSError {
+                                NSLog(error.localizedDescription)
+                                print("Image \(self.lastPathComponent) not saved to file system")
+                            }
                         }
                     }
                 }
@@ -169,6 +214,21 @@ extension URL {
                 return image
             }
         }
+    }
+}
+
+extension Data
+{
+    var html2AttributedString: NSAttributedString? {
+        do {
+            return try NSAttributedString(data: self, options: [NSAttributedString.DocumentReadingOptionKey.documentType:NSAttributedString.DocumentType.html, NSAttributedString.DocumentReadingOptionKey.characterEncoding: String.Encoding.utf16.rawValue], documentAttributes: nil)
+        } catch {
+            print("error:", error)
+            return  nil
+        }
+    }
+    var html2String: String? {
+        return html2AttributedString?.string
     }
 }
 

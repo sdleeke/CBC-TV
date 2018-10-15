@@ -12,14 +12,16 @@ class MultiPartSettings
 {
     weak var mediaItem:MediaItem?
     
-    init(mediaItem:MediaItem?) {
+    init(mediaItem:MediaItem?)
+    {
         if (mediaItem == nil) {
             print("nil mediaItem in Settings init!")
         }
         self.mediaItem = mediaItem
     }
     
-    subscript(key:String) -> String? {
+    subscript(key:String) -> String?
+    {
         get {
             guard let mediaItem = mediaItem else {
                 print("mediaItem == nil in MultiPartSettings!")

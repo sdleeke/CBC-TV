@@ -8,7 +8,8 @@
 
 import Foundation
 
-class StringNode {
+class StringNode
+{
     var string:String?
     
     init(_ string:String?)

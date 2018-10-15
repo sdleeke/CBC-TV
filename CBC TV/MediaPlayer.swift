@@ -10,7 +10,8 @@ import Foundation
 import MediaPlayer
 import AVKit
 
-enum PlayerState {
+enum PlayerState
+{
     case none
     
     case paused
@@ -21,8 +22,10 @@ enum PlayerState {
     case seekingBackward
 }
 
-class PlayerStateTime {
-    var mediaItem:MediaItem? {
+class PlayerStateTime
+{
+    var mediaItem:MediaItem?
+    {
         willSet {
             
         }
@@ -31,7 +34,8 @@ class PlayerStateTime {
         }
     }
     
-    var state:PlayerState = .none {
+    var state:PlayerState = .none
+    {
         willSet {
             
         }
@@ -45,7 +49,8 @@ class PlayerStateTime {
     var startTime:String?
     
     var dateEntered:Date?
-    var timeElapsed:TimeInterval? {
+    var timeElapsed:TimeInterval?
+    {
         get {
             if let dateEntered = dateEntered {
                 return Date().timeIntervalSince(dateEntered)
@@ -104,12 +109,14 @@ class PlayerStateTime {
     }
 }
 
-enum PIP {
+enum PIP
+{
     case started
     case stopped
 }
 
-class MediaPlayer : NSObject {
+class MediaPlayer : NSObject
+{
     var progressTimerReturn:Any? = nil
     var playerTimerReturn:Any? = nil
     
@@ -120,17 +127,19 @@ class MediaPlayer : NSObject {
     
     var isZoomed = false
     
-    var url : URL? {
+    var url : URL?
+    {
         get {
             return (currentItem?.asset as? AVURLAsset)?.url
         }
     }
     
-    var controller:AVPlayerViewController? // = AVPlayerViewController()
+    var controller:AVPlayerViewController?
     
     var stateTime:PlayerStateTime?
     
-    var showsPlaybackControls:Bool{
+    var showsPlaybackControls:Bool
+    {
         get {
             return controller?.showsPlaybackControls ?? false
         }
@@ -575,7 +584,7 @@ class MediaPlayer : NSObject {
             updateCurrentTimeForPlaying()
         }
         
-        //            logPlayerState()
+//        logPlayerState()
     }
     
     func observe()

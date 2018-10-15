@@ -8,10 +8,12 @@
 
 import Foundation
 
-class Search {
+class Search
+{
     var complete:Bool = true
     
-    var active:Bool = false {
+    var active:Bool = false
+    {
         willSet {
             
         }
@@ -22,19 +24,22 @@ class Search {
         }
     }
     
-    var valid:Bool {
+    var valid:Bool
+    {
         get {
             return active && extant
         }
     }
     
-    var extant:Bool {
+    var extant:Bool
+    {
         get {
             return (text != nil) && (text != Constants.EMPTY_STRING)
         }
     }
     
-    var text:String? {
+    var text:String?
+    {
         willSet {
             
         }
@@ -51,7 +56,8 @@ class Search {
         }
     }
     
-    var transcripts:Bool {
+    var transcripts:Bool
+    {
         get {
             return UserDefaults.standard.bool(forKey: Constants.USER_SETTINGS.SEARCH_TRANSCRIPTS)
         }

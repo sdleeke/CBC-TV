@@ -339,7 +339,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     }
     
     override var preferredFocusEnvironments : [UIFocusEnvironment]
-        {
+    {
         get {
             if let preferredFocusView = preferredFocusView {
                 return [preferredFocusView]
@@ -404,8 +404,6 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
         }
         didSet {
-//            showingSlides = selectedMediaItem?.showing == Showing.slides
-            
             if oldValue != nil {
                 NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_UI), object: oldValue)
             }
@@ -424,8 +422,8 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             }
             
             if (selectedMediaItem != nil) {
-                mediaItems = selectedMediaItem?.multiPartMediaItems // mediaItemsInMediaItemSeries(selectedMediaItem)
-
+                mediaItems = selectedMediaItem?.multiPartMediaItems
+                
                 Globals.shared.selectedMediaItem.detail = selectedMediaItem
                 
                 setupTitle()
@@ -434,8 +432,6 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                     NotificationCenter.default.addObserver(self, selector: #selector(self.updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_UI), object: self.selectedMediaItem) //
                 }
             } else {
-                // We always select, never deselect, so this should not be done.  If we set this to nil it is for some other reason, like clearing the UI.
-                //                defaults.removeObjectForKey(Constants.SELECTED_SERMON_DETAIL_KEY)
                 mediaItems = nil
             }
             
@@ -1213,11 +1209,8 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         var indexPath = IndexPath(row: 0, section: 0)
         
         if mediaItems?.count > 0, let mediaItemIndex = mediaItems?.index(of: mediaItem) {
-            //                    print("\(mediaItemIndex)")
             indexPath = IndexPath(row: mediaItemIndex, section: 0)
         }
-        
-        //            print("\(tableView.bounds)")
         
         guard (indexPath.section < tableView.numberOfSections) else {
             NSLog("indexPath section ERROR in scrollToMediaItem")
@@ -1298,7 +1291,6 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             playPauseButton.setTitle(Constants.FA.PLAY)
         }
         
-//        playPauseButton.isEnabled = playPauseButton.isEnabled && (selectedMediaItem.showing?.range(of: Showing.slides) == nil)
         playPauseButton.isHidden = false
         
         skipForwardButton.isEnabled = playPauseButton.isEnabled && Globals.shared.mediaPlayer.loaded
@@ -1358,8 +1350,6 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             }
             
             titleView.addSubview(label)
-            
-//            navigationItem.titleView = label
         }
     }
     
@@ -1435,7 +1425,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
 
         DispatchQueue.global(qos: .userInitiated).async {
-            if let posterImage = self.selectedMediaItem?.posterImage { // (image:UIImage?) in
+            if let posterImage = self.selectedMediaItem?.posterImage {
                 Thread.onMainThread {
                     imageView.image = posterImage
                     

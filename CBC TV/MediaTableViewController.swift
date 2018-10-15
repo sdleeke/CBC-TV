@@ -9,25 +9,8 @@
 import UIKit
 import AVFoundation
 
-extension UIColor
+enum JSONSource
 {
-    // MARK: UIColor extension
-    
-    convenience init(red: Int, green: Int, blue: Int) {
-        let newRed = CGFloat(red)/255
-        let newGreen = CGFloat(green)/255
-        let newBlue = CGFloat(blue)/255
-        
-        self.init(red: newRed, green: newGreen, blue: newBlue, alpha: 1.0)
-    }
-    
-    static func controlBlue() -> UIColor
-    {
-        return UIColor(red: 14, green: 122, blue: 254)
-    }
-}
-
-enum JSONSource {
     case direct
     case download
 }

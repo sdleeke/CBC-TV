@@ -10,7 +10,8 @@ import Foundation
 import UIKit
 import AVKit
 
-class MediaItem : NSObject {
+class MediaItem : NSObject
+{
     var dict:[String:String]?
     
     var singleLoaded = false
@@ -18,6 +19,10 @@ class MediaItem : NSObject {
     var posterImageURL:URL?
     {
         get {
+            guard hasVideo else {
+                return nil
+            }
+            
             guard let year = year, let id = id else {
                 return nil
             }
@@ -57,13 +62,15 @@ class MediaItem : NSObject {
         }
     }
     
-    var id:String! {
+    var id:String!
+    {
         get {
             return dict?[Field.id] ?? "ID"
         }
     }
     
-    var classCode:String {
+    var classCode:String
+    {
         get {
             var chars = Constants.EMPTY_STRING
             
@@ -78,7 +85,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var serviceCode:String {
+    var serviceCode:String
+    {
         get {
             let afterClassCode = String(id[classCode.endIndex...])
             
@@ -92,7 +100,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var conferenceCode:String? {
+    var conferenceCode:String?
+    {
         get {
             if serviceCode == "s" {
                 let afterClassCode = String(id[classCode.endIndex...])
@@ -116,7 +125,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var repeatCode:String? {
+    var repeatCode:String?
+    {
         get {
             let afterClassCode = String(id[classCode.endIndex...])
             
@@ -136,7 +146,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var multiPartMediaItems:[MediaItem]? {
+    var multiPartMediaItems:[MediaItem]?
+    {
         get {
             guard hasMultipleParts, let multiPartSort = multiPartSort else {
                 return [self]
@@ -296,7 +307,8 @@ class MediaItem : NSObject {
         return mediaItems
     }
 
-    var playingURL:URL? {
+    var playingURL:URL?
+    {
         get {
             var url:URL?
             
@@ -319,25 +331,29 @@ class MediaItem : NSObject {
         }
     }
     
-    var isInMediaPlayer:Bool {
+    var isInMediaPlayer:Bool
+    {
         get {
             return (self == Globals.shared.mediaPlayer.mediaItem)
         }
     }
     
-    var isLoaded:Bool {
+    var isLoaded:Bool
+    {
         get {
             return isInMediaPlayer && Globals.shared.mediaPlayer.loaded
         }
     }
     
-    var isPlaying:Bool {
+    var isPlaying:Bool
+    {
         get {
             return Globals.shared.mediaPlayer.url == playingURL
         }
     }
     
-    var playing:String? {
+    var playing:String?
+    {
         get {
             if (dict?[Field.playing] == nil) {
                 if let playing = mediaItemSettings?[Field.playing] {
@@ -375,7 +391,8 @@ class MediaItem : NSObject {
 
     var pageNum:Int?
 
-    var showing:String? {
+    var showing:String?
+    {
         get {
             if (dict?[Field.showing] == nil) {
                 if let showing = mediaItemSettings?[Field.showing] {
@@ -393,7 +410,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var atEnd:Bool {
+    var atEnd:Bool
+    {
         get {
             guard let playing = playing else {
                 return false
@@ -417,7 +435,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var websiteURL:URL? {
+    var websiteURL:URL?
+    {
         get {
             return URL(string: Constants.CBC.SINGLE_WEBSITE + id)
         }
@@ -432,7 +451,8 @@ class MediaItem : NSObject {
         return Float(currentTime) != nil
     }
     
-    var currentTime:String? {
+    var currentTime:String?
+    {
         get {
             guard let playing = playing else {
                 return nil
@@ -460,7 +480,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var seriesID:String! {
+    var seriesID:String!
+    {
         get {
             if hasMultipleParts, let multiPartName = multiPartName {
                 return (conferenceCode != nil ? conferenceCode! : classCode) + multiPartName
@@ -470,7 +491,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var year:Int? {
+    var year:Int?
+    {
         get {
             if let date = date, let range = date.range(of: "-") {
                 let year = String(date[..<range.lowerBound])
@@ -488,7 +510,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var yearString:String! {
+    var yearString:String!
+    {
         get {
             if let date = date, let range = date.range(of: "-") {
                 let year = String(date[..<range.lowerBound])
@@ -532,37 +555,43 @@ class MediaItem : NSObject {
         return dateStringFormatter.string(for: fullDate)
     }
     
-    var formattedDate:String? {
+    var formattedDate:String?
+    {
         get {
             return formatDate("MMMM d, yyyy")
         }
     }
     
-    var formattedDateMonth:String? {
+    var formattedDateMonth:String?
+    {
         get {
             return formatDate("MMMM")
         }
     }
     
-    var formattedDateDay:String? {
+    var formattedDateDay:String?
+    {
         get {
             return formatDate("d")
         }
     }
     
-    var formattedDateYear:String? {
+    var formattedDateYear:String?
+    {
         get {
             return formatDate("yyyy")
         }
     }
     
-    var dateService:String? {
+    var dateService:String?
+    {
         get {
             return dict?[Field.date]
         }
     }
     
-    var date:String? {
+    var date:String?
+    {
         get {
             if let range = dict?[Field.date]?.range(of: Constants.SINGLE_SPACE) {
                 if let stringSubSequence = dict?[Field.date]?[..<range.lowerBound] {
@@ -574,7 +603,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var service:String? {
+    var service:String?
+    {
         get {
             if let string = dict?[Field.date], let range = string.range(of: Constants.SINGLE_SPACE) {
                 return String(string[range.upperBound...]) // last two characters
@@ -584,86 +614,99 @@ class MediaItem : NSObject {
         }
     }
     
-    var title:String? {
+    var title:String?
+    {
         get {
             return dict?[Field.title]
         }
     }
     
-    var category:String? {
+    var category:String?
+    {
         get {
             return dict?[Field.category]
         }
     }
     
-    var scriptureReference:String? {
+    var scriptureReference:String?
+    {
         get {
             return dict?[Field.scripture]?.replacingOccurrences(of: "Psalm ", with: "Psalms ")
         }
     }
     
-    var classSectionSort:String! {
+    var classSectionSort:String!
+    {
         get {
             return classSection.lowercased()
         }
     }
     
-    var classSection:String! {
+    var classSection:String!
+    {
         get {
             return hasClassName ? className! : Constants.None
         }
     }
     
-    var className:String? {
+    var className:String?
+    {
         get {
             return dict?[Field.className]
         }
     }
     
-    var eventSectionSort:String! {
+    var eventSectionSort:String!
+    {
         get {
             return eventSection.lowercased()
         }
     }
     
-    var eventSection:String! {
+    var eventSection:String!
+    {
         get {
             return eventName ?? Constants.None
         }
     }
     
-    var eventName:String? {
+    var eventName:String?
+    {
         get {
             return dict?[Field.eventName]
         }
     }
     
-    var speakerSectionSort:String! {
+    var speakerSectionSort:String!
+    {
         get {
             return speakerSort?.lowercased() ?? "ERROR"
         }
     }
     
-    var speakerSection:String! {
+    var speakerSection:String!
+    {
         get {
             return speaker ?? Constants.None
         }
     }
     
-    var speaker:String? {
+    var speaker:String?
+    {
         get {
             return dict?[Field.speaker]
         }
     }
     
     // this saves calculated values in defaults between sessions
-    var speakerSort:String? {
+    var speakerSort:String?
+    {
         get {
             if dict?[Field.speaker_sort] == nil {
                 if let speakerSort = mediaItemSettings?[Field.speaker_sort] {
                     dict?[Field.speaker_sort] = speakerSort
                 } else {
-                    //Sort on last names.  This assumes the speaker names are all fo the form "... <last name>" with one or more spaces before the last name and no spaces IN the last name, e.g. "Van Kirk"
+                    //Sort on last names.  This assumes the speaker names are all fo the form "... <last name>" with one or more spaces before the last name and no spaces IN the last name, e.g. "Van Winkle"
 
                     var speakerSort:String?
                     
@@ -688,7 +731,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var multiPartSectionSort:String! {
+    var multiPartSectionSort:String!
+    {
         get {
             if hasMultipleParts, let multiPartSort = multiPartSort {
                 return multiPartSort.lowercased()
@@ -702,13 +746,15 @@ class MediaItem : NSObject {
         }
     }
     
-    var multiPartSection:String! {
+    var multiPartSection:String!
+    {
         get {
             return hasMultipleParts ? multiPartName! : (title ?? Constants.Individual_Media)
         }
     }
     
-    var multiPartSort:String? {
+    var multiPartSort:String?
+    {
         get {
             if dict?[Field.multi_part_name_sort] == nil {
                 if let multiPartSort = mediaItemSettings?[Field.multi_part_name_sort] {
@@ -725,7 +771,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var multiPartName:String? {
+    var multiPartName:String?
+    {
         get {
             if (dict?[Field.multi_part_name] == nil) {
                 if let range = title?.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) {
@@ -741,7 +788,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var part:String? {
+    var part:String?
+    {
         get {
             if hasMultipleParts && (dict?[Field.part] == nil) {
                 if let title = title, let range = title.range(of: Constants.PART_INDICATOR_SINGULAR, options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) {
@@ -801,7 +849,8 @@ class MediaItem : NSObject {
         return proposedTags.count > 0 ? tagsArrayToTagsString(proposedTags) : nil
     }
     
-    var dynamicTags:String? {
+    var dynamicTags:String?
+    {
         get {
             var dynamicTags:String?
             
@@ -818,7 +867,8 @@ class MediaItem : NSObject {
     }
     
     // nil better be okay for these or expect a crash
-    var tags:String? {
+    var tags:String?
+    {
         get {
             let jsonTags = dict?[Field.tags]
             
@@ -967,13 +1017,15 @@ class MediaItem : NSObject {
         return tagsSet.count == 0 ? nil : tagsSet
     }
     
-    var tagsSet:Set<String>? {
+    var tagsSet:Set<String>?
+    {
         get {
             return tagsToSet(self.tags)
         }
     }
     
-    var tagsArray:[String]? {
+    var tagsArray:[String]?
+    {
         get {
             guard let tagsSet = tagsSet else {
                 return nil
@@ -985,8 +1037,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var audio:String? {
-        
+    var audio:String?
+    {
         get {
             if dict?[Field.audio] == nil, hasAudio, let year = year, let id = id {
                 dict?[Field.audio] = Constants.BASE_URL.MEDIA + "\(year)/\(id)" + Constants.FILENAME_EXTENSION.MP3
@@ -996,25 +1048,29 @@ class MediaItem : NSObject {
         }
     }
     
-    var mp4:String? {
+    var mp4:String?
+    {
         get {
             return dict?[Field.mp4]
         }
     }
     
-    var m3u8:String? {
+    var m3u8:String?
+    {
         get {
             return dict?[Field.m3u8]
         }
     }
     
-    var video:String? {
+    var video:String?
+    {
         get {
             return m3u8
         }
     }
     
-    var videoID:String? {
+    var videoID:String?
+    {
         get {
             guard let video = video else {
                 return nil
@@ -1028,7 +1084,6 @@ class MediaItem : NSObject {
             
             if let range = tail.range(of: ".m") {
                 let id = String(tail[..<range.lowerBound])
-                //            print(id)
                 return id
             } else {
                 return nil
@@ -1036,7 +1091,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var externalVideo:String? {
+    var externalVideo:String?
+    {
         get {
             guard let videoID = videoID else {
                 return nil
@@ -1048,13 +1104,15 @@ class MediaItem : NSObject {
     
     // A=Audio, V=Video, O=Outline, S=Slides, T=Transcript, H=HTML Transcript
 
-    var files:String? {
+    var files:String?
+    {
         get {
             return dict?[Field.files]
         }
     }
     
-    var hasAudio:Bool {
+    var hasAudio:Bool
+    {
         get {
             if let contains = files?.contains("A") {
                 return contains
@@ -1064,7 +1122,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var hasVideo:Bool {
+    var hasVideo:Bool
+    {
         get {
             if let contains = files?.contains("V") {
                 return contains
@@ -1074,7 +1133,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var audioURL:URL? {
+    var audioURL:URL?
+    {
         get {
             guard let audio = audio else {
                 return nil
@@ -1084,7 +1144,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var videoURL:URL? {
+    var videoURL:URL?
+    {
         get {
             guard let video = video else {
                 return nil
@@ -1094,7 +1155,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var hasSlides:Bool {
+    var hasSlides:Bool
+    {
         get {
             if let contains = files?.contains("S") {
                 return contains
@@ -1104,7 +1166,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var hasNotes:Bool {
+    var hasNotes:Bool
+    {
         get {
             if let contains = files?.contains("T") {
                 return contains
@@ -1114,7 +1177,8 @@ class MediaItem : NSObject {
         }
     }
 
-    var notes:String? {
+    var notes:String?
+    {
         get {
             if (dict?[Field.notes] == nil), hasNotes, let year = year, let id = id {
                 dict?[Field.notes] = Constants.BASE_URL.MEDIA + "\(year)/\(id)" + Field.notes + Constants.FILENAME_EXTENSION.PDF
@@ -1124,7 +1188,8 @@ class MediaItem : NSObject {
         }
     }
 
-    var slides:String? {
+    var slides:String?
+    {
         get {
             if (dict?[Field.slides] == nil) && hasSlides, let year = year, let id = id {
                 dict?[Field.slides] = Constants.BASE_URL.MEDIA + "\(year)/\(id)" + Field.slides + Constants.FILENAME_EXTENSION.PDF
@@ -1134,7 +1199,8 @@ class MediaItem : NSObject {
         }
     }
 
-    var notesURL:URL? {
+    var notesURL:URL?
+    {
         get {
             if let notes = notes {
                 return URL(string: notes)
@@ -1144,7 +1210,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var slidesURL:URL? {
+    var slidesURL:URL?
+    {
         get {
             if let slides = slides {
                 return URL(string: slides)
@@ -1278,7 +1345,8 @@ class MediaItem : NSObject {
         return MultiPartSettings(mediaItem:self)
     }()
     
-    var viewSplit:String? {
+    var viewSplit:String?
+    {
         get {
             return multiPartSettings?[Constants.VIEW_SPLIT]
         }
@@ -1287,7 +1355,8 @@ class MediaItem : NSObject {
         }
     }
     
-    var slideSplit:String? {
+    var slideSplit:String?
+    {
         get {
             return multiPartSettings?[Constants.SLIDE_SPLIT]
         }
@@ -1343,7 +1412,7 @@ class MediaItem : NSObject {
     }
     
     var hasScripture:Bool
-        {
+    {
         get {
             guard let isEmpty = scriptureReference?.isEmpty else {
                 return false
@@ -1354,7 +1423,7 @@ class MediaItem : NSObject {
     }
     
     var hasClassName:Bool
-        {
+    {
         get {
             guard let isEmpty = className?.isEmpty else {
                 return false
@@ -1365,7 +1434,7 @@ class MediaItem : NSObject {
     }
     
     var hasEventName:Bool
-        {
+    {
         get {
             guard let isEmpty = eventName?.isEmpty else {
                 return false
@@ -1376,7 +1445,7 @@ class MediaItem : NSObject {
     }
     
     var hasMultipleParts:Bool
-        {
+    {
         get {
             guard let isEmpty = multiPartName?.isEmpty else {
                 return false
@@ -1387,7 +1456,7 @@ class MediaItem : NSObject {
     }
     
     var hasCategory:Bool
-        {
+    {
         get {
             guard let isEmpty = category?.isEmpty else {
                 return false

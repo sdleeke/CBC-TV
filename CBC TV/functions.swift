@@ -66,7 +66,6 @@ func removeCacheFiles(fileExtension:String)
         
         for filename in array {
             if let range = filename.range(of: "." + fileExtension) {
-                // .substring(to:
                 let id = String(filename[..<range.lowerBound])
 
                 if Globals.shared.mediaRepository.index?[id] != nil {
@@ -339,14 +338,12 @@ func stringWithoutPrefixes(_ fromString:String?) -> String?
     }
     
     let sourceString = fromString?.replacingOccurrences(of: Constants.QUOTE, with: Constants.EMPTY_STRING).replacingOccurrences(of: "...", with: Constants.EMPTY_STRING)
-//    print(sourceString)
     
     let prefixes = ["A ","An ","The "] // "And ",
     
     var sortString = sourceString
     
     for prefix in prefixes {
-        // .substring(to:
         if let string = sourceString, string.endIndex >= prefix.endIndex, String(string[..<prefix.endIndex]).lowercased() == prefix.lowercased() {
             sortString = String(string[prefix.endIndex...])
             break
@@ -474,9 +471,6 @@ func versesFromScripture(_ scripture:String?) -> [Int]?
     guard let colon = string.range(of: ":") else {
         return []
     }
-    
-    //        let hyphen = string?.range(of: "-")
-    //        let comma = string?.range(of: ",")
     
     string = String(string[colon.upperBound...])
     
@@ -1009,7 +1003,6 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                                 debug("Done w/ verses")
                                 
                                 startVerse = 0
-//                                endVerse = 0
                             }
                             
                             debug("Done w/ endChapter")
@@ -1051,7 +1044,6 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                             debug("Done w/ startChapter")
                             
                             startVerse = 0
-//                            endVerse = 0
                             
                             debug("Now determine whether there are any chapters between the first and the last in the reference")
                             
@@ -1139,7 +1131,6 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                             debug("Done w/ verses")
                             
                             startVerse = 0
-//                            endVerse = 0
                             
                             debug("Done w/ endChapter")
                         }
@@ -1195,7 +1186,6 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                                 debug("Done w/ verses")
                                 
                                 startVerse = 0
-//                                endVerse = 0
                                 
                                 debug("Now determine whehter there are any chapters between the first and the last in the reference")
                                 
@@ -1268,7 +1258,6 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                                     debug("Done w/ verses")
                                     
                                     startVerse = 0
-//                                    endVerse = 0
                                 }
                             } else {
                                 debug("reference is not split across chapters")
@@ -1291,7 +1280,6 @@ func chaptersAndVersesFromScripture(book:String?,reference:String?) -> [Int:[Int
                                 debug("Done w/ verses")
                                 
                                 startVerse = 0
-//                                endVerse = 0
                             }
                             
                             debug("Done w/ chapters")

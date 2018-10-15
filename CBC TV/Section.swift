@@ -199,13 +199,11 @@ class Section
                         header = indexHeadersTransform?(indexString)
                     }
                     
-                    //                    print(header)
-                    
                     if let header = header {
                         if stringIndex[header] == nil {
                             stringIndex[header] = [String]()
                         }
-        //                print(testString,string)
+
                         stringIndex[header]?.append(indexString)
                     }
                 }

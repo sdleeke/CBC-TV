@@ -311,8 +311,6 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
     
     func setupDisplay(_ active:MediaListGroupSort?)
     {
-//        print("setupDisplay")
-
         display.mediaItems = active?.mediaItems
         
         display.section.showHeaders = true
@@ -339,9 +337,9 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         if allowSaveSettings {
             print("saveSettings")
             let defaults = UserDefaults.standard
-            //    print("\(settings)")
+
             defaults.set(mediaItemSettings,forKey: Constants.SETTINGS.KEY.MEDIA)
-            //    print("\(seriesViewSplits)")
+
             defaults.set(multiPartSettings, forKey: Constants.SETTINGS.KEY.MULTI_PART_MEDIA)
             defaults.synchronize()
         }
@@ -350,7 +348,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
     func clearSettings()
     {
         let defaults = UserDefaults.standard
-        //    print("\(settings)")
+
         defaults.removeObject(forKey: Constants.SETTINGS.KEY.MEDIA)
         defaults.removeObject(forKey: Constants.SETTINGS.KEY.MULTI_PART_MEDIA)
         defaults.removeObject(forKey: Constants.SETTINGS.KEY.CATEGORY)
@@ -364,17 +362,14 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         if let settingsVersion = defaults.string(forKey: Constants.SETTINGS.VERSION.KEY) {
             if settingsVersion == Constants.SETTINGS.VERSION.NUMBER {
                 if let mediaItemSettingsDictionary = defaults.dictionary(forKey: Constants.SETTINGS.KEY.MEDIA) {
-                    //        print("\(settingsDictionary)")
                     mediaItemSettings = mediaItemSettingsDictionary as? [String:[String:String]]
                 }
                 
                 if let seriesSettingsDictionary = defaults.dictionary(forKey: Constants.SETTINGS.KEY.MULTI_PART_MEDIA) {
-                    //        print("\(viewSplitsDictionary)")
                     multiPartSettings = seriesSettingsDictionary as? [String:[String:String]]
                 }
                 
                 if let categorySettingsDictionary = defaults.dictionary(forKey: Constants.SETTINGS.KEY.CATEGORY) {
-                    //        print("\(viewSplitsDictionary)")
                     mediaCategory.settings = categorySettingsDictionary as? [String:[String:String]]
                 }
                 
@@ -389,8 +384,6 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
                 } else {
                     grouping = GROUPING.YEAR
                 }
-                
-//                media.tags.selected = mediaCategory.tag
 
                 if (media.tags.selected == Constants.New) {
                     media.tags.selected = nil
@@ -419,7 +412,6 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
                 }
 
                 if let historyArray = defaults.array(forKey: Constants.HISTORY) {
-                    //        print("\(settingsDictionary)")
                     history = historyArray as? [String]
                 }
             } else {
@@ -433,8 +425,6 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
             defaults.set(Constants.SETTINGS.VERSION.NUMBER, forKey: Constants.SETTINGS.VERSION.KEY)
             defaults.synchronize()
         }
-        
-        //    print("\(settings)")
     }
     
     func startAudio()
@@ -482,9 +472,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         } else {
             history?.append(entry)
         }
-        
-        //        print(history)
-        
+                
         let defaults = UserDefaults.standard
         defaults.set(history, forKey: Constants.HISTORY)
         defaults.synchronize()

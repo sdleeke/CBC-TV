@@ -314,9 +314,7 @@ class PopoverTableViewController : UIViewController
         
         if section.strings != nil {
             if section.showIndex {
-                if (self.section.indexStrings?.count > 1) {
-//                    section.build()
-                } else {
+                if (self.section.indexStrings?.count <= 1) {
                     section.showIndex = false
                 }
             }

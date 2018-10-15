@@ -8,14 +8,17 @@
 
 import Foundation
 
-class Tags {
-    var showing:String? {
+class Tags
+{
+    var showing:String?
+    {
         get {
             return selected == nil ? Constants.ALL : Constants.TAGGED
         }
     }
     
-    var selected:String? {
+    var selected:String?
+    {
         get {
             return Globals.shared.mediaCategory.tag
         }

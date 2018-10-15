@@ -8,10 +8,12 @@
 
 import Foundation
 
-class MediaCategory {
+class MediaCategory
+{
     var dicts:[String:String]?
     
-    var filename:String? {
+    var filename:String?
+    {
         get {
             guard let selectedID = selectedID else {
                 return nil
@@ -21,7 +23,8 @@ class MediaCategory {
         }
     }
     
-    var names:[String]? {
+    var names:[String]?
+    {
         get {
             guard let keys = dicts?.keys else {
                 return nil
@@ -33,7 +36,8 @@ class MediaCategory {
     
     // This doesn't work if we someday allow multiple categories to be selected at the same time - unless the string contains multiple categories, as with tags.
     // In that case it would need to be an array.  Not a big deal, just a change.
-    var selected:String? {
+    var selected:String?
+    {
         get {
             if UserDefaults.standard.object(forKey: Constants.MEDIA_CATEGORY) == nil {
                 UserDefaults.standard.set(Constants.Strings.Sermons, forKey: Constants.MEDIA_CATEGORY)
@@ -52,7 +56,8 @@ class MediaCategory {
         }
     }
     
-    var selectedID:String? {
+    var selectedID:String?
+    {
         get {
             guard let selected = selected, dicts?[selected] != nil else {
                 return "1"
@@ -87,7 +92,8 @@ class MediaCategory {
         }
     }
     
-    subscript(key:String) -> String? {
+    subscript(key:String) -> String?
+    {
         get {
             if let selected = selected {
                 return settings?[selected]?[key]
@@ -122,7 +128,8 @@ class MediaCategory {
         }
     }
     
-    var tag:String? {
+    var tag:String?
+    {
         get {
             return self[Constants.SETTINGS.KEY.COLLECTION]
         }
@@ -131,7 +138,8 @@ class MediaCategory {
         }
     }
     
-    var playing:String? {
+    var playing:String?
+    {
         get {
             return self[Constants.SETTINGS.MEDIA_PLAYING]
         }
@@ -140,7 +148,8 @@ class MediaCategory {
         }
     }
     
-    var selectedInMaster:String? {
+    var selectedInMaster:String?
+    {
         get {
             return self[Constants.SETTINGS.KEY.SELECTED_MEDIA.MASTER]
         }
@@ -149,7 +158,8 @@ class MediaCategory {
         }
     }
     
-    var selectedInDetail:String? {
+    var selectedInDetail:String?
+    {
         get {
             return self[Constants.SETTINGS.KEY.SELECTED_MEDIA.DETAIL]
         }

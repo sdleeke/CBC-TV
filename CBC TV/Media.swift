@@ -8,12 +8,14 @@
 
 import Foundation
 
-struct MediaNeed {
+struct MediaNeed
+{
     var sorting:Bool = true
     var grouping:Bool = true
 }
 
-class Media {
+class Media
+{
     var need = MediaNeed()
     
     //All mediaItems
@@ -24,7 +26,8 @@ class Media {
     
     var tags = Tags()
     
-    var toSearch:MediaListGroupSort? {
+    var toSearch:MediaListGroupSort?
+    {
         get {
             guard let showing = tags.showing else {
                 return nil
@@ -51,7 +54,8 @@ class Media {
         }
     }
     
-    var active:MediaListGroupSort? {
+    var active:MediaListGroupSort?
+    {
         get {
             guard let showing = tags.showing else {
                 return nil

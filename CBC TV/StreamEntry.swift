@@ -8,7 +8,8 @@
 
 import Foundation
 
-class StreamEntry {
+class StreamEntry
+{
     init?(_ dict:[String:Any]?)
     {
         guard dict != nil else {
@@ -26,13 +27,15 @@ class StreamEntry {
         }
     }
     
-    var start : Int? {
+    var start : Int?
+    {
         get {
             return dict?["start"] as? Int
         }
     }
     
-    var startDate : Date? {
+    var startDate : Date?
+    {
         get {
             if let start = start {
                 return Date(timeIntervalSince1970: TimeInterval(start))
@@ -42,13 +45,15 @@ class StreamEntry {
         }
     }
     
-    var end : Int? {
+    var end : Int?
+    {
         get {
             return dict?["end"] as? Int
         }
     }
     
-    var endDate : Date? {
+    var endDate : Date?
+    {
         get {
             if let end = end {
                 return Date(timeIntervalSince1970: TimeInterval(end))
@@ -58,19 +63,22 @@ class StreamEntry {
         }
     }
     
-    var name : String? {
+    var name : String?
+    {
         get {
             return dict?["name"] as? String
         }
     }
     
-    var date : String? {
+    var date : String?
+    {
         get {
             return dict?["date"] as? String
         }
     }
     
-    var text : String? {
+    var text : String?
+    {
         get {
             if let name = name,let startDate = startDate?.mdyhm,let endDate = endDate?.mdyhm {
                 return "\(name)\nStart: \(startDate)\nEnd: \(endDate)"

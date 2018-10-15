@@ -732,10 +732,6 @@ enum Constants {
     
     static let FONT_SIZE = 12
     
-//    static let Share_on = "Share on "
-//    static let Share_on_Facebook = Share_on + "Facebook"
-//    static let Share_on_Twitter = Share_on + "Twitter"
-
     static let Play = "Play"
     static let Pause = "Pause"
     
