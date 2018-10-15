@@ -395,7 +395,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
                             //This is filtering, i.e. searching all mediaItems => s/b in background
                             media.tagged[tag] = MediaListGroupSort(mediaItems: mediaItemsWithTag(mediaRepository.list, tag: media.tags.selected))
                         } else {
-                            if let tag = stringWithoutPrefixes(media.tags.selected) {
+                            if let tag = media.tags.selected?.withoutPrefixes {
                                 media.tagged[tag] = MediaListGroupSort(mediaItems: media.all?.tagMediaItems?[tag])
                             }
                         }

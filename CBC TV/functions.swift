@@ -1720,7 +1720,7 @@ func seriesFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
                 })
             )
             ).sorted(by: { (first:String, second:String) -> Bool in
-                return stringWithoutPrefixes(first) < stringWithoutPrefixes(second)
+                return first.withoutPrefixes < second.withoutPrefixes
             })
 }
 
@@ -1739,7 +1739,7 @@ func seriesSectionsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
                 })
             )
             ).sorted(by: { (first:String, second:String) -> Bool in
-                return stringWithoutPrefixes(first) < stringWithoutPrefixes(second)
+                return first.withoutPrefixes < second.withoutPrefixes
             })
 }
 
@@ -1760,7 +1760,7 @@ func seriesSectionsFromMediaItems(_ mediaItems:[MediaItem]?,withTitles:Bool) -> 
                 })
             )
             ).sorted(by: { (first:String, second:String) -> Bool in
-                return stringWithoutPrefixes(first) < stringWithoutPrefixes(second)
+                return first.withoutPrefixes < second.withoutPrefixes
             })
 }
 
@@ -2376,7 +2376,7 @@ func tagsFromMediaItems(_ mediaItems:[MediaItem]?) -> [String]?
     }
     
     
-    var tagsArray = Array(tagsSet).sorted(by: { stringWithoutPrefixes($0) < stringWithoutPrefixes($1) })
+    var tagsArray = Array(tagsSet).sorted(by: { $0.withoutPrefixes < $1.withoutPrefixes })
     
     tagsArray.append(Constants.All)
     

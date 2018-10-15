@@ -737,7 +737,7 @@ class MediaItem : NSObject
             if hasMultipleParts, let multiPartSort = multiPartSort {
                 return multiPartSort.lowercased()
             } else {
-                if let title = stringWithoutPrefixes(title)?.lowercased() {
+                if let title = title?.withoutPrefixes.lowercased() {
                     return title
                 }
             }
@@ -760,7 +760,7 @@ class MediaItem : NSObject
                 if let multiPartSort = mediaItemSettings?[Field.multi_part_name_sort] {
                     dict?[Field.multi_part_name_sort] = multiPartSort
                 } else {
-                    if let multiPartSort = stringWithoutPrefixes(multiPartName) {
+                    if let multiPartSort = multiPartName?.withoutPrefixes {
                         dict?[Field.multi_part_name_sort] = multiPartSort
                     } else {
 
@@ -915,7 +915,9 @@ class MediaItem : NSObject
                 }
             }
             
-            if let sortTag = stringWithoutPrefixes(tag) {
+            let sortTag = tag.withoutPrefixes
+            
+            if !sortTag.isEmpty {
                 if Globals.shared.media.all?.tagMediaItems?[sortTag] != nil {
                     if Globals.shared.media.all?.tagMediaItems?[sortTag]?.index(of: self) == nil {
                         Globals.shared.media.all?.tagMediaItems?[sortTag]?.append(self)
@@ -947,6 +949,10 @@ class MediaItem : NSObject
             return
         }
         
+        guard Globals.shared.media.all != nil else {
+            return
+        }
+        
         var tags = tagsArrayFromTagsString(mediaItemSettings?[Field.tags])
         
         while let index = tags?.index(of: tag) {
@@ -955,7 +961,9 @@ class MediaItem : NSObject
         
         mediaItemSettings?[Field.tags] = tagsArrayToTagsString(tags)
         
-        if let sortTag = stringWithoutPrefixes(tag) {
+        let sortTag = tag.withoutPrefixes
+        
+        if !sortTag.isEmpty {
             if let index = Globals.shared.media.all?.tagMediaItems?[sortTag]?.index(of: self) {
                 Globals.shared.media.all?.tagMediaItems?[sortTag]?.remove(at: index)
             }
@@ -964,11 +972,11 @@ class MediaItem : NSObject
                 _ = Globals.shared.media.all?.tagMediaItems?.removeValue(forKey: sortTag)
             }
             
-            if Globals.shared.media.tags.selected == tag, let selected = Globals.shared.media.tags.selected {
-                Globals.shared.media.tagged[selected] = MediaListGroupSort(mediaItems: Globals.shared.media.all?.tagMediaItems?[sortTag])
+            if Globals.shared.media.tags.selected == tag {
+                Globals.shared.media.tagged[tag] = MediaListGroupSort(mediaItems: Globals.shared.media.all?.tagMediaItems?[sortTag])
                 
                 Thread.onMainThread { () -> (Void) in
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil) // Globals.shared.media.tagged
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_MEDIA_LIST), object: nil)
                 }
             }
             

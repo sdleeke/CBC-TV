@@ -29,9 +29,7 @@ class Tags
                         //This is filtering, i.e. searching all mediaItems => s/b in background
                         Globals.shared.media.tagged[newValue] = MediaListGroupSort(mediaItems: mediaItemsWithTag(Globals.shared.mediaRepository.list, tag: newValue))
                     } else {
-                        if let tag = stringWithoutPrefixes(newValue) {
-                            Globals.shared.media.tagged[newValue] = MediaListGroupSort(mediaItems: Globals.shared.media.all?.tagMediaItems?[tag])
-                        }
+                        Globals.shared.media.tagged[newValue] = MediaListGroupSort(mediaItems: Globals.shared.media.all?.tagMediaItems?[newValue.withoutPrefixes])
                     }
                 }
             } else {
