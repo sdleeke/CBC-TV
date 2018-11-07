@@ -416,7 +416,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 if let url = selectedMediaItem?.playingURL {
                     playerURL(url: url)
                 } else {
-                    print(selectedMediaItem?.dict as Any)
+                    print(selectedMediaItem?.storage as Any)
                     networkUnavailable("Media Not Available")
                 }
             }
@@ -1425,7 +1425,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
 
         DispatchQueue.global(qos: .userInitiated).async {
-            if let posterImage = self.selectedMediaItem?.posterImage {
+            if let posterImage = self.selectedMediaItem?.posterImage.image {
                 Thread.onMainThread {
                     imageView.image = posterImage
                     

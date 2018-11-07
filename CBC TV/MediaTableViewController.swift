@@ -764,7 +764,7 @@ class MediaTableViewController : UIViewController
     {
         if (mediaItemDicts != nil) {
             return mediaItemDicts?.map({ (mediaItemDict:[String : String]) -> MediaItem in
-                MediaItem(dict: mediaItemDict)
+                MediaItem(storage: mediaItemDict)
             })
         }
         

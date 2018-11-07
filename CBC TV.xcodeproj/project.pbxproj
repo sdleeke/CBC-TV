@@ -42,6 +42,8 @@
 		17B3ABF71ED8A4420086B9E7 /* MediaTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B3ABF61ED8A4420086B9E7 /* MediaTableViewCell.swift */; };
 		17B3ABFB1ED8AF870086B9E7 /* functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B3ABFA1ED8AF870086B9E7 /* functions.swift */; };
 		17B3AC011ED8E7510086B9E7 /* fontawesome-webfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 17B3AC001ED8E3D90086B9E7 /* fontawesome-webfont.ttf */; };
+		17B8436321935D08007ABB68 /* FetchImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B8436221935D08007ABB68 /* FetchImage.swift */; };
+		17B8436521935D67007ABB68 /* generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B8436421935D67007ABB68 /* generics.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,6 +105,8 @@
 		17B3ABF61ED8A4420086B9E7 /* MediaTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaTableViewCell.swift; sourceTree = "<group>"; };
 		17B3ABFA1ED8AF870086B9E7 /* functions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = functions.swift; sourceTree = "<group>"; };
 		17B3AC001ED8E3D90086B9E7 /* fontawesome-webfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontawesome-webfont.ttf"; sourceTree = "<group>"; };
+		17B8436221935D08007ABB68 /* FetchImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchImage.swift; sourceTree = "<group>"; };
+		17B8436421935D67007ABB68 /* generics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = generics.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -157,6 +161,8 @@
 				17B3ABE81ED8A34E0086B9E7 /* Globals.swift */,
 				17B3ABFA1ED8AF870086B9E7 /* functions.swift */,
 				1731F6052171F6EC00609DE6 /* extensions.swift */,
+				17B8436421935D67007ABB68 /* generics.swift */,
+				17B8436221935D08007ABB68 /* FetchImage.swift */,
 				17B3ABEA1ED8A34E0086B9E7 /* Constants.swift */,
 				1731F6092171F85A00609DE6 /* Search.swift */,
 				179EFD561F55BDB600766AB1 /* Section.swift */,
@@ -369,6 +375,7 @@
 				1731F61C2171FCDA00609DE6 /* MediaItemSettings.swift in Sources */,
 				1731F6142171F91300609DE6 /* SelectedMediaItem.swift in Sources */,
 				17B3ABF01ED8A35C0086B9E7 /* MediaListGroupSort.swift in Sources */,
+				17B8436321935D08007ABB68 /* FetchImage.swift in Sources */,
 				17B3ABED1ED8A34E0086B9E7 /* Constants.swift in Sources */,
 				17B3ABE71ED8A32A0086B9E7 /* MediaViewController.swift in Sources */,
 				1731F60A2171F85A00609DE6 /* Search.swift in Sources */,
@@ -381,6 +388,7 @@
 				1731F6182171FC1000609DE6 /* StringNode.swift in Sources */,
 				1731F6162171F99100609DE6 /* Streaming.swift in Sources */,
 				17B3ABEC1ED8A34E0086B9E7 /* MediaPlayer.swift in Sources */,
+				17B8436521935D67007ABB68 /* generics.swift in Sources */,
 				1731F6122171F8EA00609DE6 /* MediaCategory.swift in Sources */,
 				179EFD571F55BDB600766AB1 /* Section.swift in Sources */,
 				17B3ABF71ED8A4420086B9E7 /* MediaTableViewCell.swift in Sources */,
