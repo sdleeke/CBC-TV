@@ -163,6 +163,8 @@ enum Constants {
     }
     
     enum URL {
+        static let LIVE_EVENTS = "https://api.countrysidebible.org/cache/streamEntries.json"
+        
         static let LIVE_STREAM = "https://content.uplynk.com/channel/bd25cb880ed84b4db3061b9ad16b5a3c.m3u8"
         
         static let REACHABILITY_TEST = "https://www.countrysidebible.org/"

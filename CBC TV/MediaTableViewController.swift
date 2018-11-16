@@ -710,7 +710,8 @@ class MediaTableViewController : UIViewController
     {
         var mediaItemDicts = [[String:String]]()
         
-        if let json = jsonDataFromCachesDirectory() as? [String:Any] {
+        //  jsonDataFromCachesDirectory()
+        if let json = Globals.shared.mediaCategory.filename?.fileSystemURL?.data?.json as? [String:Any] {
             if let mediaItems = json[key] as? [[String:String]] {
                 for i in 0..<mediaItems.count {
                     
@@ -732,11 +733,43 @@ class MediaTableViewController : UIViewController
         return nil
     }
     
-    func loadJSONDictsFromURL(url:String,key:String,filename:String) -> [[String:String]]?
+    lazy var operationQueue:OperationQueue! = {
+        let operationQueue = OperationQueue()
+        operationQueue.name = "JSON"
+        operationQueue.qualityOfService = .background
+        operationQueue.maxConcurrentOperationCount = 1
+        return operationQueue
+    }()
+    
+    func jsonFromURL(urlString:String?,filename:String?) -> Any?
+    {
+        guard Globals.shared.reachability.isReachable else {
+            return nil
+        }
+        
+        guard let json = filename?.fileSystemURL?.data?.json else {
+            // BLOCKS
+            let data = urlString?.url?.data
+            
+            operationQueue.addOperation {
+                data?.save(to: filename?.fileSystemURL)
+            }
+            
+            return data?.json
+        }
+        
+        operationQueue.addOperation {
+            urlString?.url?.data?.save(to: filename?.fileSystemURL)
+        }
+        
+        return json
+    }
+    
+    func loadJSONDictsFromURL(urlString:String,key:String,filename:String) -> [[String:String]]?
     {
         var mediaItemDicts = [[String:String]]()
         
-        if let json = jsonFromURL(url: url,filename: filename) as? [String:Any] {
+        if let json = jsonFromURL(urlString: urlString, filename: filename) as? [String:Any] {
             if let mediaItems = json[key] as? [[String:String]] {
                 for i in 0..<mediaItems.count {
                     
@@ -771,29 +804,29 @@ class MediaTableViewController : UIViewController
         return nil
     }
     
-    func loadLive() -> [String:Any]?
+    var liveEvents:[String:Any]?
     {
-        return jsonFromURL(url: "https://api.countrysidebible.org/cache/streamEntries.json") as? [String:Any]
+        get {
+            return Constants.URL.LIVE_EVENTS.url?.data?.json as? [String:Any]
+        }
     }
     
     func loadLive(completion:(()->(Void))?)
     {
         DispatchQueue.global(qos: .background).async() {
             Thread.sleep(forTimeInterval: 0.25)
+
+            Globals.shared.streaming.entries = self.liveEvents?["streamEntries"] as? [[String:Any]]
             
-            if let liveEvents = jsonFromURL(url: "https://api.countrysidebible.org/cache/streamEntries.json") as? [String:Any] {
-                Globals.shared.streaming.entries = liveEvents["streamEntries"] as? [[String:Any]]
-                
-                Thread.onMainThread(block: {
-                    completion?()
-                })
-            }
+            Thread.onMainThread(block: {
+                completion?()
+            })
         }
     }
     
     func loadCategories()
     {
-        if let categoriesDicts = self.loadJSONDictsFromURL(url: Constants.JSON.URL.CATEGORIES,key:Constants.JSON.ARRAY_KEY.CATEGORY_ENTRIES,filename: Constants.JSON.FILENAME.CATEGORIES) {
+        if let categoriesDicts = self.loadJSONDictsFromURL(urlString: Constants.JSON.URL.CATEGORIES,key:Constants.JSON.ARRAY_KEY.CATEGORY_ENTRIES,filename: Constants.JSON.FILENAME.CATEGORIES) {
             var mediaCategoryDicts = [String:String]()
             
             for categoriesDict in categoriesDicts {
@@ -841,7 +874,7 @@ class MediaTableViewController : UIViewController
                 case .direct:
                     // From URL
                     print(Globals.shared.mediaCategory.filename as Any)
-                    if let filename = Globals.shared.mediaCategory.filename, let mediaItemDicts = self.loadJSONDictsFromURL(url: url,key: Constants.JSON.ARRAY_KEY.MEDIA_ENTRIES,filename: filename) {
+                    if let filename = Globals.shared.mediaCategory.filename, let mediaItemDicts = self.loadJSONDictsFromURL(urlString: url,key: Constants.JSON.ARRAY_KEY.MEDIA_ENTRIES,filename: filename) {
                         Globals.shared.mediaRepository.list = self.mediaItemsFromMediaItemDicts(mediaItemDicts)
                     } else {
                         Globals.shared.mediaRepository.list = nil

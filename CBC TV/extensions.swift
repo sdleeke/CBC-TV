@@ -94,6 +94,10 @@ extension String
     var fileSystemURL : URL?
     {
         get {
+            guard self != url?.lastPathComponent else {
+                return cachesURL?.appendingPathComponent(self.replacingOccurrences(of: " ", with: ""))
+            }
+            
             return url?.fileSystemURL
         }
     }
@@ -248,10 +252,10 @@ extension URL
 {
     var fileSystemURL : URL?
     {
-        return cachesURL()?.appendingPathComponent(self.lastPathComponent)
+        return self.lastPathComponent.fileSystemURL
     }
     
-    var downloaded : Bool
+    var exists : Bool
     {
         get {
             if let fileSystemURL = fileSystemURL {
@@ -342,7 +346,34 @@ extension URL
 
 extension Data
 {
-    var html2AttributedString: NSAttributedString? {
+    func save(to url: URL?)
+    {
+        guard let url = url else {
+            return
+        }
+        
+        do {
+            try self.write(to: url)
+        } catch let error {
+            NSLog("Data write error: \(url.absoluteString)",error.localizedDescription)
+        }
+    }
+    
+    var json : Any?
+    {
+        get {
+            do {
+                let json = try JSONSerialization.jsonObject(with: self, options: [])
+                return json
+            } catch let error {
+                NSLog("JSONSerialization error", error.localizedDescription)
+                return nil
+            }
+        }
+    }
+    
+    var html2AttributedString: NSAttributedString?
+    {
         do {
             return try NSAttributedString(data: self, options: [NSAttributedString.DocumentReadingOptionKey.documentType:NSAttributedString.DocumentType.html, NSAttributedString.DocumentReadingOptionKey.characterEncoding: String.Encoding.utf16.rawValue], documentAttributes: nil)
         } catch {
@@ -350,8 +381,12 @@ extension Data
             return  nil
         }
     }
-    var html2String: String? {
-        return html2AttributedString?.string
+    
+    var html2String: String?
+    {
+        get {
+            return html2AttributedString?.string
+        }
     }
 }
 
@@ -359,7 +394,8 @@ extension Date
 {
     //MARK: Date extension
     
-    init(dateString:String) {
+    init(dateString:String)
+    {
         let dateStringFormatter = DateFormatter()
         dateStringFormatter.dateFormat = "yyyy-MM-dd"
         dateStringFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -370,7 +406,8 @@ extension Date
         }
     }
     
-    var ymd : String {
+    var ymd : String
+    {
         get {
             let dateStringFormatter = DateFormatter()
             dateStringFormatter.dateFormat = "yyyy-MM-dd"
@@ -380,7 +417,8 @@ extension Date
         }
     }
     
-    var mdyhm : String {
+    var mdyhm : String
+    {
         get {
             let dateStringFormatter = DateFormatter()
             dateStringFormatter.dateFormat = "MMM d, yyyy 'at' h:mm a"
@@ -393,7 +431,8 @@ extension Date
         }
     }
     
-    var mdy : String {
+    var mdy : String
+    {
         get {
             let dateStringFormatter = DateFormatter()
             dateStringFormatter.dateFormat = "MMM d, yyyy"
@@ -403,7 +442,8 @@ extension Date
         }
     }
     
-    var year : String {
+    var year : String
+    {
         get {
             let dateStringFormatter = DateFormatter()
             dateStringFormatter.dateFormat = "yyyy"
@@ -413,7 +453,8 @@ extension Date
         }
     }
     
-    var month : String {
+    var month : String
+    {
         get {
             let dateStringFormatter = DateFormatter()
             dateStringFormatter.dateFormat = "MMM"
@@ -423,7 +464,8 @@ extension Date
         }
     }
     
-    var day : String {
+    var day : String
+    {
         get {
             let dateStringFormatter = DateFormatter()
             dateStringFormatter.dateFormat = "dd"

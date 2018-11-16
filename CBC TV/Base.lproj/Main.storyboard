@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.AppleTV.Storyboard" version="3.0" toolsVersion="14113" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="fjG-bv-b16">
+<document type="com.apple.InterfaceBuilder.AppleTV.Storyboard" version="3.0" toolsVersion="14460.31" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="fjG-bv-b16">
     <device id="appleTV" orientation="landscape">
         <adaptation id="light"/>
     </device>
     <dependencies>
         <deployment identifier="tvOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -300,6 +300,7 @@
                             <constraint firstItem="Njj-SO-XuV" firstAttribute="top" secondItem="XqE-jK-TLy" secondAttribute="bottom" id="cSN-oe-lOR"/>
                             <constraint firstItem="Elw-6g-g1A" firstAttribute="leading" secondItem="9de-v0-CO1" secondAttribute="leading" constant="5" id="wSt-eg-Qfu"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="g2E-0j-huh"/>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <navigationItem key="navigationItem" id="LDS-ad-wo4"/>
@@ -346,7 +347,7 @@
                                 <rect key="frame" x="60" y="60" width="574" height="90"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Category" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DJY-qx-JVa">
-                                        <rect key="frame" x="20" y="0.0" width="535" height="46"/>
+                                        <rect key="frame" x="20" y="0.0" width="534" height="46"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -455,6 +456,7 @@
                             <constraint firstItem="0Hz-rA-e0K" firstAttribute="leading" secondItem="gjB-Um-sSL" secondAttribute="leading" constant="60" id="vCV-Dj-Jrv"/>
                             <constraint firstAttribute="trailing" secondItem="0Hz-rA-e0K" secondAttribute="trailing" id="vVD-m7-fBG"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="zWP-bH-Fg3"/>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <navigationItem key="navigationItem" id="d69-A7-pka"/>
@@ -522,6 +524,7 @@
                             <constraint firstItem="bXy-ZR-g0s" firstAttribute="centerX" secondItem="ktu-bL-dU6" secondAttribute="centerX" id="2GZ-TY-Rwj"/>
                             <constraint firstItem="bXy-ZR-g0s" firstAttribute="centerY" secondItem="ktu-bL-dU6" secondAttribute="centerY" id="4Og-dH-kHh"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="utO-4w-eeL"/>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                 </viewController>
@@ -595,6 +598,7 @@ Web site: www.countrysidebible.org</string>
                             <constraint firstItem="cMc-vz-XHR" firstAttribute="trailing" secondItem="sgw-vW-0GC" secondAttribute="trailing" constant="8" id="ruf-Mg-4YY"/>
                             <constraint firstItem="AxF-Fs-nng" firstAttribute="top" secondItem="cMc-vz-XHR" secondAttribute="bottom" id="xPg-Zt-KoR"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="Esu-Cq-36a"/>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <navigationItem key="navigationItem" title="Countryside Bible Church" id="xcM-nh-nl6"/>
@@ -668,6 +672,7 @@ Web site: www.countrysidebible.org</string>
                             <constraint firstItem="xlW-AE-J6b" firstAttribute="centerX" secondItem="xCl-BI-6qm" secondAttribute="centerX" id="eVy-2k-pyM"/>
                             <constraint firstItem="Zhx-46-RsX" firstAttribute="top" secondItem="xlW-AE-J6b" secondAttribute="bottom" id="hSV-Az-Muh"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="FKM-V7-ayo"/>
                         <variation key="default">
                             <mask key="constraints">
                                 <exclude reference="3Rd-G0-IRj"/>
@@ -726,6 +731,7 @@ Web site: www.countrysidebible.org</string>
                             <constraint firstItem="nab-XD-WE3" firstAttribute="centerY" secondItem="FV0-Ip-cMl" secondAttribute="centerY" id="O0Z-0y-g8D"/>
                             <constraint firstItem="nab-XD-WE3" firstAttribute="centerX" secondItem="FV0-Ip-cMl" secondAttribute="centerX" id="gV6-Tw-A69"/>
                         </constraints>
+                        <viewLayoutGuide key="safeArea" id="o6a-Ru-FYB"/>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout" top="YES"/>
                     <navigationItem key="navigationItem" id="g7i-y5-lHC"/>

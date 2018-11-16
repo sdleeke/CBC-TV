@@ -538,11 +538,7 @@ class FetchCodable<T:Codable> : Fetch<T>
     var fileSystemURL : URL?
     {
         get {
-            guard let name = name?.replacingOccurrences(of: " ", with: "") else {
-                return nil
-            }
-
-            return cachesURL()?.appendingPathComponent(name)
+            return name?.fileSystemURL
         }
     }
 
