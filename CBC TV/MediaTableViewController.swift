@@ -733,7 +733,7 @@ class MediaTableViewController : UIViewController
         return nil
     }
     
-    lazy var operationQueue:OperationQueue! = {
+    lazy var jsonQueue:OperationQueue! = {
         let operationQueue = OperationQueue()
         operationQueue.name = "JSON"
         operationQueue.qualityOfService = .background
@@ -751,14 +751,14 @@ class MediaTableViewController : UIViewController
             // BLOCKS
             let data = urlString?.url?.data
             
-            operationQueue.addOperation {
+            jsonQueue.addOperation {
                 data?.save(to: filename?.fileSystemURL)
             }
             
             return data?.json
         }
         
-        operationQueue.addOperation {
+        jsonQueue.addOperation {
             urlString?.url?.data?.save(to: filename?.fileSystemURL)
         }
         
@@ -838,12 +838,25 @@ class MediaTableViewController : UIViewController
             Globals.shared.mediaCategory.dicts = mediaCategoryDicts
         }
     }
+
+    lazy var operationQueue : OperationQueue! = {
+        let operationQueue = OperationQueue()
+        operationQueue.name = "MCVC:" + UUID().uuidString
+        operationQueue.qualityOfService = .userInitiated
+        operationQueue.maxConcurrentOperationCount = 1 // Slides and Notes
+        return operationQueue
+    }()
     
     func loadMediaItems(completion: (() -> Void)?)
     {
         Globals.shared.isLoading = true
         
-        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+        operationQueue.cancelAllOperations()
+        
+        operationQueue.waitUntilAllOperationsAreFinished()
+        
+        let operation = CancellableOperation { (test:(()->(Bool))?) in
+//        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             self.setupCategory()
             self.setupTag()
             
@@ -939,7 +952,9 @@ class MediaTableViewController : UIViewController
                 
                 self.setupListActivityIndicator()
             }
-        })
+        }
+            
+        operationQueue.addOperation(operation)
     }
     
     func setupCategory()

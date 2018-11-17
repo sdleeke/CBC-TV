@@ -29,6 +29,7 @@
 		174E1A151ED084DA00D10AB5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 174E1A141ED084DA00D10AB5 /* Assets.xcassets */; };
 		174E1A201ED084DA00D10AB5 /* CBC_MediaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E1A1F1ED084DA00D10AB5 /* CBC_MediaTests.swift */; };
 		174E1A2B1ED084DA00D10AB5 /* CBC_MediaUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E1A2A1ED084DA00D10AB5 /* CBC_MediaUITests.swift */; };
+		17590CCC219F99EA00ED6EB1 /* CancellableOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17590CCB219F99EA00ED6EB1 /* CancellableOperation.swift */; };
 		179EFD571F55BDB600766AB1 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179EFD561F55BDB600766AB1 /* Section.swift */; };
 		17A035991FAF3F010098CEF3 /* LiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A035981FAF3F010098CEF3 /* LiveViewController.swift */; };
 		17B3ABE51ED8A2EC0086B9E7 /* MediaTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B3ABE41ED8A2EC0086B9E7 /* MediaTableViewController.swift */; };
@@ -92,6 +93,7 @@
 		174E1A261ED084DA00D10AB5 /* CBC TVUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "CBC TVUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		174E1A2A1ED084DA00D10AB5 /* CBC_MediaUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = CBC_MediaUITests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		174E1A2C1ED084DA00D10AB5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		17590CCB219F99EA00ED6EB1 /* CancellableOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CancellableOperation.swift; sourceTree = "<group>"; };
 		179EFD561F55BDB600766AB1 /* Section.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		17A035981FAF3F010098CEF3 /* LiveViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiveViewController.swift; sourceTree = "<group>"; };
 		17B3ABE41ED8A2EC0086B9E7 /* MediaTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaTableViewController.swift; sourceTree = "<group>"; };
@@ -165,6 +167,7 @@
 				17B8436221935D08007ABB68 /* FetchImage.swift */,
 				17B3ABEA1ED8A34E0086B9E7 /* Constants.swift */,
 				1731F6092171F85A00609DE6 /* Search.swift */,
+				17590CCB219F99EA00ED6EB1 /* CancellableOperation.swift */,
 				179EFD561F55BDB600766AB1 /* Section.swift */,
 				1731F6072171F83A00609DE6 /* StreamEntry.swift */,
 				1731F60D2171F8B300609DE6 /* Tags.swift */,
@@ -373,6 +376,7 @@
 				17B3ABF11ED8A35C0086B9E7 /* MediaItem.swift in Sources */,
 				17B3ABEB1ED8A34E0086B9E7 /* Globals.swift in Sources */,
 				1731F61C2171FCDA00609DE6 /* MediaItemSettings.swift in Sources */,
+				17590CCC219F99EA00ED6EB1 /* CancellableOperation.swift in Sources */,
 				1731F6142171F91300609DE6 /* SelectedMediaItem.swift in Sources */,
 				17B3ABF01ED8A35C0086B9E7 /* MediaListGroupSort.swift in Sources */,
 				17B8436321935D08007ABB68 /* FetchImage.swift in Sources */,
