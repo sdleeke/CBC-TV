@@ -82,27 +82,6 @@ extension Thread {
     }
 }
 
-extension String
-{
-    var url : URL?
-    {
-        get {
-            return URL(string: self)
-        }
-    }
-    
-    var fileSystemURL : URL?
-    {
-        get {
-            guard self != url?.lastPathComponent else {
-                return cachesURL?.appendingPathComponent(self.replacingOccurrences(of: " ", with: ""))
-            }
-            
-            return url?.fileSystemURL
-        }
-    }
-}
-
 extension Double {
     var secondsToHMS : String?
     {
@@ -246,7 +225,43 @@ extension String
     }
 }
 
-//fileprivate var queue = DispatchQueue(label: UUID().uuidString)
+extension String
+{
+    var url : URL?
+    {
+        get {
+            return URL(string: self)
+        }
+    }
+    
+    var fileSystemURL : URL?
+    {
+        get {
+            guard !self.isEmpty else {
+                return nil
+                
+            }
+            
+            guard url != nil else {
+                if let lastPathComponent = self.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlPathAllowed) {
+                    return cachesURL?.appendingPathComponent(lastPathComponent)
+                } else {
+                    return nil
+                }
+            }
+            
+            guard self != url?.lastPathComponent else {
+                if let lastPathComponent = self.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlPathAllowed) {
+                    return cachesURL?.appendingPathComponent(lastPathComponent)
+                } else {
+                    return nil
+                }
+            }
+            
+            return url?.fileSystemURL
+        }
+    }
+}
 
 extension URL
 {
@@ -269,7 +284,15 @@ extension URL
     var data : Data?
     {
         get {
-            return try? Data(contentsOf: self)
+            do {
+                let data = try Data(contentsOf: self)
+                print("Data read from \(self.absoluteString)")
+                return data
+            } catch let error {
+                NSLog(error.localizedDescription)
+                print("Data not read from \(self.absoluteString)")
+                return nil
+            }
         }
     }
     
@@ -304,43 +327,27 @@ extension URL
             }
             
             return UIImage(data: data)
-            
-//            guard let imageURL = fileSystemURL else {
-//                return nil
-//            }
-//            
-//            if Globals.shared.cacheDownloads, imageURL.downloaded, let image = UIImage(contentsOfFile: imageURL.path) {
-//                return image
-//            } else {
-//                guard let data = try? Data(contentsOf: self) else {
-//                    return nil
-//                }
-//                
-//                guard let image = UIImage(data: data) else {
-//                    return nil
-//                }
-//                
-//                if Globals.shared.cacheDownloads {
-//                    DispatchQueue.global(qos: .background).async {
-//                        queue.sync {
-//                            guard !imageURL.downloaded else {
-//                                return
-//                            }
-//                            
-//                            do {
-//                                try UIImageJPEGRepresentation(image, 1.0)?.write(to: imageURL, options: [.atomic])
-//                                print("Image \(self.lastPathComponent) saved to file system")
-//                            } catch let error as NSError {
-//                                NSLog(error.localizedDescription)
-//                                print("Image \(self.lastPathComponent) not saved to file system")
-//                            }
-//                        }
-//                    }
-//                }
-//                
-//                return image
-//            }
         }
+    }
+}
+
+extension UIImage
+{
+    func save(to url: URL?) -> UIImage?
+    {
+        guard let url = url else {
+            return nil
+        }
+        
+        do {
+            try UIImageJPEGRepresentation(self, 1.0)?.write(to: url, options: [.atomic])
+            print("Image saved to \(url.absoluteString)")
+        } catch let error {
+            NSLog(error.localizedDescription)
+            print("Image not saved to \(url.absoluteString)")
+        }
+        
+        return self
     }
 }
 
@@ -386,6 +393,13 @@ extension Data
     {
         get {
             return html2AttributedString?.string
+        }
+    }
+    
+    var image : UIImage?
+    {
+        get {
+            return UIImage(data: self)
         }
     }
 }
