@@ -76,6 +76,7 @@ class MediaCategory
         if allowSaveSettings {
             print("saveSettingsBackground")
             
+            // Should be an opQueue
             DispatchQueue.global(qos: .background).async {
                 self.saveSettings()
             }

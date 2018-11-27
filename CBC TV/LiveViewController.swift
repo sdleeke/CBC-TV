@@ -141,6 +141,7 @@ class LiveViewController: UIViewController
                 view.isHidden = false
             }
 
+            // For UI
             DispatchQueue.global(qos: .background).async {
                 Thread.sleep(forTimeInterval: 0.1)
                 Globals.shared.mediaPlayer.play()

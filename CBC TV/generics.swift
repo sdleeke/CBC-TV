@@ -200,12 +200,12 @@ class ThreadSafeArray<T>
 
     // Make it thread safe
     lazy var queue : DispatchQueue = {
-        return DispatchQueue(label: name)
+        return DispatchQueue(label: name ?? UUID().uuidString)
     }()
     
-    var name : String
+    var name : String?
     
-    init(name:String)
+    init(name:String? = nil)
     {
         self.name = name
     }
@@ -309,12 +309,12 @@ class ThreadSafeDictionary<T>
     
     // Make it thread safe
     lazy var queue : DispatchQueue = {
-        return DispatchQueue(label: name)
+        return DispatchQueue(label: name ?? UUID().uuidString)
     }()
     
-    var name : String
+    var name : String?
     
-    init(name:String)
+    init(name:String? =  nil)
     {
         self.name = name
     }
@@ -409,12 +409,12 @@ class ThreadSafeDictionaryOfDictionaries<T>
     
     // Make it thread safe
     lazy var queue : DispatchQueue = {
-        return DispatchQueue(label: name)
+        return DispatchQueue(label: name ?? UUID().uuidString)
     }()
     
-    var name : String
+    var name : String?
     
-    init(name:String)
+    init(name:String? = nil)
     {
         self.name = name
     }

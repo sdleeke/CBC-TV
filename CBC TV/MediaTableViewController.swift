@@ -295,6 +295,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                         
                         if Globals.shared.search.active && !Globals.shared.search.complete {
                             self.updateSearchResults(Globals.shared.search.text,completion: {
+                                // For UI
                                 DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
                                     Thread.onMainThread {
                                         self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.top)
@@ -305,6 +306,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                             // Reload the table
                             self.tableView.reloadData()
                             
+                            // For UI
                             DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
                                 Thread.onMainThread {
                                     self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.top)
@@ -334,6 +336,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                     
                     self.disableBarButtons()
                     
+                    // Should be an opQueue
                     DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
                         Globals.shared.setupDisplay(Globals.shared.media.active)
                         
@@ -371,6 +374,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                 
                 self.disableBarButtons()
                 
+                // Should be an opQueue
                 DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
                     Globals.shared.setupDisplay(Globals.shared.media.active)
                     
@@ -417,6 +421,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
             break
             
         case .selectingTags:
+            // Should be an opQueue
             DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
                 var new:Bool = false
                 
@@ -669,10 +674,12 @@ class MediaTableViewController : UIViewController
         selectedMediaItem = Globals.shared.selectedMediaItem.master
         
         //Without this background/main dispatching there isn't time to scroll after a reload.
+        // For UI
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             Thread.onMainThread {
                 self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle) // was Middle
 
+                // For UI
                 DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
                     Thread.onMainThread {
                         self.preferredFocusView = self.tableView
@@ -743,9 +750,10 @@ class MediaTableViewController : UIViewController
     
     func jsonFromURL(urlString:String?,filename:String?) -> Any?
     {
-        guard Globals.shared.reachability.isReachable else {
-            return nil
-        }
+        // DO NOT DO THIS AS IT STOPS THE FILE SYSTEM URLS IMMEDIATELY BELOW!
+//        guard Globals.shared.reachability.isReachable else {
+//            return nil
+//        }
         
         guard let json = filename?.fileSystemURL?.data?.json else {
             // BLOCKS
@@ -813,6 +821,7 @@ class MediaTableViewController : UIViewController
     
     func loadLive(completion:(()->(Void))?)
     {
+        // For UI
         DispatchQueue.global(qos: .background).async() {
             Thread.sleep(forTimeInterval: 0.25)
 
@@ -853,7 +862,7 @@ class MediaTableViewController : UIViewController
         
         operationQueue.cancelAllOperations()
         
-        operationQueue.waitUntilAllOperationsAreFinished()
+//        operationQueue.waitUntilAllOperationsAreFinished()
         
         let operation = CancellableOperation { (test:(()->(Bool))?) in
 //        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
@@ -1186,6 +1195,7 @@ class MediaTableViewController : UIViewController
         self.setupCategory()
         self.setupTag()
 
+        // Should be an opQueue
         DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             var searchMediaItems:[MediaItem]?
             
@@ -1679,6 +1689,7 @@ class MediaTableViewController : UIViewController
             
             if Globals.shared.search.active && !Globals.shared.search.complete { // && Globals.shared.search.transcripts
                 self.updateSearchResults(Globals.shared.search.text,completion: {
+                    // For UI
                     DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
                         Thread.onMainThread {
                             self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)
@@ -1689,6 +1700,7 @@ class MediaTableViewController : UIViewController
                 // Reload the table
                 self.tableView.reloadData()
                 
+                // For UI
                 DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
                     Thread.onMainThread {
                         self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableViewScrollPosition.middle)

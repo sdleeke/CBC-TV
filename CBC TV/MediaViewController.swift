@@ -920,6 +920,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             Globals.shared.mediaPlayer.playOnLoad = false
             
             // Just for the delay
+            // For UI
             DispatchQueue.global(qos: .background).async(execute: {
                 Thread.onMainThread {
                     Globals.shared.mediaPlayer.play()
@@ -996,6 +997,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         
         //Without this background/main dispatching there isn't time to scroll correctly after a reload.
         
+        // For UI
         DispatchQueue.global(qos: .background).async {
             Thread.onMainThread {
                 self.scrollToMediaItem(self.selectedMediaItem, select: true, position: UITableViewScrollPosition.none)
@@ -1424,6 +1426,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             startAnimating()
         }
 
+        // Should be an opQueue
         DispatchQueue.global(qos: .userInitiated).async {
             if let posterImage = self.selectedMediaItem?.posterImage.image {
                 Thread.onMainThread {
@@ -1566,6 +1569,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 self.startAnimating()
             }
             
+            // Should be an opQueue
             DispatchQueue.global(qos: .background).async {
                 guard let fileSystemURL = (selectedMediaItem.id + "." + "slides").fileSystemURL else {
                     return

@@ -326,6 +326,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         if allowSaveSettings {
             print("saveSettingsBackground")
             
+            // Should be an opQueue
             DispatchQueue.global(qos: .background).async {
                 self.saveSettings()
             }
