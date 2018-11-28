@@ -748,6 +748,11 @@ class MediaTableViewController : UIViewController
         return operationQueue
     }()
     
+    deinit {
+        jsonQueue.cancelAllOperations()
+        operationQueue.cancelAllOperations()
+    }
+    
     func jsonFromURL(urlString:String?,filename:String?) -> Any?
     {
         // DO NOT DO THIS AS IT STOPS THE FILE SYSTEM URLS IMMEDIATELY BELOW!
