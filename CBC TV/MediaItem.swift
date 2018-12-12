@@ -1301,7 +1301,7 @@ class MediaItem : NSObject
     } //Derived from scripture
     
     lazy var fullDate:Date? = { [weak self] in
-        if self.hasDate, let date = self?.date {
+        if self?.hasDate == true, let date = self?.date {
             return Date(dateString:date)
         } else {
             return nil
