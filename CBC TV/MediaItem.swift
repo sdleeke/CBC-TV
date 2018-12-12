@@ -66,8 +66,8 @@ class MediaItem : NSObject
 //        }
 //    }
 
-    lazy var posterImage = {
-        return FetchImage(url: self.posterImageURL)
+    lazy var posterImage:FetchImage? = { [weak self] in
+        return FetchImage(url: self?.posterImageURL)
     }()
     
     var hasSeriesImage : Bool
@@ -91,7 +91,7 @@ class MediaItem : NSObject
         return urlString.url
     }
     
-    lazy var seriesImage = {
+    lazy var seriesImage = { [weak self] in
         return FetchCachedImage(url: seriesImageURL)
     }()
     
@@ -1300,9 +1300,8 @@ class MediaItem : NSObject
         }
     } //Derived from scripture
     
-    lazy var fullDate:Date? = {
-        [unowned self] in
-        if self.hasDate, let date = self.date {
+    lazy var fullDate:Date? = { [weak self] in
+        if self.hasDate, let date = self?.date {
             return Date(dateString:date)
         } else {
             return nil
@@ -1392,13 +1391,11 @@ class MediaItem : NSObject
         return mediaItemString
     }
     
-    lazy var mediaItemSettings:MediaItemSettings? = {
-        [unowned self] in
+    lazy var mediaItemSettings:MediaItemSettings? = { [weak self] in
         return MediaItemSettings(mediaItem:self)
     }()
         
-    lazy var multiPartSettings:MultiPartSettings? = {
-        [unowned self] in
+    lazy var multiPartSettings:MultiPartSettings? = { [weak self] in
         return MultiPartSettings(mediaItem:self)
     }()
     

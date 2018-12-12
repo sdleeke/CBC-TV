@@ -199,7 +199,7 @@ class ThreadSafeArray<T>
     }
 
     // Make it thread safe
-    lazy var queue : DispatchQueue = {
+    lazy var queue : DispatchQueue = { [weak self] in
         return DispatchQueue(label: name ?? UUID().uuidString)
     }()
     
@@ -308,7 +308,7 @@ class ThreadSafeDictionary<T>
     }
     
     // Make it thread safe
-    lazy var queue : DispatchQueue = {
+    lazy var queue : DispatchQueue = { [weak self] in
         return DispatchQueue(label: name ?? UUID().uuidString)
     }()
     
@@ -408,7 +408,7 @@ class ThreadSafeDictionaryOfDictionaries<T>
     }
     
     // Make it thread safe
-    lazy var queue : DispatchQueue = {
+    lazy var queue : DispatchQueue = { [weak self] in
         return DispatchQueue(label: name ?? UUID().uuidString)
     }()
     

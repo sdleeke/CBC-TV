@@ -1428,7 +1428,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 
         // Should be an opQueue
         DispatchQueue.global(qos: .userInitiated).async {
-            if let posterImage = self.selectedMediaItem?.posterImage.image {
+            if let posterImage = self.selectedMediaItem?.posterImage?.image {
                 Thread.onMainThread {
                     imageView.image = posterImage
                     

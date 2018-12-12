@@ -358,8 +358,7 @@ class MediaListGroupSort
         }
     }
     
-    lazy var section:Section? = {
-        [unowned self] in
+    lazy var section:Section? = { [weak self] in
         return Section(self)
     }()
     
