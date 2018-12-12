@@ -109,7 +109,7 @@ class FetchImage
         }
     }
     
-    lazy var fetch:Fetch<UIImage> = {
+    lazy var fetch:Fetch<UIImage> = { [unowned self] in // THIS IS VITAL TO PREVENT A MEMORY LEAK
         let fetch = Fetch<UIImage>(name:imageName)
         
         fetch.store = { (image:UIImage?) in
