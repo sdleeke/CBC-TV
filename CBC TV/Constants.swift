@@ -115,7 +115,7 @@ enum SORTING {
 }
 
 enum Constants {
-    static let states = [UIControlState.normal, UIControlState.disabled, UIControlState.selected, UIControlState.highlighted, UIControlState.focused]
+    static let states = [UIControl.State.normal, UIControl.State.disabled, UIControl.State.selected, UIControl.State.highlighted, UIControl.State.focused]
     
     enum JSON {
         static let MEDIA_PATH = "media-mini" //
@@ -332,6 +332,8 @@ enum Constants {
     static let Constant_Tags:Set = [Constants.Strings.Video,Constants.Strings.Slides,Constants.Strings.Transcript,Constants.Strings.Lexicon]
     
     enum Strings {
+        static let None                 = "None"
+
         static let Live                 = "Live"
         static let Category             = "Category"
         static let Series               = "Series"
@@ -341,6 +343,10 @@ enum Constants {
         static let Next_Slide           = "Next Slide"
         static let Hide_Slides          = "Hide Slides"
         static let Show_Slides          = "Show Slides"
+        static let Current_Selection    = "Current Selection"
+        static let Library              = "Library"
+        static let About                = "About"
+        static let Refresh_Media        = "Refresh Media"
 
         static let Email_CBC = "E-mail " + CBC.SHORT
         static let CBC_WebSite = CBC.SHORT + " Website"
@@ -574,58 +580,58 @@ enum Constants {
     }
     
     enum Fonts {
-        static let body = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)
+        static let body = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body)
         
-        static let headline = UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline)
+        static let headline = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.headline)
         
-        static let footnote = UIFont.preferredFont(forTextStyle: UIFontTextStyle.footnote)
+        static let footnote = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.footnote)
 
-        static let caption1 = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption1)
+        static let caption1 = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.caption1)
         
-        static let caption2 = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption2)
+        static let caption2 = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.caption2)
 
-        static let title1 = UIFont.preferredFont(forTextStyle: UIFontTextStyle.title1)
+        static let title1 = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.title1)
 
-        static let title2 = UIFont.preferredFont(forTextStyle: UIFontTextStyle.title2)
+        static let title2 = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.title2)
 
-        static let title3 = UIFont.preferredFont(forTextStyle: UIFontTextStyle.title3)
+        static let title3 = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.title3)
 
         enum Attributes {
-            static let body = [ NSAttributedStringKey.font: Fonts.body ]
+            static let body = [ NSAttributedString.Key.font: Fonts.body ]
             
-            static let headline = [ NSAttributedStringKey.font: Fonts.headline ]
+            static let headline = [ NSAttributedString.Key.font: Fonts.headline ]
             
-            static let footnote = [ NSAttributedStringKey.font: Fonts.footnote ]
+            static let footnote = [ NSAttributedString.Key.font: Fonts.footnote ]
             
-            static let caption1 = [ NSAttributedStringKey.font: Fonts.caption1 ]
+            static let caption1 = [ NSAttributedString.Key.font: Fonts.caption1 ]
             
-            static let caption2 = [ NSAttributedStringKey.font: Fonts.caption2 ]
+            static let caption2 = [ NSAttributedString.Key.font: Fonts.caption2 ]
             
-            static let title3 = [ NSAttributedStringKey.font: Fonts.title3 ]
+            static let title3 = [ NSAttributedString.Key.font: Fonts.title3 ]
             
-            static let headlineGrey = [ NSAttributedStringKey.foregroundColor: UIColor.gray,
-                                    NSAttributedStringKey.font: Fonts.headline ]
+            static let headlineGrey = [ NSAttributedString.Key.foregroundColor: UIColor.gray,
+                                    NSAttributedString.Key.font: Fonts.headline ]
             
-            static let title3Grey = [ NSAttributedStringKey.foregroundColor: UIColor.gray,
-                                     NSAttributedStringKey.font: Fonts.title3 ]
+            static let title3Grey = [ NSAttributedString.Key.foregroundColor: UIColor.gray,
+                                     NSAttributedString.Key.font: Fonts.title3 ]
             
-            static let bodyHighlighted = [ NSAttributedStringKey.backgroundColor: UIColor.yellow,
-                                           NSAttributedStringKey.font: Fonts.body ]
+            static let bodyHighlighted = [ NSAttributedString.Key.backgroundColor: UIColor.yellow,
+                                           NSAttributedString.Key.font: Fonts.body ]
             
-            static let footnoteHighlighted = [ NSAttributedStringKey.backgroundColor: UIColor.yellow,
-                                           NSAttributedStringKey.font: Fonts.footnote ]
+            static let footnoteHighlighted = [ NSAttributedString.Key.backgroundColor: UIColor.yellow,
+                                           NSAttributedString.Key.font: Fonts.footnote ]
             
-            static let headlineHighlighted = [ NSAttributedStringKey.backgroundColor: UIColor.yellow,
-                                               NSAttributedStringKey.font: Fonts.headline ]
+            static let headlineHighlighted = [ NSAttributedString.Key.backgroundColor: UIColor.yellow,
+                                               NSAttributedString.Key.font: Fonts.headline ]
             
-            static let title3Highlighted = [ NSAttributedStringKey.backgroundColor: UIColor.yellow,
-                                               NSAttributedStringKey.font: Fonts.title3 ]
+            static let title3Highlighted = [ NSAttributedString.Key.backgroundColor: UIColor.yellow,
+                                               NSAttributedString.Key.font: Fonts.title3 ]
             
-            static let caption1Highlighted = [ NSAttributedStringKey.backgroundColor: UIColor.yellow,
-                                               NSAttributedStringKey.font: Fonts.caption1 ]
+            static let caption1Highlighted = [ NSAttributedString.Key.backgroundColor: UIColor.yellow,
+                                               NSAttributedString.Key.font: Fonts.caption1 ]
             
-            static let caption2Highlighted = [ NSAttributedStringKey.backgroundColor: UIColor.yellow,
-                                               NSAttributedStringKey.font: Fonts.caption2 ]
+            static let caption2Highlighted = [ NSAttributedString.Key.backgroundColor: UIColor.yellow,
+                                               NSAttributedString.Key.font: Fonts.caption2 ]
         }
     }
     
@@ -639,17 +645,17 @@ enum Constants {
             static let download = UIFont(name: "FontAwesome", size: DOWNLOAD_FONT_SIZE) ?? UIFont()
             
             enum Attributes {
-                static let icons = [ NSAttributedStringKey.font: Fonts.icons ]
+                static let icons = [ NSAttributedString.Key.font: Fonts.icons ]
                 
-                static let highlightedIcons = [ NSAttributedStringKey.backgroundColor: UIColor.yellow,
-                                                NSAttributedStringKey.font: Fonts.icons ]
+                static let highlightedIcons = [ NSAttributedString.Key.backgroundColor: UIColor.yellow,
+                                                NSAttributedString.Key.font: Fonts.icons ]
                 
-                static let tags = [ NSAttributedStringKey.font: Fonts.tags ]
+                static let tags = [ NSAttributedString.Key.font: Fonts.tags ]
                 
-                static let show = [ NSAttributedStringKey.foregroundColor: UIColor.white,
-                                    NSAttributedStringKey.font: Fonts.show ]
+                static let show = [ NSAttributedString.Key.foregroundColor: UIColor.white,
+                                    NSAttributedString.Key.font: Fonts.show ]
                 
-                static let download = [ NSAttributedStringKey.font: Fonts.download ]
+                static let download = [ NSAttributedString.Key.font: Fonts.download ]
             }
         }
 

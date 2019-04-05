@@ -47,23 +47,50 @@ func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
     }
 }
 
-class Shadowed<T>
+class Default<T>
 {
-    var _backingStore : T?
-    
-    var get : (()->(T))?
+    var _value : T?
+    {
+        didSet {
+            
+        }
+    }
     
     var value : T?
     {
-        guard _backingStore == nil else {
-            return _backingStore
+        get {
+            return _value ?? defaultValue?()
         }
-        
-        _backingStore = get?()
-        
-        return _backingStore
+        set {
+            _value = newValue
+        }
+    }
+    
+    var defaultValue : (()->T?)?
+    
+    init(_ defaultValue:(()->T?)? = nil)
+    {
+        self.defaultValue = defaultValue
     }
 }
+
+//class Shadowed<T>
+//{
+//    var _backingStore : T?
+//
+//    var get : (()->(T))?
+//
+//    var value : T?
+//    {
+//        guard _backingStore == nil else {
+//            return _backingStore
+//        }
+//
+//        _backingStore = get?()
+//
+//        return _backingStore
+//    }
+//}
 
 class BoundsCheckedArray<T>
 {

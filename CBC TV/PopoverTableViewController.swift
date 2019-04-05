@@ -47,7 +47,9 @@ class PopoverTableViewController : UIViewController
     var shouldSelect:((IndexPath)->Bool)?
     var didSelect:((IndexPath)->Void)?
     
-    var indexStringsTransform:((String?)->String?)? = stringWithoutPrefixes {
+    var indexStringsTransform:((String?)->String?)? =  { (string:String?) in
+        return string?.withoutPrefixes
+    } {
         willSet {
             
         }
@@ -132,7 +134,7 @@ class PopoverTableViewController : UIViewController
         //This makes accurate scrolling to sections impossible but since we don't use scrollToRowAtIndexPath with
         //the popover, this makes multi-line rows possible.
         tableView.estimatedRowHeight = tableView.rowHeight
-        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
 
         tableView.allowsSelection = allowsSelection
         tableView.allowsMultipleSelection = allowsMultipleSelection
@@ -157,7 +159,7 @@ class PopoverTableViewController : UIViewController
         
         selectedText = string
         
-        if let selectedText = selectedText,  let index = section.strings?.index(where: { (string:String) -> Bool in
+        if let selectedText = selectedText,  let index = section.strings?.firstIndex(where: { (string:String) -> Bool in
             if let range = string.range(of: " (") {
                 return selectedText.uppercased() == String(string[..<range.lowerBound]).uppercased()
             } else {
@@ -186,14 +188,14 @@ class PopoverTableViewController : UIViewController
                                 self.tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
                             }
                         } else {
-                            userAlert(title:"String not found!",message:"THIS SHOULD NOT HAPPEN.")
+                            Globals.shared.userAlert(title:"String not found!",message:"THIS SHOULD NOT HAPPEN.")
                         }
                     }
                 }
             }
         } else {
             if let selectedText = selectedText {
-                userAlert(title:"String not found!",message:"Search is active and the string \(selectedText) is not in the results.")
+                Globals.shared.userAlert(title:"String not found!",message:"Search is active and the string \(selectedText) is not in the results.")
             }
         }
     }
@@ -303,7 +305,7 @@ class PopoverTableViewController : UIViewController
     
     func addNotifications()
     {
-        NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: UIApplication.willResignActiveNotification, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool)
@@ -525,7 +527,7 @@ extension PopoverTableViewController : UITableViewDataSource
             
             switch showing {
             case Constants.TAGGED:
-                if let tagsArray = tagsArrayFromTagsString(Globals.shared.media.tags.selected), tagsArray.index(of: string) != nil {
+                if let tagsArray = Globals.shared.media.tags.selected?.tagsArray, tagsArray.firstIndex(of: string) != nil {
                     cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headlineGrey)
                 } else {
                     cell.title.attributedText = NSAttributedString(string: string, attributes: Constants.Fonts.Attributes.headline)

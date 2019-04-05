@@ -270,8 +270,8 @@ class MediaPlayer : NSObject
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_LOAD), object: nil)
         }
         
-        if (UIApplication.shared.applicationState == UIApplicationState.active) {
-            alert(title: "Failed to Load Content", message: "Please check your network connection and try again.")
+        if (UIApplication.shared.applicationState == UIApplication.State.active) {
+            Globals.shared.alert(title: "Failed to Load Content", message: "Please check your network connection and try again.")
         }
     }
     
@@ -283,8 +283,8 @@ class MediaPlayer : NSObject
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: Constants.NOTIFICATION.FAILED_TO_PLAY), object: nil)
         }
         
-        if (UIApplication.shared.applicationState == UIApplicationState.active) {
-            alert(title: "Unable to Play Content", message: "Please check your network connection and try again.")
+        if (UIApplication.shared.applicationState == UIApplication.State.active) {
+            Globals.shared.alert(title: "Unable to Play Content", message: "Please check your network connection and try again.")
         }
     }
     
@@ -304,7 +304,7 @@ class MediaPlayer : NSObject
         
         if keyPath == #keyPath(AVPlayer.timeControlStatus) {
             if  let statusNumber = change?[.newKey] as? NSNumber,
-                let status = AVPlayerTimeControlStatus(rawValue: statusNumber.intValue) {
+                let status = AVPlayer.TimeControlStatus(rawValue: statusNumber.intValue) {
                 switch status {
                 case .waitingToPlayAtSpecifiedRate:
                     print("KVO:waitingToPlayAtSpecifiedRate")
@@ -376,15 +376,18 @@ class MediaPlayer : NSObject
                         print("WHAT???")
                     }
                     break
+                    
+                @unknown default:
+                    break
                 }
             }
         }
         
         if keyPath == #keyPath(AVPlayerItem.status) {
-            let status: AVPlayerItemStatus
+            let status: AVPlayerItem.Status
             
             // Get the status change from the change dictionary
-            if let statusNumber = change?[.newKey] as? NSNumber, let itemStatus = AVPlayerItemStatus(rawValue: statusNumber.intValue) {
+            if let statusNumber = change?[.newKey] as? NSNumber, let itemStatus = AVPlayerItem.Status(rawValue: statusNumber.intValue) {
                 status = itemStatus
             } else {
                 status = .unknown
@@ -437,6 +440,9 @@ class MediaPlayer : NSObject
                     // Fallback on earlier versions
                 }
                 break
+                
+            @unknown default:
+                break
             }
         }
     }
@@ -488,7 +494,7 @@ class MediaPlayer : NSObject
         mediaItem?.atEnd = true
         
         if Globals.shared.autoAdvance, let mediaItem = mediaItem, mediaItem.playing == Playing.audio, mediaItem.atEnd, mediaItem.multiPartMediaItems?.count > 1,
-            let mediaItems = mediaItem.multiPartMediaItems, let index = mediaItems.index(of: mediaItem), index < (mediaItems.count - 1) {
+            let mediaItems = mediaItem.multiPartMediaItems, let index = mediaItems.firstIndex(of: mediaItem), index < (mediaItems.count - 1) {
             let nextMediaItem = mediaItems[index + 1]
             
             nextMediaItem.playing = Playing.audio
@@ -611,7 +617,7 @@ class MediaPlayer : NSObject
         observerActive = true
         observedItem = currentItem
         
-        playerTimerReturn = player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1,Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { (time:CMTime) in // [weak self]
+        playerTimerReturn = player?.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1,preferredTimescale: Constants.CMTime_Resolution), queue: DispatchQueue.main, using: { (time:CMTime) in // [weak self]
             self.playerTimer()
         })
         
@@ -710,7 +716,7 @@ class MediaPlayer : NSObject
     func stop()
     {
         guard Thread.isMainThread else {
-            userAlert(title: "Not Main Thread", message: "MediaPlayer:stop")
+            Globals.shared.userAlert(title: "Not Main Thread", message: "MediaPlayer:stop")
             return
         }
 
@@ -837,7 +843,7 @@ class MediaPlayer : NSObject
                     seek = 0
                 }
                 
-                player?.seek(to: CMTimeMakeWithSeconds(seek,Constants.CMTime_Resolution), toleranceBefore: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution), toleranceAfter: CMTimeMakeWithSeconds(0,Constants.CMTime_Resolution),
+                player?.seek(to: CMTimeMakeWithSeconds(seek,preferredTimescale: Constants.CMTime_Resolution), toleranceBefore: CMTimeMakeWithSeconds(0,preferredTimescale: Constants.CMTime_Resolution), toleranceAfter: CMTimeMakeWithSeconds(0,preferredTimescale: Constants.CMTime_Resolution),
                              completionHandler: { (finished:Bool) in
                                 if finished {
                                     Thread.onMainThread { () -> (Void) in
@@ -1011,7 +1017,7 @@ class MediaPlayer : NSObject
                 nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = mediaItem.multiPartName
                 nowPlayingInfo[MPMediaItemPropertyAlbumArtist] = mediaItem.speaker
                 
-                if let index = mediaItem.multiPartMediaItems?.index(of: mediaItem) {
+                if let index = mediaItem.multiPartMediaItems?.firstIndex(of: mediaItem) {
                     nowPlayingInfo[MPMediaItemPropertyAlbumTrackNumber]  = index + 1
                 } else {
                     print(mediaItem as Any," not found in ",mediaItem.multiPartMediaItems as Any)

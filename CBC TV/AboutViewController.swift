@@ -54,7 +54,7 @@ class AboutViewController: UIViewController
                 let mkPlacemark = MKPlacemark(coordinate: coordinates, addressDictionary: nil)
                 self.item = MKMapItem(placemark: mkPlacemark)
                 
-                let viewRegion = MKCoordinateRegionMakeWithDistance(coordinates, 50000, 50000)
+                let viewRegion = MKCoordinateRegion(center: coordinates, latitudinalMeters: 50000, longitudinalMeters: 50000)
                 if let adjustedRegion = self.mapView?.regionThatFits(viewRegion) {
                     self.mapView?.setRegion(adjustedRegion, animated: false)
                 }

@@ -27,8 +27,8 @@
 		174E1A0C1ED084DA00D10AB5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E1A0B1ED084DA00D10AB5 /* AppDelegate.swift */; };
 		174E1A131ED084DA00D10AB5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 174E1A111ED084DA00D10AB5 /* Main.storyboard */; };
 		174E1A151ED084DA00D10AB5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 174E1A141ED084DA00D10AB5 /* Assets.xcassets */; };
-		174E1A201ED084DA00D10AB5 /* CBC_MediaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E1A1F1ED084DA00D10AB5 /* CBC_MediaTests.swift */; };
-		174E1A2B1ED084DA00D10AB5 /* CBC_MediaUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E1A2A1ED084DA00D10AB5 /* CBC_MediaUITests.swift */; };
+		174E1A201ED084DA00D10AB5 /* CBC_TVTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E1A1F1ED084DA00D10AB5 /* CBC_TVTests.swift */; };
+		174E1A2B1ED084DA00D10AB5 /* CBC_TVUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E1A2A1ED084DA00D10AB5 /* CBC_TVUITests.swift */; };
 		17590CCC219F99EA00ED6EB1 /* CancellableOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17590CCB219F99EA00ED6EB1 /* CancellableOperation.swift */; };
 		179EFD571F55BDB600766AB1 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179EFD561F55BDB600766AB1 /* Section.swift */; };
 		17A035991FAF3F010098CEF3 /* LiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A035981FAF3F010098CEF3 /* LiveViewController.swift */; };
@@ -88,10 +88,10 @@
 		174E1A141ED084DA00D10AB5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		174E1A161ED084DA00D10AB5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		174E1A1B1ED084DA00D10AB5 /* CBC TVTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "CBC TVTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		174E1A1F1ED084DA00D10AB5 /* CBC_MediaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = CBC_MediaTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		174E1A1F1ED084DA00D10AB5 /* CBC_TVTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = CBC_TVTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		174E1A211ED084DA00D10AB5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		174E1A261ED084DA00D10AB5 /* CBC TVUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "CBC TVUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		174E1A2A1ED084DA00D10AB5 /* CBC_MediaUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = CBC_MediaUITests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		174E1A2A1ED084DA00D10AB5 /* CBC_TVUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = CBC_TVUITests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		174E1A2C1ED084DA00D10AB5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		17590CCB219F99EA00ED6EB1 /* CancellableOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CancellableOperation.swift; sourceTree = "<group>"; };
 		179EFD561F55BDB600766AB1 /* Section.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
@@ -161,9 +161,9 @@
 			children = (
 				174E1A0B1ED084DA00D10AB5 /* AppDelegate.swift */,
 				17B3ABE81ED8A34E0086B9E7 /* Globals.swift */,
-				17B3ABFA1ED8AF870086B9E7 /* functions.swift */,
-				1731F6052171F6EC00609DE6 /* extensions.swift */,
 				17B8436421935D67007ABB68 /* generics.swift */,
+				1731F6052171F6EC00609DE6 /* extensions.swift */,
+				17B3ABFA1ED8AF870086B9E7 /* functions.swift */,
 				17B8436221935D08007ABB68 /* FetchImage.swift */,
 				17B3ABEA1ED8A34E0086B9E7 /* Constants.swift */,
 				1731F6092171F85A00609DE6 /* Search.swift */,
@@ -203,7 +203,7 @@
 		174E1A1E1ED084DA00D10AB5 /* CBC TVTests */ = {
 			isa = PBXGroup;
 			children = (
-				174E1A1F1ED084DA00D10AB5 /* CBC_MediaTests.swift */,
+				174E1A1F1ED084DA00D10AB5 /* CBC_TVTests.swift */,
 				174E1A211ED084DA00D10AB5 /* Info.plist */,
 			);
 			path = "CBC TVTests";
@@ -212,7 +212,7 @@
 		174E1A291ED084DA00D10AB5 /* CBC TVUITests */ = {
 			isa = PBXGroup;
 			children = (
-				174E1A2A1ED084DA00D10AB5 /* CBC_MediaUITests.swift */,
+				174E1A2A1ED084DA00D10AB5 /* CBC_TVUITests.swift */,
 				174E1A2C1ED084DA00D10AB5 /* Info.plist */,
 			);
 			path = "CBC TVUITests";
@@ -281,7 +281,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0830;
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = "Steve Leeke";
 				TargetAttributes = {
 					174E1A071ED084DA00D10AB5 = {
@@ -313,7 +313,7 @@
 			};
 			buildConfigurationList = 174E1A031ED084DA00D10AB5 /* Build configuration list for PBXProject "CBC TV" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -403,7 +403,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				174E1A201ED084DA00D10AB5 /* CBC_MediaTests.swift in Sources */,
+				174E1A201ED084DA00D10AB5 /* CBC_TVTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -411,7 +411,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				174E1A2B1ED084DA00D10AB5 /* CBC_MediaUITests.swift in Sources */,
+				174E1A2B1ED084DA00D10AB5 /* CBC_TVUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -446,6 +446,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -504,6 +505,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -562,7 +564,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-TV";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TVOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Debug;
@@ -578,7 +580,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-TV";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TVOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
@@ -589,12 +591,12 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = 8975UQUKKK;
-				INFOPLIST_FILE = "CBC MediaTests/Info.plist";
+				INFOPLIST_FILE = "CBC TVTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-MediaTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-TVTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CBC TV.app/CBC TV";
 			};
 			name = Debug;
@@ -605,12 +607,12 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = 8975UQUKKK;
-				INFOPLIST_FILE = "CBC MediaTests/Info.plist";
+				INFOPLIST_FILE = "CBC TVTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-MediaTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-TVTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CBC TV.app/CBC TV";
 			};
 			name = Release;
@@ -620,12 +622,12 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = 8975UQUKKK;
-				INFOPLIST_FILE = "CBC MediaUITests/Info.plist";
+				INFOPLIST_FILE = "CBC TVUITests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-MediaUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-TVUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = "CBC Media";
 			};
 			name = Debug;
@@ -635,12 +637,12 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = 8975UQUKKK;
-				INFOPLIST_FILE = "CBC MediaUITests/Info.plist";
+				INFOPLIST_FILE = "CBC TVUITests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-MediaUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-TVUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = "CBC Media";
 			};
 			name = Release;

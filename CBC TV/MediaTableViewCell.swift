@@ -20,7 +20,7 @@ class MediaTableViewCell: UITableViewCell
     func hideUI()
     {
         guard Thread.isMainThread else {
-            userAlert(title: "Not Main Thread", message: "MediaTableViewCell:hideUI")
+            Globals.shared.userAlert(title: "Not Main Thread", message: "MediaTableViewCell:hideUI")
             return
         }
         
@@ -30,7 +30,7 @@ class MediaTableViewCell: UITableViewCell
     func isHiddenUI(_ state:Bool)
     {
         guard Thread.isMainThread else {
-            userAlert(title: "Not Main Thread", message: "MediaTableViewCell:isHiddenUI")
+            Globals.shared.userAlert(title: "Not Main Thread", message: "MediaTableViewCell:isHiddenUI")
             return
         }
         
@@ -119,7 +119,7 @@ class MediaTableViewCell: UITableViewCell
     @objc func updateUI()
     {
         guard Thread.isMainThread else {
-            userAlert(title: "Not Main Thread", message: "MediaTableViewCell:updateUI")
+            Globals.shared.userAlert(title: "Not Main Thread", message: "MediaTableViewCell:updateUI")
             return
         }
         
@@ -174,7 +174,7 @@ class MediaTableViewCell: UITableViewCell
     func setupIcons()
     {
         guard Thread.isMainThread else {
-            userAlert(title: "Not Main Thread", message: "MediaTableViewCell:setupIcons")
+            Globals.shared.userAlert(title: "Not Main Thread", message: "MediaTableViewCell:setupIcons")
             return
         }
         

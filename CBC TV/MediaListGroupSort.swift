@@ -241,7 +241,7 @@ class MediaListGroupSort
                     groupSort?[grouping]?[string] = [String:[MediaItem]]()
                 }
                 for sort in Constants.sortings {
-                    let array = sortMediaItemsChronologically(groupedMediaItems[grouping]?[string])
+                    let array = groupedMediaItems[grouping]?[string]?.sortChronologically
                     
                     switch sort {
                     case SORTING.CHRONOLOGICAL:
@@ -298,10 +298,10 @@ class MediaListGroupSort
                         break
                         
                     case GROUPING.BOOK:
-                        if (bookNumberInBible($0) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) && (bookNumberInBible($1) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) {
+                        if ($0.bookNumberInBible == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) && ($1.bookNumberInBible == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) {
                             return $0.withoutPrefixes < $1.withoutPrefixes
                         } else {
-                            return bookNumberInBible($0) < bookNumberInBible($1)
+                            return $0.bookNumberInBible < $1.bookNumberInBible
                         }
                         
                     default:
@@ -388,10 +388,10 @@ class MediaListGroupSort
                 break
                 
             case GROUPING.BOOK:
-                if (bookNumberInBible($0) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) && (bookNumberInBible($1) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) {
+                if ($0.bookNumberInBible == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) && ($1.bookNumberInBible == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) {
                     return $0.withoutPrefixes < $1.withoutPrefixes
                 } else {
-                    return bookNumberInBible($0) < bookNumberInBible($1)
+                    return $0.bookNumberInBible < $1.bookNumberInBible
                 }
                 
             default:
@@ -447,10 +447,10 @@ class MediaListGroupSort
                 break
                 
             case GROUPING.BOOK:
-                if (bookNumberInBible($0) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) && (bookNumberInBible($1) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) {
+                if ($0.bookNumberInBible == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) && ($1.bookNumberInBible == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) {
                     return $0.withoutPrefixes < $1.withoutPrefixes
                 } else {
-                    return bookNumberInBible($0) < bookNumberInBible($1)
+                    return $0.bookNumberInBible < $1.bookNumberInBible
                 }
                 
             default:
@@ -502,10 +502,10 @@ class MediaListGroupSort
                 break
                 
             case GROUPING.BOOK:
-                if (bookNumberInBible($0) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) && (bookNumberInBible($1) == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) {
+                if ($0.bookNumberInBible == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) && ($1.bookNumberInBible == Constants.NOT_IN_THE_BOOKS_OF_THE_BIBLE) {
                     return $0.withoutPrefixes < $1.withoutPrefixes
                 } else {
-                    return bookNumberInBible($0) < bookNumberInBible($1)
+                    return $0.bookNumberInBible < $1.bookNumberInBible
                 }
                 
             default:

@@ -194,7 +194,33 @@ class MediaItem : NSObject
             }
         }
     }
-    
+
+//    var multiPartMediaItems : [MediaItem]?
+//    {
+//        guard let mediaItem = mediaItem else {
+//            return nil
+//        }
+//        
+//        var multiPartMediaItems:[MediaItem]?
+//        
+//        if mediaItem.hasMultipleParts, let multiPartSort = mediaItem.multiPartSort {
+//            if (Globals.shared.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL] == nil) {
+//                let seriesMediaItems = Globals.shared.mediaRepository.list?.filter({ (testMediaItem:MediaItem) -> Bool in
+//                    return mediaItem.hasMultipleParts ? (testMediaItem.multiPartName == mediaItem.multiPartName) : (testMediaItem.id == mediaItem.id)
+//                })
+//                multiPartMediaItems = sortMediaItemsByYear(seriesMediaItems, sorting: SORTING.CHRONOLOGICAL)
+//            } else {
+//                if let multiPartSort = mediaItem.multiPartSort {
+//                    multiPartMediaItems = Globals.shared.media.all?.groupSort?[GROUPING.TITLE]?[multiPartSort]?[SORTING.CHRONOLOGICAL]
+//                }
+//            }
+//        } else {
+//            multiPartMediaItems = [mediaItem]
+//        }
+//        
+//        return multiPartMediaItems
+//    }
+
     var multiPartMediaItems:[MediaItem]?
     {
         get {
@@ -220,17 +246,17 @@ class MediaItem : NSObject
             // Filter for conference series
             
             if conferenceCode != nil {
-                mediaItemParts = sortMediaItemsByYear(mediaItemParts?.filter({ (testMediaItem:MediaItem) -> Bool in
+                mediaItemParts = mediaItemParts?.filter({ (testMediaItem:MediaItem) -> Bool in
                     return testMediaItem.conferenceCode == conferenceCode
-                }),sorting: SORTING.CHRONOLOGICAL)
+                }).sortByYear(sorting: SORTING.CHRONOLOGICAL)
             } else {
                 if hasClassName {
-                    mediaItemParts = sortMediaItemsByYear(mediaItemParts?.filter({ (testMediaItem:MediaItem) -> Bool in
+                    mediaItemParts = mediaItemParts?.filter({ (testMediaItem:MediaItem) -> Bool in
                         //                        print(classCode,testMediaItem.classCode)
                         return testMediaItem.classCode == classCode
-                    }),sorting: SORTING.CHRONOLOGICAL)
+                    }).sortByYear(sorting: SORTING.CHRONOLOGICAL)
                 } else {
-                    mediaItemParts = sortMediaItemsByYear(mediaItemParts,sorting: SORTING.CHRONOLOGICAL)
+                    mediaItemParts = mediaItemParts?.sortByYear(sorting: SORTING.CHRONOLOGICAL)
                 }
             }
             
@@ -283,7 +309,7 @@ class MediaItem : NSObject
             array.append(contentsOf: books)
         }
         
-        if let titleTokens = tokensFromString(title) {
+        if let titleTokens = title?.tokens {
             array.append(contentsOf: titleTokens)
         }
         
@@ -296,18 +322,18 @@ class MediaItem : NSObject
 
         if let tagsArray = tagsArray {
             for tag in tagsArray {
-                if let tokens = tokensFromString(tag) {
+                if let tokens = tag.tokens {
                     set = set.union(Set(tokens))
                 }
             }
         }
         
         if hasSpeaker {
-            if let firstname = firstNameFromName(speaker) {
+            if let firstname = speaker?.firstName {
                 set.insert(firstname)
             }
 
-            if let lastname = lastNameFromName(speaker) {
+            if let lastname = speaker?.lastName {
                 set.insert(lastname)
             }
         }
@@ -316,7 +342,7 @@ class MediaItem : NSObject
             set = set.union(Set(books))
         }
         
-        if let titleTokens = tokensFromString(title) {
+        if let titleTokens = title?.tokens {
             set = set.union(Set(titleTokens))
         }
         
@@ -761,10 +787,10 @@ class MediaItem : NSObject
                     
                     if hasSpeaker, let speaker = speaker {
                         if !speaker.contains("Ministry Panel") {
-                            if let lastName = lastNameFromName(speaker) {
+                            if let lastName = speaker.lastName {
                                 speakerSort = lastName
                             }
-                            if let firstName = firstNameFromName(speaker) {
+                            if let firstName = speaker.firstName {
                                 speakerSort = ((speakerSort != nil) ? speakerSort! + "," : "") + firstName
                             }
                         } else {
@@ -858,7 +884,7 @@ class MediaItem : NSObject
     {
         var possibleTags = [String:Int]()
         
-        if let tags = tagsArrayFromTagsString(tags) {
+        if let tags = tags?.tagsArray {
             for tag in tags {
                 var possibleTag = tag
                 
@@ -895,7 +921,7 @@ class MediaItem : NSObject
         let proposedTags:[String] = possibleTags.keys.map { (string:String) -> String in
             return string
         }
-        return proposedTags.count > 0 ? tagsArrayToTagsString(proposedTags) : nil
+        return proposedTags.count > 0 ? proposedTags.tagsString : nil
     }
     
     var dynamicTags:String?
@@ -953,9 +979,9 @@ class MediaItem : NSObject
             return
         }
         
-        let tags = tagsArrayFromTagsString(mediaItemSettings?[Field.tags])
+        let tags = mediaItemSettings?[Field.tags]?.tagsArray
         
-        if tags?.index(of: tag) == nil {
+        if tags?.firstIndex(of: tag) == nil {
             if let tags = mediaItemSettings?[Field.tags] {
                 mediaItemSettings?[Field.tags] = tags + Constants.TAGS_SEPARATOR + tag
             } else {
@@ -968,7 +994,7 @@ class MediaItem : NSObject
             
             if !sortTag.isEmpty {
                 if Globals.shared.media.all?.tagMediaItems?[sortTag] != nil {
-                    if Globals.shared.media.all?.tagMediaItems?[sortTag]?.index(of: self) == nil {
+                    if Globals.shared.media.all?.tagMediaItems?[sortTag]?.firstIndex(of: self) == nil {
                         Globals.shared.media.all?.tagMediaItems?[sortTag]?.append(self)
                         Globals.shared.media.all?.tagNames?[sortTag] = tag
                     }
@@ -1002,18 +1028,18 @@ class MediaItem : NSObject
             return
         }
         
-        var tags = tagsArrayFromTagsString(mediaItemSettings?[Field.tags])
+        var tags = mediaItemSettings?[Field.tags]?.tagsArray
         
-        while let index = tags?.index(of: tag) {
+        while let index = tags?.firstIndex(of: tag) {
             tags?.remove(at: index)
         }
         
-        mediaItemSettings?[Field.tags] = tagsArrayToTagsString(tags)
+        mediaItemSettings?[Field.tags] = tags?.tagsString
         
         let sortTag = tag.withoutPrefixes
         
         if !sortTag.isEmpty {
-            if let index = Globals.shared.media.all?.tagMediaItems?[sortTag]?.index(of: self) {
+            if let index = Globals.shared.media.all?.tagMediaItems?[sortTag]?.firstIndex(of: self) {
                 Globals.shared.media.all?.tagMediaItems?[sortTag]?.remove(at: index)
             }
             
@@ -1296,7 +1322,7 @@ class MediaItem : NSObject
     var books:[String]?
     {
         get {
-            return booksFromScriptureReference(scriptureReference)
+            return scriptureReference?.books
         }
     } //Derived from scripture
     

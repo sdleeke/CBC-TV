@@ -394,7 +394,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
                     if media.tags.showing == Constants.TAGGED, media.tagged[tag] == nil {
                         if media.all == nil {
                             //This is filtering, i.e. searching all mediaItems => s/b in background
-                            media.tagged[tag] = MediaListGroupSort(mediaItems: mediaItemsWithTag(mediaRepository.list, tag: media.tags.selected))
+                            media.tagged[tag] = MediaListGroupSort(mediaItems: mediaRepository.list?.withTag(media.tags.selected))
                         } else {
                             if let tag = media.tags.selected?.withoutPrefixes {
                                 media.tagged[tag] = MediaListGroupSort(mediaItems: media.all?.tagMediaItems?[tag])
@@ -433,7 +433,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         let audioSession: AVAudioSession  = AVAudioSession.sharedInstance()
         
         do {
-            try audioSession.setCategory(AVAudioSessionCategoryPlayback)
+            try audioSession.setCategory(AVAudioSession.Category.playback)
         } catch let error as NSError {
             NSLog(error.localizedDescription)
             print("failed to setCategory(AVAudioSessionCategoryPlayback)")
@@ -574,6 +574,114 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
         MPRemoteCommandCenter.shared().likeCommand.isEnabled = false
         MPRemoteCommandCenter.shared().dislikeCommand.isEnabled = false
         MPRemoteCommandCenter.shared().bookmarkCommand.isEnabled = false
+    }
+
+    var alert:UIAlertController!
+    
+    func networkUnavailable(_ message:String?)
+    {
+        alert(title:Constants.Strings.Network_Error,message:message)
+    }
+    
+    func alert(title:String?,message:String?)
+    {
+        guard alert == nil else {
+            return
+        }
+        
+        guard UIApplication.shared.applicationState == UIApplication.State.active else {
+            return
+        }
+        
+        alert = UIAlertController(title:title,
+                                  message: message,
+                                  preferredStyle: UIAlertController.Style.alert)
+        
+        let action = UIAlertAction(title: Constants.Cancel, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
+            self.alert = nil
+        })
+        alert.addAction(action)
+        
+        Thread.onMainThread { () -> (Void) in
+            UIApplication.shared.keyWindow?.rootViewController?.present(self.alert, animated: true, completion: nil)
+        }
+    }
+    
+    func userAlert(title:String?,message:String?)
+    {
+        if (UIApplication.shared.applicationState == UIApplication.State.active) {
+            
+            let alert = UIAlertController(title: title,
+                                          message: message,
+                                          preferredStyle: UIAlertController.Style.alert)
+            
+            let action = UIAlertAction(title: Constants.Cancel, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
+                
+            })
+            alert.addAction(action)
+            
+            Thread.onMainThread { () -> (Void) in
+                UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
+            }
+        }
+    }
+
+    func testMediaItemsTagsAndSeries()
+    {
+        print("Testing for mediaItem series and tags the same - start")
+        
+        if let mediaItems = mediaRepository.list {
+            for mediaItem in mediaItems {
+                if (mediaItem.hasMultipleParts) && (mediaItem.hasTags) {
+                    if (mediaItem.multiPartName == mediaItem.tags) {
+                        print("Multiple Part Name and Tags the same in: \(mediaItem.title!) Multiple Part Name:\(mediaItem.multiPartName!) Tags:\(mediaItem.tags!)")
+                    }
+                }
+            }
+        }
+        
+        print("Testing for mediaItem series and tags the same - end")
+    }
+    
+    func testMediaItemsForAudio()
+    {
+        print("Testing for audio - start")
+        
+        for mediaItem in mediaRepository.list! {
+            if (!mediaItem.hasAudio) {
+                print("Audio missing in: \(mediaItem.title!)")
+            } else {
+                
+            }
+        }
+        
+        print("Testing for audio - end")
+    }
+    
+    func testMediaItemsForSpeaker()
+    {
+        print("Testing for speaker - start")
+        
+        for mediaItem in mediaRepository.list! {
+            if (!mediaItem.hasSpeaker) {
+                print("Speaker missing in: \(mediaItem.title!)")
+            }
+        }
+        
+        print("Testing for speaker - end")
+    }
+    
+    func testMediaItemsForSeries()
+    {
+        print("Testing for mediaItems with \"(Part \" in the title but no series - start")
+        
+        for mediaItem in mediaRepository.list! {
+            if (mediaItem.title?.range(of: "(Part ", options: NSString.CompareOptions.caseInsensitive, range: nil, locale: nil) != nil) && mediaItem.hasMultipleParts {
+                print("Series missing in: \(mediaItem.title!)")
+            }
+        }
+        
+        print("Testing for mediaItems with \"(Part \" in the title but no series - end")
     }
 }
 

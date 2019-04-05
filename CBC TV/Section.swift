@@ -20,7 +20,7 @@ class Section
             return nil
         }
         
-        guard let index = strings?.index(of: string) else {
+        guard let index = strings?.firstIndex(of: string) else {
             return nil
         }
         
@@ -240,7 +240,9 @@ class Section
             }
         }
     }
-    var indexStringsTransform:((String?)->String?)? = stringWithoutPrefixes
+    var indexStringsTransform:((String?)->String?)? = { (string:String?) in
+        return string?.withoutPrefixes
+    }
     var indexHeadersTransform:((String?)->String?)?
     
     var indexSort:((String?,String?)->Bool)?

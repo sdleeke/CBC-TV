@@ -27,7 +27,7 @@ class Tags
                 if (Globals.shared.media.tagged[newValue] == nil) {
                     if Globals.shared.media.all == nil {
                         //This is filtering, i.e. searching all mediaItems => s/b in background
-                        Globals.shared.media.tagged[newValue] = MediaListGroupSort(mediaItems: mediaItemsWithTag(Globals.shared.mediaRepository.list, tag: newValue))
+                        Globals.shared.media.tagged[newValue] = MediaListGroupSort(mediaItems: Globals.shared.mediaRepository.list?.withTag(newValue))
                     } else {
                         Globals.shared.media.tagged[newValue] = MediaListGroupSort(mediaItems: Globals.shared.media.all?.tagMediaItems?[newValue.withoutPrefixes])
                     }
