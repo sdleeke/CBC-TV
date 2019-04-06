@@ -114,6 +114,10 @@ enum SORTING {
     static let REVERSE_CHRONOLOGICAL = "reverse chronological"
 }
 
+enum FILETYPE {
+    static let SLIDES = ".slides"
+}
+
 enum Constants {
     static let states = [UIControl.State.normal, UIControl.State.disabled, UIControl.State.selected, UIControl.State.highlighted, UIControl.State.focused]
     

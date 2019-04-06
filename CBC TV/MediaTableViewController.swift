@@ -81,12 +81,14 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                 
             case Constants.Strings.Clear_Slide_Cache:
                 let dirURL = FileManager.default.cachesURL
-                    
-                dirURL?.files(ofType: "slides")?.forEach({ (filename:String) in
-                    var fileURL = dirURL
-                    fileURL?.appendPathComponent(filename)
-                    fileURL?.delete()
-                })
+                
+                autoreleasepool {
+                    dirURL?.files(ofType: FILETYPE.SLIDES)?.forEach({ (filename:String) in
+                        var fileURL = dirURL
+                        fileURL?.appendPathComponent(filename)
+                        fileURL?.delete()
+                    })
+                }
                 break
                 
             case Constants.Strings.Current_Selection:

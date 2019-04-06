@@ -1559,70 +1559,71 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             }
         }
         
-        if !loadingSlides, pageImages == nil {
-            nextSlidebutton.isHidden = true
-            prevSlideButton.isHidden = true
-            
-            loadingSlides = true
-            
-            Thread.onMainThread {
-                self.startAnimating()
-            }
-            
-            // Should be an opQueue
-            DispatchQueue.global(qos: .background).async {
-                guard let fileSystemURL = (selectedMediaItem.id + "." + "slides").fileSystemURL else {
-                    return
-                }
-                
-                if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
-                    if let pdfDocument = self.openPDF(url: fileSystemURL) {
-                        self.setupPageImages(pdfDocument: pdfDocument)
-
-                        Thread.onMainThread {
-                            if self.selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
-                                self.showPageImage()
-                            }
-
-                            self.loadingSlides = false
-                            self.stopAnimating()
-                        }
-                    }
-                } else {
-                    if let url = self.selectedMediaItem?.slidesURL {
-                        do {
-                            let data = try Data(contentsOf: url) // , options: NSData.ReadingOptions.mappedIfSafe
-                            print("able to read slides from the URL.")
-                            
-                            do {
-                                try data.write(to: fileSystemURL)
-                            } catch let error as NSError {
-                                print("slides could not be read from the file system.")
-                                NSLog(error.localizedDescription)
-                            }
-
-                            if let pdfDocument = self.openPDF(url: fileSystemURL) {
-                                self.setupPageImages(pdfDocument: pdfDocument)
-
-                                Thread.onMainThread {
-                                    if self.selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
-                                        self.showPageImage()
-                                    }
-                                    
-                                    self.loadingSlides = false
-                                    self.stopAnimating()
-                                }
-                            }
-                        } catch let error as NSError {
-                            print("slides could not be read from the url.")
-                            NSLog(error.localizedDescription)
-                        }
-                    }
-                }
-            }
-        } else {
+        guard !loadingSlides, pageImages == nil else {
             if selectedMediaItem.showing?.range(of: Showing.slides) != nil {
                 showPageImage()
+            }
+            return
+        }
+        
+        nextSlidebutton.isHidden = true
+        prevSlideButton.isHidden = true
+        
+        loadingSlides = true
+        
+        Thread.onMainThread {
+            self.startAnimating()
+        }
+        
+        // Should be an opQueue
+        DispatchQueue.global(qos: .background).async {
+            guard let fileSystemURL = (selectedMediaItem.id + FILETYPE.SLIDES).fileSystemURL else {
+                return
+            }
+            
+            if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
+                if let pdfDocument = self.openPDF(url: fileSystemURL) {
+                    self.setupPageImages(pdfDocument: pdfDocument)
+
+                    Thread.onMainThread {
+                        if self.selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
+                            self.showPageImage()
+                        }
+
+                        self.loadingSlides = false
+                        self.stopAnimating()
+                    }
+                }
+            } else {
+                if let url = self.selectedMediaItem?.slidesURL {
+                    do {
+                        let data = try Data(contentsOf: url) // , options: NSData.ReadingOptions.mappedIfSafe
+                        print("able to read slides from the URL.")
+                        
+                        do {
+                            try data.write(to: fileSystemURL)
+                        } catch let error as NSError {
+                            print("slides could not be read from the file system.")
+                            NSLog(error.localizedDescription)
+                        }
+
+                        if let pdfDocument = self.openPDF(url: fileSystemURL) {
+                            self.setupPageImages(pdfDocument: pdfDocument)
+
+                            Thread.onMainThread {
+                                if self.selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
+                                    self.showPageImage()
+                                }
+                                
+                                self.loadingSlides = false
+                                self.stopAnimating()
+                            }
+                        }
+                    } catch let error as NSError {
+                        print("slides could not be read from the url.")
+                        NSLog(error.localizedDescription)
+                    }
+                }
             }
         }
     }

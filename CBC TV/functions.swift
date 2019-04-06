@@ -11,6 +11,51 @@ import MediaPlayer
 import AVKit
 
 
+func debug(_ string:String)
+{
+    //    print(string)
+}
+
+func compareMediaItemDates(first:MediaItem, second:MediaItem, sorting:String?) -> Bool
+{
+    guard let firstDate = first.fullDate else {
+        return false
+    }
+    
+    guard let secondDate = second.fullDate else {
+        return true
+    }
+    
+    guard let sorting = sorting else {
+        return false
+    }
+    
+    var result = false
+    
+    switch sorting {
+    case SORTING.CHRONOLOGICAL:
+        if (firstDate.isEqualTo(secondDate)) {
+            result = (first.service < second.service)
+        } else {
+            result = firstDate.isOlderThan(secondDate)
+        }
+        break
+        
+    case SORTING.REVERSE_CHRONOLOGICAL:
+        if (firstDate.isEqualTo(secondDate)) {
+            result = (first.service > second.service)
+        } else {
+            result = firstDate.isNewerThan(secondDate)
+        }
+        break
+        
+    default:
+        break
+    }
+    
+    return result
+}
+
 //func removeCacheFiles(fileExtension:String)
 //{
 //    // Clean up temp directory for cancelled downloads
@@ -491,11 +536,6 @@ import AVKit
 //    }
 //    return verses.count > 0 ? verses : nil
 //}
-
-func debug(_ string:String)
-{
-//    print(string)
-}
 
 //func chaptersAndVersesForBook(_ book:String?) -> [Int:[Int]]?
 //{
@@ -2102,46 +2142,6 @@ func debug(_ string:String)
 //    
 //    return sortedMediaItems
 //}
-
-func compareMediaItemDates(first:MediaItem, second:MediaItem, sorting:String?) -> Bool
-{
-    guard let firstDate = first.fullDate else {
-        return false
-    }
-    
-    guard let secondDate = second.fullDate else {
-        return true
-    }
-    
-    guard let sorting = sorting else {
-        return false
-    }
-    
-    var result = false
-
-    switch sorting {
-    case SORTING.CHRONOLOGICAL:
-        if (firstDate.isEqualTo(secondDate)) {
-            result = (first.service < second.service)
-        } else {
-            result = firstDate.isOlderThan(secondDate)
-        }
-        break
-    
-    case SORTING.REVERSE_CHRONOLOGICAL:
-        if (firstDate.isEqualTo(secondDate)) {
-            result = (first.service > second.service)
-        } else {
-            result = firstDate.isNewerThan(secondDate)
-        }
-        break
-        
-    default:
-        break
-    }
-
-    return result
-}
 
 //func sortMediaItemsByMultiPart(_ mediaItems:[MediaItem]?,sorting:String?) -> [MediaItem]?
 //{

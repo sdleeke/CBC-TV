@@ -357,105 +357,6 @@ extension String
 
 extension URL
 {
-    func files(ofType fileType:String) -> [String]?
-    {
-        //        guard let path = self.path else {
-        //            return nil
-        //        }
-        
-        guard let isDirectory = try? FileWrapper(url: self, options: []).isDirectory, isDirectory else {
-            return nil
-        }
-        
-        var files = [String]()
-        
-        do {
-            let array = try FileManager.default.contentsOfDirectory(atPath: path)
-            
-            for string in array {
-                if let range = string.range(of: fileType) {
-                    if fileType == String(string[range.lowerBound...]) {
-                        files.append(string)
-                    }
-                }
-            }
-        } catch let error {
-            NSLog("failed to get files in caches directory: \(error.localizedDescription)")
-        }
-        
-        return files.count > 0 ? files : nil
-    }
-    
-    func files(startingWith filename:String) -> [String]?
-    {
-        //        guard let path = path else {
-        //            return nil
-        //        }
-        
-        guard let isDirectory = try? FileWrapper(url: self, options: []).isDirectory, isDirectory else {
-            return nil
-        }
-        
-        var files = [String]()
-        
-        do {
-            let array = try FileManager.default.contentsOfDirectory(atPath: path)
-            
-            for string in array {
-                if let range = string.range(of: filename) {
-                    if filename == String(string[..<range.upperBound]) {
-                        files.append(string)
-                    }
-                }
-            }
-        } catch let error {
-            NSLog("failed to get files in caches directory: \(error.localizedDescription)")
-        }
-        
-        return files.count > 0 ? files : nil
-    }
-    
-//    func delete(startingWith filename:String) -> [String]?
-//    {
-//        //        guard let path = self.cachesURL?.path else {
-//        //            return nil
-//        //        }
-//        
-//        guard let isDirectory = try? FileWrapper(url: self, options: []).isDirectory, isDirectory else {
-//            return nil
-//        }
-//        
-//        var files = [String]()
-//        
-//        do {
-//            let array = try FileManager.default.contentsOfDirectory(atPath: path)
-//            
-//            for string in array {
-//                if let range = string.range(of: filename) {
-//                    if filename == String(string[..<range.upperBound]) {
-//                        files.append(string)
-//                        
-//                        var fileURL = path.url
-//                        
-//                        fileURL?.appendPathComponent(string, isDirectory: false)
-//                        
-//                        if let fileURL = fileURL {
-//                            do {
-//                                try FileManager.default.removeItem(at: fileURL)
-//                            } catch let error {
-//                                NSLog("failed to delete \(fileURL.lastPathComponent) error: \(error.localizedDescription)")
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        } catch let error {
-//            NSLog("failed to get files in caches directory: \(error.localizedDescription)")
-//        }
-//        
-//        return files.count > 0 ? files : nil
-//    }
-    
     var fileSystemURL : URL?
     {
         return self.lastPathComponent.fileSystemURL
@@ -519,6 +420,81 @@ extension URL
             
             return UIImage(data: data)
         }
+    }
+
+    func files(startingWith filename:String? = nil,ofType fileType:String? = nil,notOfType notFileType:String? = nil) -> [String]?
+    {
+        ////////////////////////////////////////////////////////////////////
+        // THIS CAN BE A HUGE MEMORY LEAK IF NOT USED IN AN AUTORELEASEPOOL
+        ////////////////////////////////////////////////////////////////////
+        
+        guard (filename != nil) || (fileType != nil) else {
+            return nil
+        }
+        
+        guard let isDirectory = try? FileWrapper(url: self, options: []).isDirectory, isDirectory else {
+            return nil
+        }
+        
+        var files = [String]()
+        
+        do {
+            let array = try FileManager.default.contentsOfDirectory(atPath: path)
+            
+            for string in array {
+                var fileNameCandidate : String?
+                var fileTypeCandidate : String?
+                var notFileTypeCandidate : String?
+                
+                if let filename = filename {
+                    if let range = string.range(of: filename) {
+                        if filename == String(string[..<range.upperBound]) {
+                            fileNameCandidate = string
+                        }
+                    }
+                }
+                
+                if let fileType = fileType {
+                    if let range = string.range(of: "." + fileType.trimmingCharacters(in: CharacterSet(charactersIn: "."))) {
+                        if fileType == String(string[range.lowerBound...]) {
+                            fileTypeCandidate = string
+                        }
+                    }
+                }
+                
+                if let notFileType = notFileType {
+                    if let range = string.range(of: "." + notFileType.trimmingCharacters(in: CharacterSet(charactersIn: "."))) {
+                        if notFileType == String(string[range.lowerBound...]) {
+                            notFileTypeCandidate = string
+                        }
+                    }
+                }
+                
+                if let fileNameCandidate = fileNameCandidate {
+                    if let fileTypeCandidate = fileTypeCandidate {
+                        if fileNameCandidate == fileTypeCandidate {
+                            if notFileTypeCandidate == nil {
+                                files.append(string)
+                            }
+                        }
+                    } else {
+                        if notFileTypeCandidate == nil {
+                            files.append(string)
+                        }
+                    }
+                } else {
+                    if fileTypeCandidate != nil {
+                        if notFileTypeCandidate == nil {
+                            files.append(string)
+                        }
+                    }
+                }
+            }
+        } catch let error {
+            print("failed to get files in directory \(self.path): \(error.localizedDescription)") // remove
+        }
+        
+        return files.count > 0 ? files : nil
     }
 }
 
