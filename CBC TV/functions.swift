@@ -11,9 +11,9 @@ import MediaPlayer
 import AVKit
 
 
-func debug(_ string:String)
+func debug(_ any:Any)
 {
-    //    print(string)
+    //    print(any)
 }
 
 func compareMediaItemDates(first:MediaItem, second:MediaItem, sorting:String?) -> Bool

@@ -9,19 +9,37 @@
 import Foundation
 import UIKit
 
-class FetchImage
+class FetchImage : Fetch<UIImage>, Size
 {
+    deinit {
+        debug(self)
+    }
+    
     var url : URL?
     
-    init?(url:URL?)
+    init?(name:String? = nil, url:URL?)
     {
         guard let url = url else {
             return nil
         }
         
+        super.init(name: name)
+        
+        fetch = { [weak self] () -> (UIImage?) in
+            return self?.fetchIt()
+        }
+        
+        store = { [weak self] (image:UIImage?) in
+            self?.storeIt(image: image)
+        }
+        
+        retrieve = { [weak self] in
+            return self?.retrieveIt()
+        }
+        
         self.url = url
     }
-
+    
     var fileSystemURL:URL?
     {
         get {
@@ -29,7 +47,7 @@ class FetchImage
         }
     }
     
-    var downloaded:Bool
+    var exists:Bool
     {
         get {
             return fileSystemURL?.exists ?? false
@@ -56,43 +74,41 @@ class FetchImage
     var image : UIImage?
     {
         get {
-            return fetch.result
+            return result
         }
     }
     
-    func load()
+    internal var _fileSize : Int?
+    var fileSize : Int?
     {
-        fetch.load()
+        get {
+            guard let fileSize = _fileSize else {
+                _fileSize = fileSystemURL?.fileSize
+                return _fileSize
+            }
+            
+            return fileSize
+        }
+        set {
+            _fileSize = newValue
+        }
+    }
+    
+    func delete(block:Bool)
+    {
+        clear()
+        fileSize = nil
+        fileSystemURL?.delete(block:block)
     }
     
     func retrieveIt() -> UIImage?
     {
-        guard Globals.shared.cacheDownloads else {
-            return nil
-        }
-        
-        guard let fileSystemURL = self.fileSystemURL else {
-            return nil
-        }
-        
-        guard fileSystemURL.exists else {
-            return nil
-        }
-        
-        guard let image = UIImage(contentsOfFile: fileSystemURL.path) else {
-            return nil
-        }
-        
-        return image
+        return fileSystemURL?.data?.image
     }
     
     func storeIt(image:UIImage?)
     {
         guard let image = image else {
-            return
-        }
-        
-        guard Globals.shared.cacheDownloads else {
             return
         }
         
@@ -106,31 +122,13 @@ class FetchImage
         
         do {
             try image.jpegData(compressionQuality: 1.0)?.write(to: fileSystemURL, options: [.atomic])
-//            try UIImageJPEGRepresentation(image, 1.0)?.write(to: fileSystemURL, options: [.atomic])
             print("Image \(fileSystemURL.lastPathComponent) saved to file system")
-        } catch let error as NSError {
+            fileSize = fileSystemURL.fileSize ?? 0
+        } catch let error {
             NSLog(error.localizedDescription)
             print("Image \(fileSystemURL.lastPathComponent) not saved to file system")
         }
     }
-    
-    lazy var fetch:Fetch<UIImage> = { [weak self] in // THIS IS VITAL TO PREVENT A MEMORY LEAK
-        let fetch = Fetch<UIImage>(name:imageName)
-        
-        fetch.store = { (image:UIImage?) in
-            self?.storeIt(image: image)
-        }
-        
-        fetch.retrieve = {
-            return self?.retrieveIt()
-        }
-        
-        fetch.fetch = {
-            return self?.fetchIt()
-        }
-        
-        return fetch
-    }()
 }
 
 class FetchCachedImage : FetchImage

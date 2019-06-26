@@ -362,6 +362,36 @@ extension URL
         return self.lastPathComponent.fileSystemURL
     }
     
+    /**
+     Extension of URL to return the file's size
+     */
+    var fileSize:Int?
+    {
+        guard let fileSystemURL = fileSystemURL else {
+            return nil
+        }
+        
+        guard fileSystemURL.exists else {
+            debug("File does not exist at \(fileSystemURL.absoluteString)")
+            return 0
+        }
+        
+        do {
+            let fileAttributes = try FileManager.default.attributesOfItem(atPath: fileSystemURL.path)
+            
+            if let num = fileAttributes[FileAttributeKey.size] as? Int {
+                return num
+            }
+        } catch let error {
+            //            debug("failed to get file attributes for \(fileSystemURL): \(error.localizedDescription)")
+            //            NSLog("Error: \(error.localizedDescription)")
+            //            NSLog("Failed to get file attributes for: \(fileSystemURL)")
+            print("failed to get file attributes for \(fileSystemURL): \(error.localizedDescription)") // remove
+        }
+        
+        return nil
+    }
+    
     var exists : Bool
     {
         get {
@@ -388,18 +418,37 @@ extension URL
         }
     }
     
-    func delete()
+    /**
+     Extension of URL to delete file.
+     */
+    func delete(block:Bool = true)
     {
-        guard let fileSystemURL = fileSystemURL else {
-            return
-        }
-        
-        // Check if file exists and if so, delete it.
-        if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
+        let op = {
+            // Check if file exists and if so, delete it.
+            
+            guard let fileSystemURL = self.fileSystemURL else {
+                print("fileSystemURL doesn't exist for: \(self.absoluteString)")
+                return
+            }
+            
+            guard fileSystemURL.exists else {
+                print("item doesn't exist: \(self.absoluteString)")
+                return
+            }
+            
             do {
                 try FileManager.default.removeItem(at: fileSystemURL)
-            } catch let error as NSError {
-                print("failed to delete download: \(error.localizedDescription)")
+            } catch let error {
+                print("failed to delete \(self.absoluteString): \(error.localizedDescription)")
+            }
+        }
+        
+        if block {
+            op()
+        } else {
+            // As an extension, no way to put this in an OpQueue
+            DispatchQueue.global(qos: .background).async {
+                op()
             }
         }
     }

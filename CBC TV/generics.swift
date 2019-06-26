@@ -560,7 +560,19 @@ class Fetch<T>
     }
 }
 
-class FetchCodable<T:Codable> : Fetch<T>
+/**
+ 
+ Shadow pattern (protocols do not allow generic types) for tracking fileSize
+ 
+ */
+
+protocol Size
+{
+    var _fileSize : Int? { get set }
+    var fileSize : Int? { get set }
+}
+
+class FetchCodable<T:Codable> : Fetch<T>, Size
 {
     var fileSystemURL : URL?
     {
@@ -569,6 +581,29 @@ class FetchCodable<T:Codable> : Fetch<T>
         }
     }
 
+    internal var _fileSize : Int?
+    var fileSize : Int?
+    {
+        get {
+            guard let fileSize = _fileSize else {
+                _fileSize = fileSystemURL?.fileSize
+                return _fileSize
+            }
+            
+            return fileSize
+        }
+        set {
+            _fileSize = newValue
+        }
+    }
+    
+    func delete(block:Bool)
+    {
+        clear()
+        fileSize = nil
+        fileSystemURL?.delete(block:block)
+    }
+    
     // name MUST be unique to ever INSTANCE, not just the class!
     override init(name: String?, fetch: (() -> (T?))? = nil)
     {
