@@ -463,8 +463,18 @@ class MediaItem : NSObject
     }
     
     var pageImages:[UIImage]?
-
+    {
+        didSet {
+            
+        }
+    }
+    
     var pageNum:Int?
+    {
+        didSet {
+            
+        }
+    }
 
     var showing:String?
     {

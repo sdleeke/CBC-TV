@@ -351,7 +351,9 @@ enum Constants {
         static let Library              = "Library"
         static let About                = "About"
         static let Refresh_Media        = "Refresh Media"
-
+        
+        static let Menu_Options         = "Menu Options"
+        
         static let Email_CBC = "E-mail " + CBC.SHORT
         static let CBC_WebSite = CBC.SHORT + " Website"
         static let CBC_in_Apple_Maps = CBC.SHORT + " in Apple Maps"

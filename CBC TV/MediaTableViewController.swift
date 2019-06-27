@@ -51,18 +51,12 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
         }
     }
 
-    func rowClickedAtIndex(_ index: Int, strings: [String]?, purpose:PopoverPurpose)
+    func actions(_ index: Int, strings: [String]?, purpose:PopoverPurpose)
     {
-        if !Thread.isMainThread {
-            print("NOT MAIN THREAD")
-        }
-        
-        dismiss(animated: true, completion: nil)
-        
         guard let string = strings?[index] else {
             return
         }
-
+        
         switch purpose {
         case .selectingMenu:
             switch string {
@@ -101,7 +95,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
             case Constants.Strings.Category:
                 mediaCategoryAction()
                 break
-
+                
             case Constants.Strings.Series:
                 tagAction()
                 break
@@ -110,7 +104,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                 if (Globals.shared.mediaPlayer.url == URL(string:Constants.URL.LIVE_STREAM)) {
                     Globals.shared.mediaPlayer.view?.removeFromSuperview()
                 }
-
+                
                 Globals.shared.gotoPlayingPaused = true
                 performSegue(withIdentifier: Constants.SEGUE.SHOW_MEDIAITEM, sender: self)
                 break
@@ -119,7 +113,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                 if let selectedMediaItem = Globals.shared.selectedMediaItem.detail {
                     selectedMediaItem.showing = Showing.slides
                 }
-
+                
                 Thread.onMainThread {
                     NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SHOW_SLIDES), object: nil)
                 }
@@ -131,6 +125,10 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                         selectedMediaItem.pageNum = pageNum - 1
                     }
                 }
+                
+                Thread.onMainThread {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
+                }
                 break
                 
             case Constants.Strings.Next_Slide:
@@ -138,6 +136,10 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                     if let pageNum = selectedMediaItem.pageNum {
                         selectedMediaItem.pageNum = pageNum + 1
                     }
+                }
+                
+                Thread.onMainThread {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
                 }
                 break
                 
@@ -166,7 +168,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                     Globals.shared.mediaPlayer.controller?.isSkipBackwardEnabled = true
                 }
                 Globals.shared.mediaPlayer.isZoomed = !Globals.shared.mediaPlayer.isZoomed
-
+                
                 if !Globals.shared.mediaPlayer.isZoomed, let subviews = splitViewController?.view.subviews {
                     for view in subviews {
                         if view.classForCoder == UIImageView.classForCoder() {
@@ -189,7 +191,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
             case Constants.Strings.Index:
                 indexAction()
                 break
-
+                
             case Constants.Strings.Live:
                 preferredFocusView = nil
                 
@@ -199,7 +201,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                     navigationController.modalPresentationStyle = .fullScreen
                     
                     popover.navigationItem.title = "Live Events"
-
+                    
                     popover.allowsSelection = true
                     
                     // An enhancement to selectively highlight (select)
@@ -208,7 +210,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                             let sortedKeys = [String](keys).sorted()
                             return sortedKeys[indexPath.section] == "Playing"
                         }
-
+                        
                         return false
                     }
                     
@@ -220,11 +222,11 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                             let key = sortedKeys[indexPath.section]
                             
                             if key == "Playing" {
-                                self.dismiss(animated: true, completion: nil)
-                                
-                                if let streamEntry = StreamEntry(Globals.shared.streaming.entryIndex?[key]?[indexPath.row]) {
-                                    self.performSegue(withIdentifier: Constants.SEGUE.SHOW_LIVE, sender: streamEntry)
-                                }
+                                self.dismiss(animated: true, completion: {
+                                    if let streamEntry = StreamEntry(Globals.shared.streaming.entryIndex?[key]?[indexPath.row]) {
+                                        self.performSegue(withIdentifier: Constants.SEGUE.SHOW_LIVE, sender: streamEntry)
+                                    }
+                                })
                             }
                         }
                     }
@@ -234,18 +236,18 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                     
                     present(navigationController, animated: true, completion: {
                         popover.startAnimating()
-
+                        
                         self.loadLive() {
                             popover.section.stringIndex = Globals.shared.streaming.stringIndex
                             popover.tableView.reloadData()
-
+                            
                             popover.stopAnimating()
-
+                            
                             popover.setPreferredContentSize()
                         }
                     })
                 }
-
+                
                 break
                 
             default:
@@ -291,12 +293,12 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                         let alert = UIAlertController(title: "No media available.",
                                                       message: "Please check your network connection and try again.",
                                                       preferredStyle: UIAlertController.Style.alert)
-
+                        
                         let action = UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
                             self.setupListActivityIndicator()
                         })
                         alert.addAction(action)
-
+                        
                         self.present(alert, animated: true, completion: nil)
                     } else {
                         self.selectedMediaItem = Globals.shared.selectedMediaItem.master
@@ -485,6 +487,17 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
             })
             break
         }
+    }
+    
+    func rowClickedAtIndex(_ index: Int, strings: [String]?, purpose:PopoverPurpose)
+    {
+        if !Thread.isMainThread {
+            print("NOT MAIN THREAD")
+        }
+        
+        dismiss(animated: true, completion: {
+            self.actions(index, strings: strings, purpose:purpose)
+        })
     }
 }
 
@@ -1564,7 +1577,7 @@ class MediaTableViewController : UIViewController
         if Globals.shared.popoverNavCon != nil, let popover = Globals.shared.popoverNavCon?.viewControllers[0] as? PopoverTableViewController {
             Globals.shared.popoverNavCon?.modalPresentationStyle = .fullScreen
             
-            popover.navigationItem.title = "Menu Options"
+            popover.navigationItem.title = Constants.Strings.Menu_Options
             
             popover.delegate = self
             
@@ -1573,42 +1586,42 @@ class MediaTableViewController : UIViewController
             var strings = [String]()
 
             if (Globals.shared.mediaPlayer.url == URL(string:Constants.URL.LIVE_STREAM)) {
-                strings.append("Library")
+                strings.append(Constants.Strings.Library)
             } else {
                 if !Globals.shared.mediaPlayer.isZoomed {
                     if !Globals.shared.showingAbout {
-                        strings.append("About")
+                        strings.append(Constants.Strings.About)
                         
                         if Globals.shared.mediaPlayer.loaded, Globals.shared.mediaPlayer.mediaItem?.playing == Playing.video {
-                            strings.append("Toggle Zoom")
+                            strings.append(Constants.Strings.Toggle_Zoom)
                         } else
                         
                         if let hasSlides = selectedMediaItem?.hasSlides, hasSlides,
                             selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
-                            strings.append("Toggle Zoom")
+                            strings.append(Constants.Strings.Toggle_Zoom)
                         }
                         
                         if let selectedMediaItem = Globals.shared.selectedMediaItem.detail, selectedMediaItem.hasSlides {
                             if selectedMediaItem.showing?.range(of: Showing.slides) != nil {
                                 if selectedMediaItem.pageNum > 0 {
-                                    strings.append("Previous Slide")
+                                    strings.append(Constants.Strings.Previous_Slide)
                                 }
                                 
                                 if let count = selectedMediaItem.pageImages?.count, selectedMediaItem.pageNum < (count - 1) {
-                                    strings.append("Next Slide")
+                                    strings.append(Constants.Strings.Next_Slide)
                                 }
                                 
-                                strings.append("Hide Slides")
+                                strings.append(Constants.Strings.Hide_Slides)
                             } else {
-                                strings.append("Show Slides")
+                                strings.append(Constants.Strings.Show_Slides)
                             }
                         }
                     } else {
                         if (Globals.shared.mediaPlayer.mediaItem != nil) {
-                            strings.append("Current Selection")
+                            strings.append(Constants.Strings.Current_Selection)
                         } else {
                             //Nothing to show
-                            strings.append("Library")
+                            strings.append(Constants.Strings.Library)
                         }
                     }
                     
@@ -1627,7 +1640,7 @@ class MediaTableViewController : UIViewController
                     
                     strings.append(Constants.Strings.Search)
                     
-                    strings.append("Refresh Media")
+                    strings.append(Constants.Strings.Refresh_Media)
                     
                     strings.append(Constants.Strings.Clear_Slide_Cache)
                 } else {

@@ -29,14 +29,14 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 {
     var pageImages:[UIImage]?
     // This may be too memory intensive - keeping all slides ever loaded during one run-time sesssion.
-//    {
-//        get {
-//            return selectedMediaItem?.pageImages
-//        }
-//        set {
-//            selectedMediaItem?.pageImages = newValue
-//        }
-//    }
+    {
+        get {
+            return selectedMediaItem?.pageImages
+        }
+        set {
+            selectedMediaItem?.pageImages = newValue
+        }
+    }
     
     var pageNum:Int?
     {
@@ -399,11 +399,16 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         addPlayerObserver()
     }
     
-    var selectedMediaItem:MediaItem? {
+    var selectedMediaItem:MediaItem?
+    {
         willSet {
             
         }
         didSet {
+            if (oldValue != selectedMediaItem) {
+                oldValue?.pageImages = nil
+            }
+            
             if oldValue != nil {
                 NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: Constants.NOTIFICATION.MEDIA_UPDATE_UI), object: oldValue)
             }
@@ -1628,16 +1633,16 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
     
-    func hideSlides()
-    {
-        if selectedMediaItem?.playing == Playing.video, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem {
-            self.selectedMediaItem?.showing = Showing.video
-        } else {
-            self.selectedMediaItem?.showing = Showing.none
-        }
-        
-        hidePageImage()
-    }
+//    func hideSlides()
+//    {
+//        if selectedMediaItem?.playing == Playing.video, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem {
+//            self.selectedMediaItem?.showing = Showing.video
+//        } else {
+//            self.selectedMediaItem?.showing = Showing.none
+//        }
+//
+//        hidePageImage()
+//    }
     
     @objc func toggleSlidesPress(longPress:UILongPressGestureRecognizer)
     {
@@ -1655,7 +1660,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 }
             }
             
-            toggleSlides()
+//            removeSlideGestures()
             
             updateUI()
             break
@@ -1671,7 +1676,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
     
-    @objc func toggleSlides()
+    @objc func removeSlideGestures()
     {
         if selectedMediaItem?.showing?.range(of: Showing.slides) == nil {
             if let swipeNextRecognizer = swipeNextRecognizer {
@@ -1689,8 +1694,9 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     {
         // Shouldn't some or all of these have object values of selectedMediaItem?
 
-        NotificationCenter.default.addObserver(self, selector: #selector(toggleSlides), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOW_SLIDES), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(toggleSlides), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.HIDE_SLIDES), object: nil)
+        // removeSlideGestures
+        NotificationCenter.default.addObserver(self, selector: #selector(updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.SHOW_SLIDES), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateUI), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.HIDE_SLIDES), object: nil)
 
         NotificationCenter.default.addObserver(self, selector: #selector(playPause(_:)), name: NSNotification.Name(rawValue: Constants.NOTIFICATION.PLAY_PAUSE), object: nil)
         
