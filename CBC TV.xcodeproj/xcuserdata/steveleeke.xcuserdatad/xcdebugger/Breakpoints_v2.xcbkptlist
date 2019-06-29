@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CBC TV/MediaViewController.swift"
-            timestampString = "583440967.671555"
+            timestampString = "583463733.23864"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1634"
-            endingLineNumber = "1634"
+            startingLineNumber = "1544"
+            endingLineNumber = "1544"
             landmarkName = "setupSlides()"
             landmarkType = "7">
             <Locations>
@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CBC TV/MediaViewController.swift"
-            timestampString = "583440967.672227"
+            timestampString = "583463733.239094"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1654"
-            endingLineNumber = "1654"
+            startingLineNumber = "1564"
+            endingLineNumber = "1564"
             landmarkName = "setupSlides()"
             landmarkType = "7">
          </BreakpointContent>
@@ -74,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CBC TV/MediaViewController.swift"
-            timestampString = "583440967.672556"
+            timestampString = "583463733.239393"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2218"
-            endingLineNumber = "2218"
+            startingLineNumber = "2128"
+            endingLineNumber = "2128"
             landmarkName = "stopAnimating()"
             landmarkType = "7">
             <Locations>
@@ -122,11 +122,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CBC TV/MediaViewController.swift"
-            timestampString = "583440967.672889"
+            timestampString = "583463733.239687"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1481"
-            endingLineNumber = "1481"
+            startingLineNumber = "1416"
+            endingLineNumber = "1416"
             landmarkName = "setupPoster(_:)"
             landmarkType = "7">
             <Locations>
@@ -170,11 +170,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CBC TV/MediaViewController.swift"
-            timestampString = "583440967.673201"
+            timestampString = "583463733.239977"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1679"
-            endingLineNumber = "1679"
+            startingLineNumber = "1589"
+            endingLineNumber = "1589"
             landmarkName = "setupSlides()"
             landmarkType = "7">
          </BreakpointContent>
@@ -186,11 +186,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CBC TV/MediaViewController.swift"
-            timestampString = "583440967.673508"
+            timestampString = "583463733.2402591"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1650"
-            endingLineNumber = "1650"
+            startingLineNumber = "1560"
+            endingLineNumber = "1560"
             landmarkName = "setupSlides()"
             landmarkType = "7">
          </BreakpointContent>
@@ -202,27 +202,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CBC TV/MediaViewController.swift"
-            timestampString = "583440967.673808"
+            timestampString = "583463733.240543"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1487"
-            endingLineNumber = "1487"
-            landmarkName = "setupPoster(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CBC TV/MediaViewController.swift"
-            timestampString = "583440967.6741019"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1546"
-            endingLineNumber = "1546"
+            startingLineNumber = "1456"
+            endingLineNumber = "1456"
             landmarkName = "updateUI()"
             landmarkType = "7">
             <Locations>
@@ -266,11 +250,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CBC TV/MediaViewController.swift"
-            timestampString = "583440967.674384"
+            timestampString = "583463733.240827"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2227"
-            endingLineNumber = "2227"
+            startingLineNumber = "2137"
+            endingLineNumber = "2137"
             landmarkName = "startAnimating()"
             landmarkType = "7">
          </BreakpointContent>
