@@ -114,8 +114,8 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                     selectedMediaItem.showing = Showing.slides
                 }
                 
-                Thread.onMainThread {
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.SHOW_SLIDES), object: nil)
+                Thread.onMainThread { // SHOW_SLIDES
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
                 }
                 break
                 
@@ -152,8 +152,8 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                     }
                 }
                 
-                Thread.onMainThread {
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.HIDE_SLIDES), object: nil)
+                Thread.onMainThread { // HIDE_SLIDES
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.UPDATE_VIEW), object: nil)
                 }
                 break
                 
@@ -1599,6 +1599,10 @@ class MediaTableViewController : UIViewController
                         if let hasSlides = selectedMediaItem?.hasSlides, hasSlides,
                             selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
                             strings.append(Constants.Strings.Toggle_Zoom)
+                        } else
+                            
+                        if selectedMediaItem?.posterImage?.image != nil {
+                            strings.append(Constants.Strings.Toggle_Zoom)
                         }
                         
                         if let selectedMediaItem = Globals.shared.selectedMediaItem.detail, selectedMediaItem.hasSlides {
@@ -1656,9 +1660,11 @@ class MediaTableViewController : UIViewController
                                 strings.append(Constants.Strings.Next_Slide)
                             }
 
-                            if selectedMediaItem.playing == Playing.video, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem {
-                                strings.append(Constants.Strings.Hide_Slides)
-                            }
+                            strings.append(Constants.Strings.Hide_Slides)
+
+//                            if selectedMediaItem.playing == Playing.video, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem {
+//                                strings.append(Constants.Strings.Hide_Slides)
+//                            }
                         } else {
                             strings.append(Constants.Strings.Show_Slides)
                         }

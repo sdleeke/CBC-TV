@@ -119,15 +119,12 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        var view = mediaItemNotesAndSlides
-        
-        if Globals.shared.mediaPlayer.isZoomed {
-            view = splitViewController?.view
-        }
-        
-        for subview in view!.subviews {
-            if let subview = subview as? UIImageView, let image = subview.image, subview.classForCoder == UIImageView.classForCoder(), pageImages.contains(image) {
-                subview.removeFromSuperview()
+        if let view = Globals.shared.mediaPlayer.isZoomed ? splitViewController?.view : mediaItemNotesAndSlides {
+            for subview in view.subviews {
+                // , subview.classForCoder == UIImageView.classForCoder()
+                if let subview = subview as? UIImageView, let image = subview.image, pageImages.contains(image), image != selectedMediaItem?.posterImage?.image {
+                    subview.removeFromSuperview()
+                }
             }
         }
     }
@@ -230,6 +227,39 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
     
+    func hidePosterImage()
+    {
+        guard self.selectedMediaItem?.posterImage?.image != nil else {
+            return
+        }
+        
+        if let view = Globals.shared.mediaPlayer.isZoomed ? splitViewController?.view : mediaItemNotesAndSlides {
+            for subview in view.subviews {
+                // , subview.classForCoder == UIImageView.classForCoder()
+                if let subview = subview as? UIImageView, let image = subview.image, pageImages?.contains(image) == false, image != logo.image {
+                    subview.removeFromSuperview()
+                }
+            }
+        }
+    }
+    
+    func showPosterImage()
+    {
+        hidePosterImage()
+        
+        if let view = Globals.shared.mediaPlayer.isZoomed ? splitViewController?.view : mediaItemNotesAndSlides {
+            let imgView = UIImageView()
+            
+            imgView.contentMode = .scaleAspectFit
+            imgView.frame = view.bounds
+            imgView.backgroundColor = UIColor.lightGray
+            imgView.image = self.selectedMediaItem?.posterImage?.image
+            
+            view.addSubview(imgView)
+            view.bringSubviewToFront(imgView)
+        }
+    }
+    
     var swipeNextRecognizer:UISwipeGestureRecognizer?
     var swipePrevRecognizer:UISwipeGestureRecognizer?
     var longPressRecognizer:UILongPressGestureRecognizer?
@@ -279,11 +309,17 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             preferredFocusView = prevSlideButton
         }
         
-        var view:UIView! = mediaItemNotesAndSlides
-
-        if Globals.shared.mediaPlayer.isZoomed, let svcView = splitViewController?.view {
-            view = svcView
-        }
+//        var view:UIView! = mediaItemNotesAndSlides
+//
+//        if Globals.shared.mediaPlayer.isZoomed, let svcView = splitViewController?.view {
+//            view = svcView
+//        }
+        
+//        var view:UIView! = mediaItemNotesAndSlides
+//
+//        if Globals.shared.mediaPlayer.isZoomed {
+//            view = splitViewController?.view
+//        }
         
         if swipeNextRecognizer == nil {
             swipeNextRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(swipeNext(swipe:)))
@@ -305,17 +341,19 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 
         hidePageImage()
         
-        let imgView = UIImageView()
-        
-        imgView.contentMode = .scaleAspectFit
-        imgView.frame = view.bounds
-        imgView.backgroundColor = UIColor.lightGray
-        imgView.image = pageImages[pageNum]
-
-        view.addSubview(imgView)
-        view.bringSubviewToFront( imgView)
-
-        view.bringSubviewToFront( slidesControlView)
+        if let view = Globals.shared.mediaPlayer.isZoomed ? splitViewController?.view : mediaItemNotesAndSlides {
+            let imgView = UIImageView()
+            
+            imgView.contentMode = .scaleAspectFit
+            imgView.frame = view.bounds
+            imgView.backgroundColor = UIColor.lightGray
+            imgView.image = pageImages[pageNum]
+            
+            view.addSubview(imgView)
+            view.bringSubviewToFront(imgView)
+            
+            view.bringSubviewToFront(slidesControlView)
+        }
     }
     
     override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator)
@@ -443,10 +481,10 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             if (selectedMediaItem != nil) && (selectedMediaItem == Globals.shared.mediaPlayer.mediaItem) {
                 removePlayerObserver()
             }
-            
-            if oldValue != selectedMediaItem {
-                pageImages = nil
-            }
+//
+//            if oldValue != selectedMediaItem {
+//                pageImages = nil
+//            }
         }
     }
 
@@ -794,6 +832,11 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     @IBOutlet weak var mediaItemNotesAndSlides: UIView!
 
     @IBOutlet weak var logo: UIImageView!
+    {
+        didSet {
+            
+        }
+    }
     @IBOutlet weak var imageView: UIImageView!
     
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -1127,7 +1170,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             //This should not happen unless it is playing video.
             switch playing {
             case Playing.audio:
-                setupPoster()
+//                setupPoster()
                 break
 
             case Playing.video:
@@ -1146,17 +1189,17 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 //                            mediaItemNotesAndSlides.bringSubviewToFront(view)
 //                        }
                     } else {
-                        setupPoster()
+//                        setupPoster()
                     }
                 } else {
                     // Video is NOT in the player
-                    setupPoster()
+//                    setupPoster()
                 }
                 break
                 
             default:
                 if (selectedMediaItem.showing?.range(of: Showing.slides) == nil) {
-                    setupPoster()
+//                    setupPoster()
                 }
                 break
             }
@@ -1168,7 +1211,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
             switch playing {
             case Playing.audio:
-                setupPoster()
+//                setupPoster()
                 break
                 
             case Playing.video:
@@ -1186,11 +1229,11 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                     } else {
                         selectedMediaItem.showing = Showing.none
                         Globals.shared.mediaPlayer.view?.isHidden = true
-                        setupPoster()
+//                        setupPoster()
                     }
                 } else {
                     Globals.shared.mediaPlayer.view?.isHidden = true
-                    setupPoster()
+//                    setupPoster()
                 }
                 break
                 
@@ -1201,7 +1244,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
         default:
             if !loadingSlides, (selectedMediaItem.showing?.range(of: Showing.slides) == nil) || (pageImages == nil) {
-                setupPoster()
+//                setupPoster()
             }
             break
         }
@@ -1419,64 +1462,74 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         audioOrVideoControl.setTitle(Constants.FA.VIDEO, forSegmentAt: Constants.AV_SEGMENT_INDEX.VIDEO) // Video
     }
     
-    func setupPoster()
+    func setupPoster(_ completion:(()->())? = nil)
     {
-        guard let imageView = imageView else {
-            logo.isHidden = false
-            mediaItemNotesAndSlides.bringSubviewToFront( logo)
-            return
-        }
+//        guard let imageView = imageView else {
+//            logo.isHidden = false
+//            mediaItemNotesAndSlides.bringSubviewToFront(logo)
+//            return
+//        }
         
-        if self.selectedMediaItem?.showing != Showing.slides, self.selectedMediaItem?.playing != Playing.video, Globals.shared.mediaPlayer.mediaItem != self.selectedMediaItem {
+        if self.selectedMediaItem?.posterImage?.cache == nil {
             startAnimating()
         }
+//        if self.selectedMediaItem?.showing != Showing.slides, self.selectedMediaItem?.playing != Playing.video, Globals.shared.mediaPlayer.mediaItem != self.selectedMediaItem {
+//            startAnimating()
+//        }
 
         // Should be an opQueue
         DispatchQueue.global(qos: .userInitiated).async {
             if let posterImage = self.selectedMediaItem?.posterImage?.image {
                 Thread.onMainThread {
-                    imageView.image = posterImage
-                    
-                    if self.selectedMediaItem?.showing != Showing.slides, self.selectedMediaItem?.playing != Playing.video, Globals.shared.mediaPlayer.mediaItem != self.selectedMediaItem {
-                        self.stopAnimating()
-                        self.mediaItemNotesAndSlides.bringSubviewToFront( imageView)
-                    }
-                    
-                    if self.selectedMediaItem?.showing == Showing.slides, self.loadingSlides {
-                        self.mediaItemNotesAndSlides.bringSubviewToFront( self.logo)
-                    }
+//                    imageView.image = posterImage
+
+                    self.stopAnimating()
+                    self.showPosterImage()
+                    completion?()
+
+//                    if self.selectedMediaItem?.showing != Showing.slides, !((self.selectedMediaItem?.playing == Playing.video) && (Globals.shared.mediaPlayer.mediaItem == self.selectedMediaItem)) {
+//                        self.stopAnimating()
+//                        self.showPosterImage()
+////                        self.mediaItemNotesAndSlides.bringSubviewToFront(imageView)
+//                    } else
+//
+//                    if self.selectedMediaItem?.showing == Showing.slides, self.loadingSlides {
+//                        self.mediaItemNotesAndSlides.bringSubviewToFront(self.logo)
+//                    }
                 }
             } else {
                 Thread.onMainThread {
-                    if let showing = self.selectedMediaItem?.showing {
-                        switch showing {
-                        case Showing.slides:
-                            if self.loadingSlides {
-                                self.logo.isHidden = false
-                                self.mediaItemNotesAndSlides.bringSubviewToFront( self.logo)
-                                self.startAnimating()
-                            }
-                            break
-                            
-                        case Showing.video:
-                            if (Globals.shared.mediaPlayer.mediaItem != self.selectedMediaItem) || !Globals.shared.mediaPlayer.loaded {
-                                self.stopAnimating()
-                                self.logo.isHidden = false
-                                self.mediaItemNotesAndSlides.bringSubviewToFront( self.logo)
-                            }
-                            break
-                            
-                        default:
-                            self.stopAnimating()
-                            self.logo.isHidden = false
-                            self.mediaItemNotesAndSlides.bringSubviewToFront( self.logo)
-                            break
-                        }
-                    } else {
-                        self.stopAnimating()
-                        self.logo.isHidden = false
-                        self.mediaItemNotesAndSlides.bringSubviewToFront( self.logo)
-                    }
+                    self.stopAnimating()
+                    completion?()
+//                    if let showing = self.selectedMediaItem?.showing {
+//                        switch showing {
+//                        case Showing.slides:
+//                            if self.loadingSlides {
+//                                self.logo.isHidden = false
+//                                self.mediaItemNotesAndSlides.bringSubviewToFront(self.logo)
+//                                self.startAnimating()
+//                            }
+//                            break
+//
+//                        case Showing.video:
+//                            if (Globals.shared.mediaPlayer.mediaItem != self.selectedMediaItem) || !Globals.shared.mediaPlayer.loaded {
+//                                self.stopAnimating()
+//                                self.logo.isHidden = false
+//                                self.mediaItemNotesAndSlides.bringSubviewToFront(self.logo)
+//                            }
+//                            break
+//
+//                        default:
+//                            self.stopAnimating()
+//                            self.logo.isHidden = false
+//                            self.mediaItemNotesAndSlides.bringSubviewToFront(self.logo)
+//                            break
+//                        }
+//                    } else {
+//                        self.stopAnimating()
+//                        self.logo.isHidden = false
+//                        self.mediaItemNotesAndSlides.bringSubviewToFront(self.logo)
+//                    }
                 }
             }
         }
@@ -1490,7 +1543,9 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                 Globals.shared.mediaPlayer.setup(selectedMediaItem,playOnLoad:false)
             } else {
                 if Globals.shared.mediaPlayer.loadFailed {
-                    setupPoster()
+                    setupPoster() {
+                        self.setupSlides()
+                    }
                 }
             }
         }
@@ -1506,12 +1561,12 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 
         // From here on the order is critical
         
-        setupPoster()
-        
-        setupPlayerView(Globals.shared.mediaPlayer.view)
-        
-        setupVideo()
-        setupSlides()
+        setupPoster() {
+            self.setupPlayerView(Globals.shared.mediaPlayer.view)
+            
+            self.setupVideo()
+            self.setupSlides()
+        }
     }
     
     @objc func doneSeeking()
@@ -1537,7 +1592,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         
         guard selectedMediaItem.showing?.range(of: Showing.slides) != nil else {
             slidesControlView.isHidden = !selectedMediaItem.hasSlides
-            mediaItemNotesAndSlides.bringSubviewToFront( slidesControlView)
+            mediaItemNotesAndSlides.bringSubviewToFront(slidesControlView)
             nextSlidebutton.isHidden = true
             prevSlideButton.isHidden = true
             hidePageImage()
@@ -1721,7 +1776,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     {
         super.viewWillAppear(animated)
         
-        logo.isHidden = true
+//        logo.isHidden = true
         
         if mediaItems == nil {
             tableView.isHidden = true
@@ -2182,7 +2237,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
         
         Thread.onMainThread {
-            self.mediaItemNotesAndSlides.bringSubviewToFront( self.container)
+            self.mediaItemNotesAndSlides.bringSubviewToFront(self.container)
             self.container.isHidden = false
             self.loadingView.isHidden = false
             self.actInd.startAnimating()
