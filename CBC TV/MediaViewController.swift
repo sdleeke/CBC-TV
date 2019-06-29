@@ -115,16 +115,18 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     
     func hidePageImage()
     {
-        guard let pageImages = pageImages, pageImages.count > 0 else {
+//        guard let pageImages = pageImages, pageImages.count > 0 else {
+//            return
+//        }
+        
+        guard let view = Globals.shared.mediaPlayer.isZoomed ? splitViewController?.view : mediaItemNotesAndSlides else {
             return
         }
         
-        if let view = Globals.shared.mediaPlayer.isZoomed ? splitViewController?.view : mediaItemNotesAndSlides {
-            for subview in view.subviews {
-                // , subview.classForCoder == UIImageView.classForCoder()
-                if let subview = subview as? UIImageView, let image = subview.image, pageImages.contains(image), image != selectedMediaItem?.posterImage?.image {
-                    subview.removeFromSuperview()
-                }
+        for subview in view.subviews {
+            // , subview.classForCoder == UIImageView.classForCoder()
+            if let subview = subview as? UIImageView, let image = subview.image, image != selectedMediaItem?.posterImage?.image, image != logo.image {
+                subview.removeFromSuperview()
             }
         }
     }
@@ -1406,8 +1408,28 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         audioOrVideoControl.setTitle(Constants.FA.VIDEO, forSegmentAt: Constants.AV_SEGMENT_INDEX.VIDEO) // Video
     }
     
+    func hidePosterImage()
+    {
+        guard let view = Globals.shared.mediaPlayer.isZoomed ? self.splitViewController?.view : self.mediaItemNotesAndSlides else {
+            return
+        }
+        
+        for subview in view.subviews {
+            // , subview.classForCoder == UIImageView.classForCoder()
+            if let subview = subview as? UIImageView, let image = subview.image, !(self.pageImages?.contains(image) ?? false), image != logo.image {
+                subview.removeFromSuperview()
+            }
+        }
+    }
+    
     func setupPoster(_ completion:(()->())? = nil)
     {
+        guard self.selectedMediaItem != nil else {
+            hidePosterImage()
+            completion?()
+            return
+        }
+        
         if self.selectedMediaItem?.posterImage?.cache == nil {
             startAnimating()
         }
@@ -1421,14 +1443,9 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             Thread.onMainThread {
                 self.stopAnimating()
 
+                self.hidePosterImage()
+                
                 if let view = Globals.shared.mediaPlayer.isZoomed ? self.splitViewController?.view : self.mediaItemNotesAndSlides {
-                    for subview in view.subviews {
-                        // , subview.classForCoder == UIImageView.classForCoder()
-                        if let subview = subview as? UIImageView, let image = subview.image, self.pageImages?.contains(image) == false, image != self.logo.image {
-                            subview.removeFromSuperview()
-                        }
-                    }
-
                     let imgView = UIImageView()
                     
                     imgView.contentMode = .scaleAspectFit
