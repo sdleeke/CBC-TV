@@ -1437,12 +1437,16 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         // Should be an opQueue
         DispatchQueue.global(qos: .userInitiated).async {
             guard let image = self.selectedMediaItem?.posterImage?.image else {
+                Thread.onMainThread {
+                    self.stopAnimating()
+                    self.hidePosterImage()
+                    completion?()
+                }
                 return
             }
             
             Thread.onMainThread {
                 self.stopAnimating()
-
                 self.hidePosterImage()
                 
                 if let view = Globals.shared.mediaPlayer.isZoomed ? self.splitViewController?.view : self.mediaItemNotesAndSlides {
