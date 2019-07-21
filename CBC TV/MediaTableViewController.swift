@@ -902,10 +902,7 @@ class MediaTableViewController : UIViewController
         
         operationQueue.cancelAllOperations()
         
-//        operationQueue.waitUntilAllOperationsAreFinished()
-        
         let operation = CancellableOperation { (test:(()->(Bool))?) in
-//        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
             self.setupCategory()
             self.setupTag()
             
@@ -935,7 +932,7 @@ class MediaTableViewController : UIViewController
                     
                 case .direct:
                     // From URL
-                    print(Globals.shared.mediaCategory.filename as Any)
+//                    print(Globals.shared.mediaCategory.filename as Any)
                     if let filename = Globals.shared.mediaCategory.filename, let mediaItemDicts = self.loadJSONDictsFromURL(urlString: url,key: Constants.JSON.ARRAY_KEY.MEDIA_ENTRIES,filename: filename) {
                         Globals.shared.mediaRepository.list = self.mediaItemsFromMediaItemDicts(mediaItemDicts)
                     } else {

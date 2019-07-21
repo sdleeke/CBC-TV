@@ -122,12 +122,12 @@ enum Constants {
     static let states = [UIControl.State.normal, UIControl.State.disabled, UIControl.State.selected, UIControl.State.highlighted, UIControl.State.focused]
     
     enum JSON {
-        static let MEDIA_PATH = "media-mini" //
+        static let MEDIA_PATH = "media" // media-mini" //
         
         static let CATEGORIES_PATH = "categories" //
 
         enum URL {
-            static let BASE = "https://countrysidebible.org/mediafeed.php?return=" // "http://dev.countrysidebible.org/medialist_all.php?return="
+            static let BASE = "https://api.countrysidebible.org/?return=" // "https://countrysidebible.org/mediafeed.php?return="  // "http://dev.countrysidebible.org/medialist_all.php?return="
             
             static let MEDIA = BASE + MEDIA_PATH //
             
