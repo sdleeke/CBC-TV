@@ -232,10 +232,15 @@ enum Constants {
     }
     
     enum URL {
-        static let LIVE_EVENTS = "https://api.countrysidebible.org/cache/streamEntries.json"
+        static let LIVE_EVENTS_OLD = "https://api.countrysidebible.org/cache/streamEntries.json"
+        static let LIVE_EVENTS_NEW = "https://api.countrysidebible.org/media/?streaming=true"
         
-        static let LIVE_STREAM = "https://content.uplynk.com/channel/bd25cb880ed84b4db3061b9ad16b5a3c.m3u8"
-        
+        static let LIVE_EVENTS = LIVE_EVENTS_NEW
+
+        static let LIVE_STREAM_OLD = "https://content.uplynk.com/channel/bd25cb880ed84b4db3061b9ad16b5a3c.m3u8"
+        static let LIVE_STREAM_NEW = ""
+        static let LIVE_STREAM = LIVE_STREAM_NEW
+
         static let REACHABILITY_TEST = "https://www.countrysidebible.org/"
     }
 
@@ -404,6 +409,15 @@ enum Constants {
         static let None                 = "None"
 
         static let Live                 = "Live"
+        
+        static let Play                 = "Play"
+        static let Pause                = "Pause"
+        
+        static let Upcoming             = "Upcoming"
+        static let Playing              = "Playing"
+        static let Paused               = "Paused"
+        static let Live_Events          = "Live Events"
+
         static let Category             = "Category"
         static let Series               = "Series"
         static let Clear_Slide_Cache    = "Clear Slide Cache"

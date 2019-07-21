@@ -195,12 +195,13 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
             case Constants.Strings.Live:
                 preferredFocusView = nil
                 
-                if  Globals.shared.streaming.entries?.count > 0, Globals.shared.reachability.isReachable,
+                // Globals.shared.streaming.entries?.count > 0,
+                if  Globals.shared.reachability.isReachable,
                     let navigationController = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController,
                     let popover = navigationController.viewControllers[0] as? PopoverTableViewController {
                     navigationController.modalPresentationStyle = .fullScreen
                     
-                    popover.navigationItem.title = "Live Events"
+                    popover.navigationItem.title = Constants.Strings.Live_Events
                     
                     popover.allowsSelection = true
                     
@@ -208,7 +209,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                     popover.shouldSelect = { (indexPath:IndexPath) -> Bool in
                         if let keys = popover.section.stringIndex?.keys {
                             let sortedKeys = [String](keys).sorted()
-                            return sortedKeys[indexPath.section] == "Playing"
+                            return sortedKeys[indexPath.section] == Constants.Strings.Playing
                         }
                         
                         return false
@@ -221,9 +222,9 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                             
                             let key = sortedKeys[indexPath.section]
                             
-                            if key == "Playing" {
+                            if key == Constants.Strings.Playing {
                                 self.dismiss(animated: true, completion: {
-                                    if let streamEntry = StreamEntry(Globals.shared.streaming.entryIndex?[key]?[indexPath.row]) {
+                                    if let streamEntry = StreamEntry(Globals.shared.streaming.streamEntryIndex?[key]?[indexPath.row]) {
                                         self.performSegue(withIdentifier: Constants.SEGUE.SHOW_LIVE, sender: streamEntry)
                                     }
                                 })
@@ -234,18 +235,39 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                     // Makes no sense w/o section.showIndex also being true - UNLESS you're using section.stringIndex
                     popover.section.showHeaders = true
                     
-                    present(navigationController, animated: true, completion: {
-                        popover.startAnimating()
+                    process(work: { [weak self, weak popover] () -> (Any?) in
+                        var key = ""
                         
-                        self.loadLive() {
-                            popover.section.stringIndex = Globals.shared.streaming.stringIndex
-                            popover.tableView.reloadData()
-                            
-                            popover.stopAnimating()
-                            
-                            popover.setPreferredContentSize()
+                        if Constants.URL.LIVE_EVENTS == Constants.URL.LIVE_EVENTS_OLD {
+                            key = "streamEntries"
                         }
-                    })
+                        if Constants.URL.LIVE_EVENTS == Constants.URL.LIVE_EVENTS_NEW {
+                            key = "mediaEntries"
+                        }
+                        return Globals.shared.streaming.liveEvents?[key] as? [[String:Any]]
+                    }) { [weak self, weak popover] (data:Any?) in
+                        Globals.shared.streaming.streamEntries = data as? [[String:Any]]
+                        
+                        if Globals.shared.streaming.streamEntries != nil {
+                            popover?.section.stringIndex = Globals.shared.streaming.streamStringIndex
+                            self?.present(navigationController, animated: true, completion: nil)
+                        } else {
+//                            self?.alert(title: "No Live Events Available")
+                        }
+                    }
+                    
+//                    present(navigationController, animated: true, completion: {
+//                        popover.startAnimating()
+//
+//                        self.loadLive() {
+//                            popover.section.stringIndex = Globals.shared.streaming.streamStringIndex
+//                            popover.tableView.reloadData()
+//
+//                            popover.stopAnimating()
+//
+//                            popover.setPreferredContentSize()
+//                        }
+//                    })
                 }
                 
                 break
@@ -884,7 +906,7 @@ class MediaTableViewController : UIViewController
         DispatchQueue.global(qos: .background).async() {
             Thread.sleep(forTimeInterval: 0.25)
 
-            Globals.shared.streaming.entries = self.liveEvents?["streamEntries"] as? [[String:Any]]
+            Globals.shared.streaming.streamEntries = self.liveEvents?["streamEntries"] as? [[String:Any]]
             
             Thread.onMainThread(block: {
                 completion?()
@@ -1660,7 +1682,8 @@ class MediaTableViewController : UIViewController
                         }
                     }
                     
-                    if Globals.shared.streaming.entries?.count > 0, Globals.shared.reachability.isReachable {
+                    // Globals.shared.streaming.streamEntries?.count > 0,
+                    if Globals.shared.reachability.isReachable {
                         strings.append(Constants.Strings.Live)
                     }
                     
@@ -1795,7 +1818,7 @@ class MediaTableViewController : UIViewController
             return
         }
         
-        UserDefaults.standard.removeObject(forKey: "NEW API 2019")
+//        UserDefaults.standard.removeObject(forKey: "NEW API 2019")
         
         Globals.shared.newAPI = UserDefaults.standard.bool(forKey: "NEW API 2019")
         

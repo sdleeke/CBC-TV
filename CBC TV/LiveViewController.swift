@@ -12,9 +12,26 @@ import AVKit
 
 class LiveViewController: UIViewController
 {
+    var streamingURL : String?
+    {
+        get {
+            //  as? [[String:Any]])?[0]["url"]
+            return (streaming?.storage?["files"] as? [String:Any])?["video"] as? String
+        }
+    }
+    
+    var streaming : Streaming?
+    {
+        didSet {
+            
+        }
+    }
+    
     var streamEntry:StreamEntry?
     {
         didSet {
+            streaming = Streaming(streamEntry?["streaming"] as? [String:Any])
+            
             let defaults = UserDefaults.standard
             if streamEntry != nil {
                 if (streamEntry?.storage != nil) {
@@ -29,6 +46,24 @@ class LiveViewController: UIViewController
             defaults.synchronize()
         }
     }
+    
+//    var streamEntry:StreamEntry?
+//    {
+//        didSet {
+//            let defaults = UserDefaults.standard
+//            if streamEntry != nil {
+//                if (streamEntry?.storage != nil) {
+//                    defaults.set(streamEntry?.storage,forKey: Constants.SETTINGS.LIVE)
+//                } else {
+//                    //Should not happen
+//                    defaults.removeObject(forKey: Constants.SETTINGS.LIVE)
+//                }
+//            } else {
+//                defaults.removeObject(forKey: Constants.SETTINGS.LIVE)
+//            }
+//            defaults.synchronize()
+//        }
+//    }
     
     override func viewDidLoad()
     {

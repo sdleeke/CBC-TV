@@ -239,7 +239,7 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
 
     var mediaCategory = MediaCategory()
     
-    var streaming = Streaming()
+    var streaming = MediaStream()
     
     // These are hidden behind custom accessors in MediaItem
     // May want to put into a struct Settings w/ multiPart an mediaItem as vars
