@@ -291,7 +291,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                     
                     if Globals.shared.mediaRepository.list == nil {
                         let alert = UIAlertController(title: "No media available.",
-                                                      message: "Please check your network connection and try again.",
+                                                      message: "", // Please check your network connection and try again.",
                                                       preferredStyle: UIAlertController.Style.alert)
                         
                         let action = UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
@@ -844,9 +844,15 @@ class MediaTableViewController : UIViewController
     func mediaItemsFromMediaItemDicts(_ mediaItemDicts:[[String:String]]?) -> [MediaItem]?
     {
         if (mediaItemDicts != nil) {
-            return mediaItemDicts?.map({ (mediaItemDict:[String : String]) -> MediaItem in
-                MediaItem(storage: mediaItemDict)
+            let mediaItems = mediaItemDicts?.compactMap({ (mediaItemDict:[String : String]) -> MediaItem? in
+                guard mediaItemDict["error"] == nil else {
+                    return nil
+                }
+                
+                return MediaItem(storage: mediaItemDict)
             })
+            
+            return mediaItems?.count > 0 ? mediaItems : nil
         }
         
         return nil
@@ -1718,7 +1724,7 @@ class MediaTableViewController : UIViewController
     {
         if Globals.shared.mediaRepository.list == nil {
             let alert = UIAlertController(title: "No media available.",
-                                          message: "Please check your network connection and try again.",
+                                          message: "", // Please check your network connection and try again.",
                                           preferredStyle: UIAlertController.Style.alert)
             
             let action = UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in

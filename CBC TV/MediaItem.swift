@@ -100,8 +100,12 @@ class MediaItem : NSObject
 
     }
     
-    init(storage:[String:String]?)
+    init?(storage:[String:String]?)
     {
+        guard storage?.isEmpty == false else {
+            return nil
+        }
+        
         super.init()
         
         self.storage?.update(storage: storage)
