@@ -19,6 +19,8 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
 {
     static var shared = Globals()
     
+    var newAPI = false
+    
     var popoverNavCon: UINavigationController?
 
     func playerViewControllerShouldAutomaticallyDismissAtPictureInPictureStart(_ playerViewController: AVPlayerViewController) -> Bool
@@ -227,6 +229,14 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
 
     var selectedMediaItem = SelectedMediaItem()
     
+    var metadata : [String:Any]?
+    var url : String?
+    {
+        get {
+            return metadata?["s3MediaUrl"] as? String
+        }
+    }
+
     var mediaCategory = MediaCategory()
     
     var streaming = Streaming()

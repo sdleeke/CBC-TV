@@ -9,6 +9,32 @@
 import Foundation
 import UIKit
 
+extension Set where Element == String
+{
+    /**
+     Extension of Set of Strings to return a sorted, joined string of tags.
+     */
+    var tagsString: String?
+    {
+        // get syntax is assumed, not including it makes it easier to convert
+        // this to a func later if we need to
+        
+        guard !self.isEmpty else {
+            return nil
+        }
+        
+        let array = self.array.sorted { (first:String, second:String) -> Bool in
+            return first.withoutPrefixes < second.withoutPrefixes
+        }
+        
+        guard array.count > 0 else {
+            return nil
+        }
+        
+        return array.joined(separator: Constants.TAGS_SEPARATOR)
+    }
+}
+
 extension Set
 {
     var array: [Element]
@@ -319,6 +345,21 @@ extension String
 
 extension String
 {
+    func isFileType(_ fileType:String) -> Bool
+    {
+        guard !self.isEmpty else {
+            return false
+        }
+        
+        let file = self
+        
+        if let range = file.range(of: fileType), file[range.lowerBound...] == fileType {
+            return true
+        } else {
+            return false
+        }
+    }
+    
     var url : URL?
     {
         get {

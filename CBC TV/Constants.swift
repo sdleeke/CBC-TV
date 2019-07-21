@@ -10,8 +10,15 @@ import Foundation
 import UIKit
 
 enum Field {
-    static let id = "mediacode"
+    static let published    = "published"
+    static let status       = "status"
+    static let suffix       = "suffix"
+    static let duration     = "duration"
+    static let filesize     = "filesize"
     
+    static let id           = "id"
+    static let mediaCode    = "mediacode"
+
     static let date = "date"
     static let service = "service"
     
@@ -19,16 +26,38 @@ enum Field {
     
     static let name = "name"
     
-    static let audio = "audio_url"
+//    static let audio = "audio_url"
+
+    static let audio        = "audio"
+    static let video        = "video"
+    
     static let m3u8 = "m3u8"
     static let mp4 = "mp4"
+    static let mp3 = "mp3"
+
+    static let vimeo_mp4    = "vimeo_mp4"
+    static let vimeo_m3u8   = "vimeo_m3u8"
     
-    static let notes = "transcript"
-    static let notes_HTML = "transcript_HTML"
+    static let transcript      = "transcript"
+    static let transcript_html = "transcript_html"
+    
+    static let transcript_HTML = "transcript_HTML" // Old single call
+    
+    static let notes        = transcript
+    static let notes_html   = transcript_html
+    
+    static let notes_HTML   = transcript_HTML
+    
+//    static let notes = "transcript"
+//    static let notes_HTML = "transcript_HTML"
+
     static let slides = "slides"
     static let outline = "outline"
     
-    static let files = "files"
+    static let files    = "files"
+    static let teacher  = "teacher"
+    static let series   = "series"
+    static let group    = "group"
 
     static let playing = "playing"
     static let showing = "showing"
@@ -127,30 +156,66 @@ enum Constants {
         static let CATEGORIES_PATH = "categories" //
 
         enum URL {
-            static let BASE = "https://api.countrysidebible.org/?return=" // "https://countrysidebible.org/mediafeed.php?return="  // "http://dev.countrysidebible.org/medialist_all.php?return="
+//            static let BASE = "https://api.countrysidebible.org/?return=" // "https://countrysidebible.org/mediafeed.php?return="  // "http://dev.countrysidebible.org/medialist_all.php?return="
+//
+//            static let MEDIA = BASE + MEDIA_PATH //
+//
+//            static let CATEGORIES = BASE + CATEGORIES_PATH
+//
+//            static let CATEGORY = MEDIA + "&categoryID="
+//
+//            static let CATEGORY_MEDIA = CATEGORY + (Globals.shared.mediaCategory.selectedID ?? "1")
+//
+//            static let SINGLE = BASE + "single&mediacode="
             
-            static let MEDIA = BASE + MEDIA_PATH //
+            static let BASE_OLD = "https://api.countrysidebible.org/?return=" // "http://countrysidebible.org/medialist_all.php?return="
+            static let BASE_NEW = "https://api.countrysidebible.org/"
             
-            static let CATEGORIES = BASE + CATEGORIES_PATH
+            static let BASE = BASE_OLD
             
-            static let CATEGORY = MEDIA + "&categoryID="
+            static let PARAMETER_OLD = "&"
+            static let PARAMETER_NEW = "?"
             
-            static let CATEGORY_MEDIA = CATEGORY + (Globals.shared.mediaCategory.selectedID ?? "1")
+            static let MEDIA_OLD = BASE_OLD + "media"
+            static let MEDIA_NEW = BASE_NEW + "media"
             
-            static let SINGLE = BASE + "single&mediacode="
+            static let CATEGORIES_OLD = BASE_OLD + "categories"
+            static let CATEGORIES_NEW = BASE_NEW + "categories"
+            
+            static let GROUPS_NEW = BASE_NEW + "groups"
+            
+            static let TEACHERS_OLD = BASE_OLD + "teachers"
+            static let TEACHERS_NEW = BASE_NEW + "teachers"
+            
+            static let CATEGORY_OLD = MEDIA_OLD + PARAMETER_OLD + "categoryID="
+            static let CATEGORY_NEW = MEDIA_NEW + PARAMETER_NEW + "categoryID="
+            
+            static let SINGLE_OLD = BASE_OLD + "single" + PARAMETER_OLD + "mediacode="
+            static let SINGLE_NEW = MEDIA_NEW + PARAMETER_NEW + "mediacode="
+            static let SINGLE_ALT_NEW = MEDIA_NEW + "/"
+            
+            static let MEDIA = MEDIA_NEW
+            static let SINGLE = SINGLE_NEW
+            static let GROUPS = GROUPS_NEW
+            static let CATEGORY = CATEGORY_NEW
+            static let TEACHERS = TEACHERS_NEW
+            static let CATEGORIES = CATEGORIES_NEW
         }
 
         enum ARRAY_KEY {
+            static let TEACHER_ENTRIES  = "teacherEntries"
             static let CATEGORY_ENTRIES = "categoryEntries"
+            static let GROUP_ENTRIES    = "groupEntries"
             static let MEDIA_ENTRIES    = "mediaEntries"
+            static let META_DATA        = "metadata"
             static let SINGLE_ENTRY     = "singleEntry"
         }
         
         static let TYPE = "json"
-        static let FILENAME_EXTENSION = ".json"
+//        static let FILENAME_EXTENSION = ".json"
         
         enum FILENAME {
-            static let CATEGORIES = ARRAY_KEY.CATEGORY_ENTRIES + FILENAME_EXTENSION
+            static let CATEGORIES = ARRAY_KEY.CATEGORY_ENTRIES + FILENAME_EXTENSION.JSON
         }
     }
 
@@ -762,20 +827,53 @@ enum Constants {
     
     static let DOWNLOAD_IDENTIFIER = APP_ID + ".download."
     
-    enum FILENAME_EXTENSION {
-        static let MP3  = ".mp3"
-        static let MP4  = ".mp4"
-        static let M3U8 = ".m3u8"
-        static let TMP  = ".tmp"
-        static let PDF  = ".pdf"
-    }
+//    enum FILENAME_EXTENSION {
+//        static let MP3  = ".mp3"
+//        static let MP4  = ".mp4"
+//        static let M3U8 = ".m3u8"
+//        static let TMP  = ".tmp"
+//        static let PDF  = ".pdf"
+//    }
 
     static let sortings = [SORTING.CHRONOLOGICAL, SORTING.REVERSE_CHRONOLOGICAL]
     static let SortingTitles = [Sorting.Oldest_to_Newest, Sorting.Newest_to_Oldest]
     
     static let groupings = [GROUPING.YEAR, GROUPING.TITLE, GROUPING.BOOK, GROUPING.SPEAKER]
     static let GroupingTitles = [Grouping.Year, Grouping.Title, Grouping.Book, Grouping.Speaker]
-
+    
+    enum FILENAME_EXTENSION {
+        static let MP3  = ".mp3"
+        static let MP4  = ".mp4"
+        static let M3U8 = ".m3u8"
+        static let TMP  = ".tmp"
+        static let PDF  = ".pdf"
+        static let JSON = ".json"
+        static let JPEG = ".jpg"
+        static let notes = Field.notes + PDF
+        static let slides = Field.slides + PDF
+        static let outline = Field.outline + PDF
+        static let poster = "poster" + JPEG
+        static let HTMLTranscript = ".HTMLTranscript"
+        static let NotesTokensMarkMismatches = ".NotesTokensMarkMismatches"
+        static let NotesParagraphLengths = ".NotesParagraphLengths"
+        static let NotesParagraphWords = ".NotesParagraphWords"
+        static let NotesHTMLTokens = ".NotesHTMLTokens"
+        static let transcript = ".transcript"
+        static let media = ".media"
+        static let srt = ".srt"
+        static let segments = ".segments"
+    }
+    
+    static let cacheFileTypes = [Constants.FILENAME_EXTENSION.notes,
+                                 Constants.FILENAME_EXTENSION.slides,
+                                 Constants.FILENAME_EXTENSION.outline,
+                                 Constants.FILENAME_EXTENSION.poster,
+                                 Constants.FILENAME_EXTENSION.HTMLTranscript,
+                                 Constants.FILENAME_EXTENSION.NotesHTMLTokens,
+                                 Constants.FILENAME_EXTENSION.NotesParagraphWords,
+                                 Constants.FILENAME_EXTENSION.NotesParagraphLengths,
+                                 Constants.FILENAME_EXTENSION.NotesTokensMarkMismatches]
+    
     enum SCRIPTURE_INDEX {
         static let BASE         = "SCRIPTURE INDEX"
         static let TESTAMENT    = BASE + " TESTAMENT"

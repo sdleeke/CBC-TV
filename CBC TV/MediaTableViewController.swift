@@ -424,8 +424,8 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
             
             self.tableView.setEditing(false, animated: true)
             
-            self.tableView.selectRow(at: indexPath, animated: true, scrollPosition: UITableView.ScrollPosition.top)
-            self.tableView.scrollToRow(at: indexPath, at: UITableView.ScrollPosition.top, animated: true)
+            self.tableView.selectRow(at: indexPath, animated: false, scrollPosition: UITableView.ScrollPosition.top)
+            self.tableView.scrollToRow(at: indexPath, at: UITableView.ScrollPosition.top, animated: false)
             
             self.preferredFocusView = self.tableView
             break
@@ -740,7 +740,7 @@ class MediaTableViewController : UIViewController
         
         //  jsonDataFromCachesDirectory()
         if let json = Globals.shared.mediaCategory.filename?.fileSystemURL?.data?.json as? [String:Any] {
-            if let mediaItems = json[key] as? [[String:String]] {
+            if let mediaItems = json[key] as? [[String:Any]] {
                 for i in 0..<mediaItems.count {
                     
                     var dict = [String:String]()
@@ -796,16 +796,20 @@ class MediaTableViewController : UIViewController
             return filename?.fileSystemURL?.data?.json
         }
         
-        guard let data = urlString?.url?.data else {
+        guard let data = urlString?.url?.data, !data.isEmpty else {
             return filename?.fileSystemURL?.data?.json
         }
         
-        jsonQueue.addOperation {
-            data.save(to: filename?.fileSystemURL)
+        if let json = data.json {
+            operationQueue.addOperation {
+                _ = data.save(to: filename?.fileSystemURL)
+            }
+            
+            return json
+        } else {
+            return nil
         }
-        
-        return data.json
-        
+
 //        jsonQueue.addOperation {
 //            urlString?.url?.data?.save(to: filename?.fileSystemURL)
 //        }
@@ -813,39 +817,48 @@ class MediaTableViewController : UIViewController
 //        return json
     }
     
-    func loadJSONDictsFromURL(urlString:String,key:String,filename:String) -> [[String:String]]?
-    {
-        var mediaItemDicts = [[String:String]]()
-        
-        if let json = jsonFromURL(urlString: urlString, filename: filename) as? [String:Any] {
-            if let mediaItems = json[key] as? [[String:String]] {
-                for i in 0..<mediaItems.count {
-                    
-                    var dict = [String:String]()
-                    
-                    for (key,value) in mediaItems[i] {
-                        dict[key] = "\(value)".trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-                    }
-                    
-                    mediaItemDicts.append(dict)
-                }
-                
-                //            print(mediaItemDicts)
-                
-                return mediaItemDicts.count > 0 ? mediaItemDicts : nil
-            }
-        } else {
-            print("could not get json from URL, make sure that URL contains valid json.")
-        }
-        
-        return nil
-    }
+//    func loadJSONFromURL(urlString:String,key:String,filename:String,completion:(([String:Any]?)->())?)
+//    {
+////        var mediaItemDicts = [[String:Any]]()
+//
+//        completion?(jsonFromURL(urlString: urlString, filename: filename) as? [String:Any])
+//
+////        if let json = jsonFromURL(urlString: urlString, filename: filename) as? [String:Any] {
+////            // Programming by side-effect YUK
+////
+//////            return json[key] as? [[String:Any]]
+////////            if let mediaItems = json[key] as? [[String:String]] {
+////////                for i in 0..<mediaItems.count {
+////////
+////////                    var dict = [String:String]()
+////////
+////////                    for (key,value) in mediaItems[i] {
+////////                        dict[key] = "\(value)".trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+////////                    }
+////////
+////////                    mediaItemDicts.append(dict)
+////////                }
+////////
+////////                //            print(mediaItemDicts)
+////////
+////////                return mediaItemDicts.count > 0 ? mediaItemDicts : nil
+////////            }
+//////        } else {
+//////            print("could not get json from URL, make sure that URL contains valid json.")
+////        }
+////
+////        return nil
+//    }
     
-    func mediaItemsFromMediaItemDicts(_ mediaItemDicts:[[String:String]]?) -> [MediaItem]?
+    func mediaItemsFromMediaItemDicts(_ mediaItemDicts:[[String:Any]]?) -> [MediaItem]?
     {
         if (mediaItemDicts != nil) {
-            let mediaItems = mediaItemDicts?.compactMap({ (mediaItemDict:[String : String]) -> MediaItem? in
+            let mediaItems = mediaItemDicts?.compactMap({ (mediaItemDict:[String : Any]) -> MediaItem? in
                 guard mediaItemDict["error"] == nil else {
+                    return nil
+                }
+                
+                guard (mediaItemDict["published"] as? Bool) != false else {
                     return nil
                 }
                 
@@ -881,19 +894,31 @@ class MediaTableViewController : UIViewController
     
     func loadCategories()
     {
-        if let categoriesDicts = self.loadJSONDictsFromURL(urlString: Constants.JSON.URL.CATEGORIES,key:Constants.JSON.ARRAY_KEY.CATEGORY_ENTRIES,filename: Constants.JSON.FILENAME.CATEGORIES) {
-            var mediaCategoryDicts = [String:String]()
-            
-            for categoriesDict in categoriesDicts {
-                if let category = categoriesDict["category_name"] {
-                    mediaCategoryDicts[category] = categoriesDict["id"]
+        if let json = self.jsonFromURL(urlString: Constants.JSON.URL.CATEGORIES, filename: Constants.JSON.FILENAME.CATEGORIES) as? [String:Any] {
+            if let categoriesDicts = json[Constants.JSON.ARRAY_KEY.CATEGORY_ENTRIES] as? [[String:Any]] {
+                var mediaCategoryDicts = [String:Any]()
+                
+                for categoriesDict in categoriesDicts {
+                    var key = ""
+                    
+                    if Constants.JSON.URL.CATEGORIES == Constants.JSON.URL.CATEGORIES_OLD {
+                        key = "category_name"
+                    }
+                    
+                    if Constants.JSON.URL.CATEGORIES == Constants.JSON.URL.CATEGORIES_NEW {
+                        key = "name"
+                    }
+
+                    if let category = categoriesDict[key] as? String {
+                        mediaCategoryDicts[category] = categoriesDict["id"]
+                    }
                 }
+                
+                Globals.shared.mediaCategory.dicts = mediaCategoryDicts
             }
-            
-            Globals.shared.mediaCategory.dicts = mediaCategoryDicts
         }
     }
-
+    
     private lazy var operationQueue : OperationQueue! = {
         let operationQueue = OperationQueue()
         operationQueue.name = "MCVC:" + UUID().uuidString
@@ -924,7 +949,7 @@ class MediaTableViewController : UIViewController
             var url:String?
 
             if Globals.shared.mediaCategory.selected != nil, let selectedID = Globals.shared.mediaCategory.selectedID {
-                url = Constants.JSON.URL.CATEGORY + selectedID
+                url = Constants.JSON.URL.CATEGORY + selectedID.description
             }
 
             if let url = url {
@@ -939,8 +964,11 @@ class MediaTableViewController : UIViewController
                 case .direct:
                     // From URL
 //                    print(Globals.shared.mediaCategory.filename as Any)
-                    if let filename = Globals.shared.mediaCategory.filename, let mediaItemDicts = self.loadJSONDictsFromURL(urlString: url,key: Constants.JSON.ARRAY_KEY.MEDIA_ENTRIES,filename: filename) {
-                        Globals.shared.mediaRepository.list = self.mediaItemsFromMediaItemDicts(mediaItemDicts)
+                    if let filename = Globals.shared.mediaCategory.filename {
+                        if let json = self.jsonFromURL(urlString: url, filename: filename) as? [String:Any] {
+                            Globals.shared.metadata = json[Constants.JSON.ARRAY_KEY.META_DATA] as? [String:Any]
+                            Globals.shared.mediaRepository.list = self.mediaItemsFromMediaItemDicts(json[Constants.JSON.ARRAY_KEY.MEDIA_ENTRIES] as? [[String:Any]])
+                        }
                     } else {
                         Globals.shared.mediaRepository.list = nil
                         print("FAILED TO LOAD")
@@ -1766,6 +1794,34 @@ class MediaTableViewController : UIViewController
         guard !Globals.shared.isLoading, Globals.shared.mediaRepository.list == nil else {
             return
         }
+        
+        UserDefaults.standard.removeObject(forKey: "NEW API 2019")
+        
+        Globals.shared.newAPI = UserDefaults.standard.bool(forKey: "NEW API 2019")
+        
+        if !Globals.shared.newAPI {
+            guard let cachesURL = FileManager.default.cachesURL else {
+                return
+            }
+            
+            try? autoreleasepool {
+                let files = try FileManager.default.contentsOfDirectory(atPath: cachesURL.path)
+                
+                for file in files {
+                    for fileType in Constants.cacheFileTypes {
+                        if file.isFileType(fileType) {
+                            var fileURL = cachesURL
+                            fileURL.appendPathComponent(file)
+                            fileURL.delete(block: true)
+                        } else {
+                            print(file)
+                        }
+                    }
+                }
+            }
+        }
+        
+        UserDefaults.standard.set(true, forKey: "NEW API 2019")
         
         loadCategories()
         

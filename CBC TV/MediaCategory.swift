@@ -10,7 +10,7 @@ import Foundation
 
 class MediaCategory
 {
-    var dicts:[String:String]?
+    var dicts:[String:Any]?
     
     var filename:String?
     {
@@ -19,7 +19,7 @@ class MediaCategory
                 return nil
             }
             
-            return Constants.JSON.ARRAY_KEY.MEDIA_ENTRIES + selectedID +  Constants.JSON.FILENAME_EXTENSION
+            return Constants.JSON.ARRAY_KEY.MEDIA_ENTRIES + selectedID.description +  Constants.FILENAME_EXTENSION.JSON
         }
     }
     
@@ -56,14 +56,14 @@ class MediaCategory
         }
     }
     
-    var selectedID:String?
+    var selectedID:Int?
     {
         get {
             guard let selected = selected, dicts?[selected] != nil else {
-                return "1"
+                return 1
             }
             
-            return dicts?[selected]
+            return dicts?[selected] as? Int
         }
     }
     

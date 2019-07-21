@@ -9,14 +9,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CBC TV/MediaTableViewController.swift"
-            timestampString = "585398374.826784"
+            filePath = "CBC TV/Video.swift"
+            timestampString = "585405925.1948709"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "852"
-            endingLineNumber = "852"
-            landmarkName = "mediaItemsFromMediaItemDicts(_:)"
-            landmarkType = "7">
+            startingLineNumber = "31"
+            endingLineNumber = "31"
+            landmarkName = "m3u8"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -25,62 +25,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CBC TV/MediaTableViewController.swift"
-            timestampString = "585398374.8273129"
+            filePath = "CBC TV/Video.swift"
+            timestampString = "585405925.19542"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "858"
-            endingLineNumber = "858"
-            landmarkName = "mediaItemsFromMediaItemDicts(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CBC TV/MediaTableViewController.swift"
-            timestampString = "585398374.8276711"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "847"
-            endingLineNumber = "847"
-            landmarkName = "mediaItemsFromMediaItemDicts(_:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CBC_TV.MediaTableViewController.mediaItemsFromMediaItemDicts(Swift.Optional&lt;Swift.Array&lt;Swift.Dictionary&lt;Swift.String, Swift.String&gt;&gt;&gt;) -&gt; Swift.Optional&lt;Swift.Array&lt;CBC_TV.MediaItem&gt;&gt;"
-                  moduleName = "CBC TV"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/steveleeke/Google%20Drive/Development/CBC%20TV%20v8%20Swift%205/CBC%20TV/MediaTableViewController.swift"
-                  timestampString = "585398181.260741"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "847"
-                  endingLineNumber = "847"
-                  offsetFromSymbolStart = "129">
-               </Location>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Dictionary&lt;Swift.String, Swift.String&gt;) -&gt; Swift.Optional&lt;CBC_TV.MediaItem&gt; in CBC_TV.MediaTableViewController.mediaItemsFromMediaItemDicts(Swift.Optional&lt;Swift.Array&lt;Swift.Dictionary&lt;Swift.String, Swift.String&gt;&gt;&gt;) -&gt; Swift.Optional&lt;Swift.Array&lt;CBC_TV.MediaItem&gt;&gt;"
-                  moduleName = "CBC TV"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/steveleeke/Google%20Drive/Development/CBC%20TV%20v8%20Swift%205/CBC%20TV/MediaTableViewController.swift"
-                  timestampString = "585398181.2626621"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "848"
-                  endingLineNumber = "848"
-                  offsetFromSymbolStart = "59">
-               </Location>
-            </Locations>
+            startingLineNumber = "26"
+            endingLineNumber = "26"
+            landmarkName = "mp4"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -89,14 +41,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CBC TV/MediaTableViewController.swift"
-            timestampString = "585398374.82806"
+            filePath = "CBC TV/MediaItem.swift"
+            timestampString = "585407298.7015491"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "293"
-            endingLineNumber = "293"
-            landmarkName = "actions(_:strings:purpose:)"
-            landmarkType = "7">
+            startingLineNumber = "1428"
+            endingLineNumber = "1428"
+            landmarkName = "outlineFilename"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -105,14 +57,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CBC TV/MediaTableViewController.swift"
-            timestampString = "585398374.828421"
+            filePath = "CBC TV/MediaItem.swift"
+            timestampString = "585407298.701966"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1726"
-            endingLineNumber = "1726"
-            landmarkName = "loadCompletion()"
-            landmarkType = "7">
+            startingLineNumber = "1430"
+            endingLineNumber = "1430"
+            landmarkName = "outlineFilename"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -121,14 +73,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CBC TV/MediaTableViewController.swift"
-            timestampString = "585398374.828789"
+            filePath = "CBC TV/MediaItem.swift"
+            timestampString = "585407298.702033"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "849"
-            endingLineNumber = "849"
-            landmarkName = "mediaItemsFromMediaItemDicts(_:)"
-            landmarkType = "7">
+            startingLineNumber = "1443"
+            endingLineNumber = "1443"
+            landmarkName = "MediaItem"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -137,14 +89,46 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CBC TV/MediaTableViewController.swift"
-            timestampString = "585398374.8291579"
+            filePath = "CBC TV/MediaItem.swift"
+            timestampString = "585407298.702089"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "974"
-            endingLineNumber = "974"
-            landmarkName = "loadMediaItems(completion:)"
-            landmarkType = "7">
+            startingLineNumber = "1449"
+            endingLineNumber = "1449"
+            landmarkName = "m3u8"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CBC TV/MediaItem.swift"
+            timestampString = "585407298.702139"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1450"
+            endingLineNumber = "1450"
+            landmarkName = "m3u8"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CBC TV/MediaItem.swift"
+            timestampString = "585407298.7021869"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1452"
+            endingLineNumber = "1452"
+            landmarkName = "m3u8"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
