@@ -101,7 +101,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                 break
                 
             case Constants.Strings.Library:
-                if (Globals.shared.mediaPlayer.url == URL(string:Constants.URL.LIVE_STREAM)) {
+                if Globals.shared.mediaPlayer.url == Globals.shared.streamingURL { // URL(string:Constants.URL.LIVE_STREAM)
                     Globals.shared.mediaPlayer.view?.removeFromSuperview()
                 }
                 
@@ -1638,7 +1638,7 @@ class MediaTableViewController : UIViewController
             
             var strings = [String]()
 
-            if (Globals.shared.mediaPlayer.url == URL(string:Constants.URL.LIVE_STREAM)) {
+            if Globals.shared.mediaPlayer.url == Globals.shared.streamingURL { // URL(string:Constants.URL.LIVE_STREAM)
                 strings.append(Constants.Strings.Library)
             } else {
                 if !Globals.shared.mediaPlayer.isZoomed {
@@ -1925,7 +1925,7 @@ class MediaTableViewController : UIViewController
             return false
         }
         
-        guard (Globals.shared.mediaPlayer.url != URL(string:Constants.URL.LIVE_STREAM)) else {
+        guard Globals.shared.mediaPlayer.url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
             print("Player is LIVE STREAMING.")
             return false
         }
@@ -1978,7 +1978,8 @@ class MediaTableViewController : UIViewController
                 break
                 
             case Constants.SEGUE.SHOW_MEDIAITEM:
-                if Globals.shared.mediaPlayer.url == URL(string:Constants.URL.LIVE_STREAM) { // (Globals.shared.mediaPlayer.pip == .stopped)
+                // URL(string:Constants.URL.LIVE_STREAM) // (Globals.shared.mediaPlayer.pip == .stopped)
+                if Globals.shared.mediaPlayer.url == Globals.shared.streamingURL {
                     Globals.shared.mediaPlayer.pause()
                 }
                 
@@ -2163,7 +2164,7 @@ extension MediaTableViewController : UITableViewDelegate
             return
         }
         
-        guard (Globals.shared.mediaPlayer.url != URL(string:Constants.URL.LIVE_STREAM)) else {
+        guard Globals.shared.mediaPlayer.url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
             print("Player is LIVE STREAMING.")
             return
         }

@@ -21,6 +21,20 @@ class Globals : NSObject, AVPlayerViewControllerDelegate
     
     var newAPI = false
     
+    var streamEntry:StreamEntry?
+    {
+        get {
+            return StreamEntry(UserDefaults.standard.object(forKey: Constants.SETTINGS.LIVE) as? [String:Any])
+        }
+    }
+    
+    var streamingURL:URL?
+    {
+        get {
+            return (((streamEntry?["streaming"] as? [String:Any])?["files"] as? [String:Any])?["video"] as? String)?.url
+        }
+    }
+    
     var popoverNavCon: UINavigationController?
 
     func playerViewControllerShouldAutomaticallyDismissAtPictureInPictureStart(_ playerViewController: AVPlayerViewController) -> Bool

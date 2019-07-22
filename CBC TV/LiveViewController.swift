@@ -103,6 +103,8 @@ class LiveViewController: UIViewController
         addNotifications()
         
         setupLivePlayerView()
+        
+        navigationItem.title = streamEntry?.title
     }
     
     override func viewDidAppear(_ animated: Bool)
@@ -130,10 +132,10 @@ class LiveViewController: UIViewController
             return
         }
         
-        if (Globals.shared.mediaPlayer.url != URL(string:Constants.URL.LIVE_STREAM)) {
-            Globals.shared.mediaPlayer.pause() // IfPlaying
+        if Globals.shared.mediaPlayer.url != Globals.shared.streamingURL { // URL(string:Constants.URL.LIVE_STREAM)
+            Globals.shared.mediaPlayer.stop() // IfPlaying
 
-            Globals.shared.mediaPlayer.setup(url: URL(string:Constants.URL.LIVE_STREAM),playOnLoad:true)
+            Globals.shared.mediaPlayer.setup(url: Globals.shared.streamingURL, playOnLoad:true) // URL(string:Constants.URL.LIVE_STREAM)
             Globals.shared.mediaPlayer.setupPlayingInfoCenter()
         }
         

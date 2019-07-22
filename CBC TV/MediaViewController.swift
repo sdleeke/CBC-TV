@@ -2322,7 +2322,7 @@ extension MediaViewController : UITableViewDelegate
             return
         }
         
-        guard (Globals.shared.mediaPlayer.url != URL(string:Constants.URL.LIVE_STREAM)) else {
+        guard Globals.shared.mediaPlayer.url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
             print("Player is LIVE STREAMING.")
             return
         }

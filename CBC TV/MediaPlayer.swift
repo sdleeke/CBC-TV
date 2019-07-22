@@ -302,86 +302,86 @@ class MediaPlayer : NSObject
         //            return
         //        }
         
-        if keyPath == #keyPath(AVPlayer.timeControlStatus) {
-            if  let statusNumber = change?[.newKey] as? NSNumber,
-                let status = AVPlayer.TimeControlStatus(rawValue: statusNumber.intValue) {
-                switch status {
-                case .waitingToPlayAtSpecifiedRate:
-                    print("KVO:waitingToPlayAtSpecifiedRate")
-                    
-                    if let reason = player?.reasonForWaitingToPlay {
-                        print("waitingToPlayAtSpecifiedRate: ",reason)
-                    } else {
-                        print("waitingToPlayAtSpecifiedRate: no reason")
-                    }
-                    break
-                    
-                case .paused:
-                    print("KVO:paused")
-                    if let state = state {
-                        switch state {
-                        case .none:
-                            break
-                            
-                        case .paused:
-                            break
-                            
-                        case .playing:
-                            pause()
-                            checkDidPlayToEnd()
-                            break
-                            
-                        case .seekingBackward:
+//        if keyPath == #keyPath(AVPlayer.timeControlStatus) {
+//            if  let statusNumber = change?[.newKey] as? NSNumber,
+//                let status = AVPlayer.TimeControlStatus(rawValue: statusNumber.intValue) {
+//                switch status {
+//                case .waitingToPlayAtSpecifiedRate:
+//                    print("KVO:waitingToPlayAtSpecifiedRate")
+//
+//                    if let reason = player?.reasonForWaitingToPlay {
+//                        print("waitingToPlayAtSpecifiedRate: ",reason)
+//                    } else {
+//                        print("waitingToPlayAtSpecifiedRate: no reason")
+//                    }
+//                    break
+//
+//                case .paused:
+//                    print("KVO:paused")
+//                    if let state = state {
+//                        switch state {
+//                        case .none:
+//                            break
+//
+//                        case .paused:
+//                            break
+//
+//                        case .playing:
 //                            pause()
-                            break
-                            
-                        case .seekingForward:
-//                            pause()
-                            break
-                            
-                        case .stopped:
-                            break
-                        }
-                    } else {
-                        print("WHAT???")
-                    }
-                    break
-                    
-                case .playing:
-                    print("KVO:playing")
-                    if let state = state {
-                        switch state {
-                        case .none:
-                            break
-                            
-                        case .paused:
-                            play()
-                            break
-                            
-                        case .playing:
-                            break
-                            
-                        case .seekingBackward:
+//                            checkDidPlayToEnd()
+//                            break
+//
+//                        case .seekingBackward:
+////                            pause()
+//                            break
+//
+//                        case .seekingForward:
+////                            pause()
+//                            break
+//
+//                        case .stopped:
+//                            break
+//                        }
+//                    } else {
+//                        print("WHAT???")
+//                    }
+//                    break
+//
+//                case .playing:
+//                    print("KVO:playing")
+//                    if let state = state {
+//                        switch state {
+//                        case .none:
+//                            break
+//
+//                        case .paused:
 //                            play()
-                            break
-                            
-                        case .seekingForward:
-//                            play()
-                            break
-                            
-                        case .stopped:
-                            break
-                        }
-                    } else {
-                        print("WHAT???")
-                    }
-                    break
-                    
-                @unknown default:
-                    break
-                }
-            }
-        }
+//                            break
+//
+//                        case .playing:
+//                            break
+//
+//                        case .seekingBackward:
+////                            play()
+//                            break
+//
+//                        case .seekingForward:
+////                            play()
+//                            break
+//
+//                        case .stopped:
+//                            break
+//                        }
+//                    } else {
+//                        print("WHAT???")
+//                    }
+//                    break
+//
+//                @unknown default:
+//                    break
+//                }
+//            }
+//        }
         
         if keyPath == #keyPath(AVPlayerItem.status) {
             let status: AVPlayerItem.Status
@@ -514,7 +514,7 @@ class MediaPlayer : NSObject
     
     @objc func playerObserver()
     {
-        guard (url != URL(string:Constants.URL.LIVE_STREAM)) else {
+        guard url != Globals.shared.streamingURL else {
             return
         }
         
@@ -601,14 +601,14 @@ class MediaPlayer : NSObject
         
         unobserve()
         
-        guard (url != URL(string:Constants.URL.LIVE_STREAM)) else {
+        guard url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
             return
         }
         
-        player?.addObserver( self,
-                             forKeyPath: #keyPath(AVPlayer.timeControlStatus),
-                             options: [.old, .new],
-                             context: nil) // &GlobalPlayerContext
+//        player?.addObserver( self,
+//                             forKeyPath: #keyPath(AVPlayer.timeControlStatus),
+//                             options: [.old, .new],
+//                             context: nil) // &GlobalPlayerContext
         
         currentItem?.addObserver(self,
                                  forKeyPath: #keyPath(AVPlayerItem.status),
@@ -643,7 +643,7 @@ class MediaPlayer : NSObject
             if observedItem != nil {
                 print("GLOBAL removeObserver: ",observedItem?.observationInfo as Any)
                 
-                player?.removeObserver(self, forKeyPath: #keyPath(AVPlayer.timeControlStatus), context: nil) // &GlobalPlayerContext
+//                player?.removeObserver(self, forKeyPath: #keyPath(AVPlayer.timeControlStatus), context: nil) // &GlobalPlayerContext
                 
                 observedItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), context: nil) // &GlobalPlayerContext
                 
@@ -766,7 +766,7 @@ class MediaPlayer : NSObject
             return
         }
         
-        guard (url != URL(string:Constants.URL.LIVE_STREAM)) else {
+        guard url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
             print("Player is LIVE STREAMING.")
             return
         }
