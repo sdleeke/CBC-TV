@@ -35,6 +35,46 @@ class MediaItem : NSObject
     
     var singleLoaded = false
 
+    func setupPageImages(pdfDocument:CGPDFDocument)
+    {
+        // Get the total number of pages for the whole PDF document
+        let totalPages = pdfDocument.numberOfPages
+        
+        pageImages = []
+        
+        // Iterate through the pages and add each page image to an array
+        for i in 1...totalPages {
+            // Get the first page of the PDF document
+            guard let page = pdfDocument.page(at: i) else {
+                continue
+            }
+            
+            let pageRect = page.getBoxRect(CGPDFBox.mediaBox)
+            
+            // Begin the image context with the page size
+            // Also get the grapgics context that we will draw to
+            UIGraphicsBeginImageContext(pageRect.size)
+            guard let context = UIGraphicsGetCurrentContext() else {
+                continue
+            }
+            
+            // Rotate the page, so it displays correctly
+            context.translateBy(x: 0.0, y: pageRect.size.height)
+            context.scaleBy(x: 1.0, y: -1.0)
+            
+            context.concatenate(page.getDrawingTransform(CGPDFBox.mediaBox, rect: pageRect, rotate: 0, preserveAspectRatio: true))
+            
+            // Draw to the graphics context
+            context.drawPDFPage(page)
+            
+            // Get an image of the graphics context
+            if let image = UIGraphicsGetImageFromCurrentImageContext() {
+                UIGraphicsEndImageContext()
+                pageImages?.append(image)
+            }
+        }
+    }
+    
     var posterImageURL:URL?
     {
         get {

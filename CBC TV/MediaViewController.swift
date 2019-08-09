@@ -27,35 +27,35 @@ extension AVPlayerViewController
 
 class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 {
-    var pageImages:[UIImage]?
-    // This may be too memory intensive - keeping all slides ever loaded during one run-time sesssion.
-    {
-        get {
-            return selectedMediaItem?.pageImages
-        }
-        set {
-            selectedMediaItem?.pageImages = newValue
-        }
-    }
+//    var pageImages:[UIImage]?
+//    // This may be too memory intensive - keeping all slides ever loaded during one run-time sesssion.
+//    {
+//        get {
+//            return selectedMediaItem?.pageImages
+//        }
+//        set {
+//            selectedMediaItem?.pageImages = newValue
+//        }
+//    }
     
-    var pageNum:Int?
-    {
-        get {
-            if let pageNum = selectedMediaItem?.pageNum {
-                return pageNum
-            } else {
-                if pageImages?.count > 0 {
-                    selectedMediaItem?.pageNum = 0
-                    return 0
-                }
-            }
-            
-            return nil
-        }
-        set {
-            selectedMediaItem?.pageNum = newValue
-        }
-    }
+//    var pageNum:Int?
+//    {
+//        get {
+//            if let pageNum = selectedMediaItem?.pageNum {
+//                return pageNum
+//            } else {
+//                if pageImages?.count > 0 {
+//                    selectedMediaItem?.pageNum = 0
+//                    return 0
+//                }
+//            }
+//
+//            return nil
+//        }
+//        set {
+//            selectedMediaItem?.pageNum = newValue
+//        }
+//    }
 
     func openPDF(url:URL) -> CGPDFDocument?
     {
@@ -73,45 +73,45 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         return myDocument
     }
     
-    func setupPageImages(pdfDocument:CGPDFDocument)
-    {
-        // Get the total number of pages for the whole PDF document
-        let totalPages = pdfDocument.numberOfPages
-    
-        pageImages = []
-        
-        // Iterate through the pages and add each page image to an array
-        for i in 1...totalPages {
-            // Get the first page of the PDF document
-            guard let page = pdfDocument.page(at: i) else {
-                continue
-            }
-            
-            let pageRect = page.getBoxRect(CGPDFBox.mediaBox)
-    
-            // Begin the image context with the page size
-            // Also get the grapgics context that we will draw to
-            UIGraphicsBeginImageContext(pageRect.size)
-            guard let context = UIGraphicsGetCurrentContext() else {
-                continue
-            }
-            
-            // Rotate the page, so it displays correctly
-            context.translateBy(x: 0.0, y: pageRect.size.height)
-            context.scaleBy(x: 1.0, y: -1.0)
-            
-            context.concatenate(page.getDrawingTransform(CGPDFBox.mediaBox, rect: pageRect, rotate: 0, preserveAspectRatio: true))
-    
-            // Draw to the graphics context
-            context.drawPDFPage(page)
-    
-            // Get an image of the graphics context
-            if let image = UIGraphicsGetImageFromCurrentImageContext() {
-                UIGraphicsEndImageContext()
-                pageImages?.append(image)
-            }
-        }
-    }
+//    func setupPageImages(pdfDocument:CGPDFDocument)
+//    {
+//        // Get the total number of pages for the whole PDF document
+//        let totalPages = pdfDocument.numberOfPages
+//    
+//        pageImages = []
+//        
+//        // Iterate through the pages and add each page image to an array
+//        for i in 1...totalPages {
+//            // Get the first page of the PDF document
+//            guard let page = pdfDocument.page(at: i) else {
+//                continue
+//            }
+//            
+//            let pageRect = page.getBoxRect(CGPDFBox.mediaBox)
+//    
+//            // Begin the image context with the page size
+//            // Also get the grapgics context that we will draw to
+//            UIGraphicsBeginImageContext(pageRect.size)
+//            guard let context = UIGraphicsGetCurrentContext() else {
+//                continue
+//            }
+//            
+//            // Rotate the page, so it displays correctly
+//            context.translateBy(x: 0.0, y: pageRect.size.height)
+//            context.scaleBy(x: 1.0, y: -1.0)
+//            
+//            context.concatenate(page.getDrawingTransform(CGPDFBox.mediaBox, rect: pageRect, rotate: 0, preserveAspectRatio: true))
+//    
+//            // Draw to the graphics context
+//            context.drawPDFPage(page)
+//    
+//            // Get an image of the graphics context
+//            if let image = UIGraphicsGetImageFromCurrentImageContext() {
+//                UIGraphicsEndImageContext()
+//                pageImages?.append(image)
+//            }
+//        }
+//    }
     
     func hidePageImage()
     {
@@ -125,7 +125,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         
         for subview in view.subviews {
             // , subview.classForCoder == UIImageView.classForCoder()
-            if let subview = subview as? UIImageView, let image = subview.image, image != selectedMediaItem?.posterImage?.image, image != logo.image {
+            if let subview = subview as? UIImageView, let image = subview.image, image != posterImage, image != logo.image {
                 subview.removeFromSuperview()
             }
         }
@@ -146,11 +146,11 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
 
-        guard let pageNum = pageNum else {
+        guard let pageNum = selectedMediaItem?.pageNum else {
             return
         }
 
-        guard let pageImages = pageImages, pageImages.count > 0 else {
+        guard let pageImages = selectedMediaItem?.pageImages, pageImages.count > 0 else {
             return
         }
 
@@ -170,10 +170,10 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 
         prevSlideButton.isEnabled = true
 
-        self.pageNum = pageNum + 1
+        selectedMediaItem?.pageNum = pageNum + 1
         showPageImage()
         
-        guard self.pageNum < (pageImages.count - 1) else {
+        guard selectedMediaItem?.pageNum < (pageImages.count - 1) else {
             nextSlidebutton.isEnabled = false
             preferredFocusView = prevSlideButton
             return
@@ -195,11 +195,11 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
 
-        guard let pageNum = pageNum else {
+        guard let pageNum = selectedMediaItem?.pageNum else {
             return
         }
 
-        guard let pageImages = pageImages, pageImages.count > 0 else {
+        guard let pageImages = selectedMediaItem?.pageImages, pageImages.count > 0 else {
             return
         }
 
@@ -219,10 +219,10 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 
         prevSlideButton.isEnabled = true
 
-        self.pageNum = pageNum - 1
+        selectedMediaItem?.pageNum = pageNum - 1
         showPageImage()
         
-        guard self.pageNum > 0 else {
+        guard selectedMediaItem?.pageNum > 0 else {
             prevSlideButton.isEnabled = false
             preferredFocusView = nextSlidebutton
             return
@@ -251,20 +251,20 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             return
         }
         
-        guard let pageNum = pageNum else {
+        if selectedMediaItem?.pageNum == nil {
+            selectedMediaItem?.pageNum = 0
+        }
+        
+        guard let pageNum = selectedMediaItem?.pageNum else {
             return
         }
         
-        guard let pageImages = pageImages, pageImages.count > 0 else {
+        guard let pageImages = selectedMediaItem?.pageImages, pageImages.count > 0 else {
             return
-        }
-        
-        if pageNum < 0 {
-            self.pageNum = 0
         }
         
         if pageNum > (pageImages.count - 1) {
-            self.pageNum = pageImages.count - 1
+            selectedMediaItem?.pageNum = pageImages.count - 1
         }
 
         if pageNum <= 0 {
@@ -406,6 +406,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         didSet {
             if (oldValue != selectedMediaItem) {
                 oldValue?.pageImages = nil
+                posterImage = nil
             }
             
             if oldValue != nil {
@@ -788,6 +789,8 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     
     @IBOutlet weak var mediaItemNotesAndSlides: UIView!
 
+    var posterImage : UIImage?
+    
     @IBOutlet weak var logo: UIImageView!
     {
         didSet {
@@ -1413,15 +1416,33 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         guard let view = Globals.shared.mediaPlayer.isZoomed ? self.splitViewController?.view : self.mediaItemNotesAndSlides else {
             return
         }
-        
+
         for subview in view.subviews {
             // , subview.classForCoder == UIImageView.classForCoder()
-            if let subview = subview as? UIImageView, let image = subview.image, !(self.pageImages?.contains(image) ?? false), image != logo.image {
+            if let subview = subview as? UIImageView, let image = subview.image, !(selectedMediaItem?.pageImages?.contains(image) ?? false), image != logo.image {
                 subview.removeFromSuperview()
             }
         }
     }
     
+//    func setImage(_ image:UIImage?)
+//    {
+//        guard let image = image else {
+//            return
+//        }
+//
+//        Thread.onMainThread { [weak self] in
+//            let ratio = image.size.width / image.size.height
+//
+//            self?.layoutAspectRatio = self?.layoutAspectRatio.setMultiplier(multiplier: ratio)
+//
+//            self?.logo.image = image
+//
+////            self?.activityIndicator.isHidden = true
+////            self?.activityIndicator.stopAnimating()
+//        }
+//    }
+
     func setupPoster(_ completion:(()->())? = nil)
     {
         guard self.selectedMediaItem != nil else {
@@ -1447,18 +1468,20 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
             Thread.onMainThread {
                 self.stopAnimating()
-                self.hidePosterImage()
+//                self.hidePosterImage()
                 
                 if let view = Globals.shared.mediaPlayer.isZoomed ? self.splitViewController?.view : self.mediaItemNotesAndSlides {
                     let imgView = UIImageView()
-                    
+
                     imgView.contentMode = .scaleAspectFit
                     imgView.frame = view.bounds
                     imgView.backgroundColor = UIColor.lightGray
                     imgView.image = image
-                    
+
                     view.addSubview(imgView)
                     view.bringSubviewToFront(imgView)
+                    
+                    self.posterImage = image
                 }
 
                 completion?()
@@ -1468,6 +1491,8 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     
     @objc func updateUI()
     {
+        slidesButton.isEnabled = false
+        
         if (selectedMediaItem != nil) && (selectedMediaItem == Globals.shared.mediaPlayer.mediaItem) {
             if (Globals.shared.mediaPlayer.url != selectedMediaItem?.playingURL) {
                 Globals.shared.mediaPlayer.pause()
@@ -1522,21 +1547,22 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         
         guard selectedMediaItem.showing?.range(of: Showing.slides) != nil else {
             slidesControlView.isHidden = !selectedMediaItem.hasSlides
-            mediaItemNotesAndSlides.bringSubviewToFront(slidesControlView)
+            slidesControlView.superview?.bringSubviewToFront(slidesControlView)
             nextSlidebutton.isHidden = true
             prevSlideButton.isHidden = true
+            slidesButton.isEnabled = true
             hidePageImage()
             return
         }
 
         slidesControlView.isHidden = false
 
-        if let pageNum = pageNum {
+        if let pageNum = selectedMediaItem.pageNum {
             if pageNum < 0 {
                 prevSlideButton.isEnabled = false
             }
 
-            if let pageImages = pageImages {
+            if let pageImages = selectedMediaItem.pageImages {
                 if pageNum > (pageImages.count - 1) {
                     nextSlidebutton.isEnabled = false
                 }
@@ -1549,7 +1575,8 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             }
         }
         
-        guard !loadingSlides, pageImages == nil else {
+        guard !loadingSlides, selectedMediaItem.pageImages == nil else {
+            slidesButton.isEnabled = true
             if selectedMediaItem.showing?.range(of: Showing.slides) != nil {
                 showPageImage()
             }
@@ -1573,19 +1600,28 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
             if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
                 if let pdfDocument = self.openPDF(url: fileSystemURL) {
-                    self.setupPageImages(pdfDocument: pdfDocument)
-
                     Thread.onMainThread {
-                        if self.selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
+                        self.slidesButton.isEnabled = false
+                    }
+                    
+                    selectedMediaItem.setupPageImages(pdfDocument: pdfDocument)
+
+                    guard self.selectedMediaItem == selectedMediaItem else {
+                        return
+                    }
+                    
+                    Thread.onMainThread {
+                        if selectedMediaItem.showing?.range(of: Showing.slides) != nil {
                             self.showPageImage()
                         }
 
+                        self.slidesButton.isEnabled = true
                         self.loadingSlides = false
                         self.stopAnimating()
                     }
                 }
             } else {
-                if let url = self.selectedMediaItem?.slidesURL {
+                if let url = selectedMediaItem.slidesURL {
                     do {
                         let data = try Data(contentsOf: url) // , options: NSData.ReadingOptions.mappedIfSafe
                         print("able to read slides from the URL.")
@@ -1598,10 +1634,14 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                         }
 
                         if let pdfDocument = self.openPDF(url: fileSystemURL) {
-                            self.setupPageImages(pdfDocument: pdfDocument)
+                            selectedMediaItem.setupPageImages(pdfDocument: pdfDocument)
 
+                            guard self.selectedMediaItem == selectedMediaItem else {
+                                return
+                            }
+                            
                             Thread.onMainThread {
-                                if self.selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
+                                if selectedMediaItem.showing?.range(of: Showing.slides) != nil {
                                     self.showPageImage()
                                 }
                                 
@@ -2322,10 +2362,10 @@ extension MediaViewController : UITableViewDelegate
             return
         }
         
-        guard Globals.shared.mediaPlayer.url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
-            print("Player is LIVE STREAMING.")
-            return
-        }
+//        guard Globals.shared.mediaPlayer.url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
+//            print("Player is LIVE STREAMING.")
+//            return
+//        }
         
         if let mediaItem = mediaItems?[indexPath.row], (selectedMediaItem != mediaItem) || (Globals.shared.history == nil) {
             Globals.shared.addToHistory(mediaItem)

@@ -23,7 +23,7 @@ class FetchImage : Fetch<UIImage>, Size
             return nil
         }
         
-        super.init(name: name)
+        super.init(name:name)
         
         fetch = { [weak self] () -> (UIImage?) in
             return self?.fetchIt()
@@ -59,13 +59,22 @@ class FetchImage : Fetch<UIImage>, Size
         return self.url?.image
     }
     
-    func block(_ block:((UIImage?)->()))
+//    func block(_ block:((UIImage?)->()))
+//    {
+//        if let image = image {
+//            block(image)
+//        }
+//    }
+
+    func load(success:((UIImage)->())?, failure:(()->())?)
     {
-        if let image = image {
-            block(image)
+        if let image = result {
+            success?(image)
+        } else {
+            failure?()
         }
     }
-    
+
     var imageName : String?
     {
         return url?.lastPathComponent
@@ -120,8 +129,12 @@ class FetchImage : Fetch<UIImage>, Size
             return
         }
         
+        guard let data = image.jpegData(compressionQuality: 1.0), !data.isEmpty else {
+            return
+        }
+        
         do {
-            try image.jpegData(compressionQuality: 1.0)?.write(to: fileSystemURL, options: [.atomic])
+            try data.write(to: fileSystemURL, options: [.atomic])
             print("Image \(fileSystemURL.lastPathComponent) saved to file system")
             fileSize = fileSystemURL.fileSize ?? 0
         } catch let error {

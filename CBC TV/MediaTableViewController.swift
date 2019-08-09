@@ -1925,10 +1925,10 @@ class MediaTableViewController : UIViewController
             return false
         }
         
-        guard Globals.shared.mediaPlayer.url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
-            print("Player is LIVE STREAMING.")
-            return false
-        }
+//        guard Globals.shared.mediaPlayer.url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
+//            print("Player is LIVE STREAMING.")
+//            return false
+//        }
 
         var show:Bool
         
@@ -2164,10 +2164,10 @@ extension MediaTableViewController : UITableViewDelegate
             return
         }
         
-        guard Globals.shared.mediaPlayer.url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
-            print("Player is LIVE STREAMING.")
-            return
-        }
+//        guard Globals.shared.mediaPlayer.url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
+//            print("Player is LIVE STREAMING.")
+//            return
+//        }
         
         if let cell: MediaTableViewCell = tableView.cellForRow(at: indexPath) as? MediaTableViewCell {
             selectedMediaItem = cell.mediaItem
