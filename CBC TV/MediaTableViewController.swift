@@ -101,6 +101,7 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
                 break
                 
             case Constants.Strings.Library:
+                // If both are nil player view is removed.  Do we care?
                 if Globals.shared.mediaPlayer.url == Globals.shared.streamingURL { // URL(string:Constants.URL.LIVE_STREAM)
                     Globals.shared.mediaPlayer.view?.removeFromSuperview()
                 }
@@ -279,77 +280,86 @@ extension MediaTableViewController : PopoverTableViewControllerDelegate
             
         case .selectingCategory:
             guard (Globals.shared.mediaCategory.selected != string) || (Globals.shared.mediaRepository.list == nil) else {
-                return
+                break
             }
             
             Globals.shared.mediaCategory.selected = string
-            
-            Globals.shared.mediaPlayer.unobserve()
-            
-            let liveStream = Globals.shared.mediaPlayer.url == URL(string: Constants.URL.LIVE_STREAM)
-            
-            Globals.shared.mediaPlayer.pause() // IfPlaying
-            
-            Globals.shared.clearDisplay()
-            
-            tableView.reloadData()
-            
-            if splitViewController != nil {
-                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
-            }
-            
-            //                    tagLabel.text = nil
-            
-            // This is ABSOLUTELY ESSENTIAL to reset all of the Media so that things load as if from a cold start.
-            Globals.shared.media = Media()
-            
-            loadMediaItems()
-                {
-                    if liveStream {
-                        Thread.onMainThread {
-                            NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.LIVE_VIEW), object: nil)
-                        }
-                    }
-                    
-                    if Globals.shared.mediaRepository.list == nil {
-                        let alert = UIAlertController(title: "No media available.",
-                                                      message: "", // Please check your network connection and try again.",
-                                                      preferredStyle: UIAlertController.Style.alert)
-                        
-                        let action = UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
-                            self.setupListActivityIndicator()
-                        })
-                        alert.addAction(action)
-                        
-                        self.present(alert, animated: true, completion: nil)
-                    } else {
-                        self.selectedMediaItem = Globals.shared.selectedMediaItem.master
-                        
-                        if Globals.shared.search.active && !Globals.shared.search.complete {
-                            self.updateSearchResults(Globals.shared.search.text,completion: {
-                                // For UI
-                                DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-                                    Thread.onMainThread {
-                                        self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableView.ScrollPosition.top)
-                                    }
-                                })
-                            })
-                        } else {
-                            // Reload the table
-                            self.tableView.reloadData()
-                            
-                            // For UI
-                            DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
-                                Thread.onMainThread {
-                                    self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableView.ScrollPosition.top)
-                                }
-                            })
-                        }
-                    }
-                    
-                    self.tableView.isHidden = false
-            }
+
+            handleRefresh()
             break
+
+//            Globals.shared.mediaPlayer.unobserve()
+//
+//            let liveStream = Globals.shared.mediaPlayer.url == URL(string: Constants.URL.LIVE_STREAM)
+//
+//            Globals.shared.mediaPlayer.pause() // IfPlaying
+//
+//            Globals.shared.clearDisplay()
+//
+//            tableView.reloadData()
+//
+//            if splitViewController != nil {
+//                NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.CLEAR_VIEW), object: nil)
+//            }
+//
+//            //                    tagLabel.text = nil
+//
+//            // This is ABSOLUTELY ESSENTIAL to reset all of the Media so that things load as if from a cold start.
+//            Globals.shared.media = Media()
+//
+//            loadMediaItems()
+//            {
+//                self.loadCompletion()
+//            }
+//            break
+            
+//            loadMediaItems()
+//            {
+//                if liveStream {
+//                    Thread.onMainThread {
+//                        NotificationCenter.default.post(name: Notification.Name(rawValue: Constants.NOTIFICATION.LIVE_VIEW), object: nil)
+//                    }
+//                }
+//                
+//                if Globals.shared.mediaRepository.list == nil {
+//                    let alert = UIAlertController(title: "No media available.",
+//                                                  message: "", // Please check your network connection and try again.",
+//                                                  preferredStyle: UIAlertController.Style.alert)
+//                    
+//                    let action = UIAlertAction(title: Constants.Okay, style: UIAlertAction.Style.cancel, handler: { (UIAlertAction) -> Void in
+//                        self.setupListActivityIndicator()
+//                    })
+//                    alert.addAction(action)
+//                    
+//                    self.present(alert, animated: true, completion: nil)
+//                } else {
+//                    self.selectedMediaItem = Globals.shared.selectedMediaItem.master
+//                    
+//                    if Globals.shared.search.active && !Globals.shared.search.complete {
+//                        self.updateSearchResults(Globals.shared.search.text,completion: {
+//                            // For UI
+//                            DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+//                                Thread.onMainThread {
+//                                    self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableView.ScrollPosition.top)
+//                                }
+//                            })
+//                        })
+//                    } else {
+//                        // Reload the table
+//                        self.tableView.reloadData()
+//                        
+//                        // For UI
+//                        DispatchQueue.global(qos: .userInitiated).async(execute: { () -> Void in
+//                            Thread.onMainThread {
+//                                self.selectOrScrollToMediaItem(self.selectedMediaItem, select: true, scroll: true, position: UITableView.ScrollPosition.top)
+//                            }
+//                        })
+//                    }
+//                }
+//                
+//                self.tableView.isHidden = false
+//            }
+//            break
             
         case .selectingSorting:
             if let sorting = Constants.SortingTitles.firstIndex(of: string) {
@@ -1611,6 +1621,11 @@ class MediaTableViewController : UIViewController
         }
     }
     
+    override func shouldUpdateFocus(in context: UIFocusUpdateContext) -> Bool
+    {
+        return !Globals.shared.mediaPlayer.isZoomed
+    }
+    
     @objc func menuButtonAction(tap:UITapGestureRecognizer)
     {
         print("MTVC menu button pressed")
@@ -1627,113 +1642,116 @@ class MediaTableViewController : UIViewController
         
         Globals.shared.popoverNavCon = self.storyboard?.instantiateViewController(withIdentifier: Constants.IDENTIFIER.POPOVER_TABLEVIEW_NAV) as? UINavigationController
         
-        if Globals.shared.popoverNavCon != nil, let popover = Globals.shared.popoverNavCon?.viewControllers[0] as? PopoverTableViewController {
-            Globals.shared.popoverNavCon?.modalPresentationStyle = .fullScreen
-            
-            popover.navigationItem.title = Constants.Strings.Menu_Options
-            
-            popover.delegate = self
-            
-            popover.purpose = .selectingMenu
-            
-            var strings = [String]()
+        guard let popover = Globals.shared.popoverNavCon?.viewControllers[0] as? PopoverTableViewController else {
+            return
+        }
+        
+        Globals.shared.popoverNavCon?.modalPresentationStyle = .fullScreen
+        
+        popover.navigationItem.title = Constants.Strings.Menu_Options
+        
+        popover.delegate = self
+        
+        popover.purpose = .selectingMenu
+        
+        var strings = [String]()
 
-            if Globals.shared.mediaPlayer.url == Globals.shared.streamingURL { // URL(string:Constants.URL.LIVE_STREAM)
-                strings.append(Constants.Strings.Library)
-            } else {
-                if !Globals.shared.mediaPlayer.isZoomed {
-                    if !Globals.shared.showingAbout {
-                        strings.append(Constants.Strings.About)
+        // Here we care and so we check specifically that Globals.shared.mediaPlayer.url != nil before comparing it to streaming.
+        if Globals.shared.mediaPlayer.url != nil, Globals.shared.mediaPlayer.url == Globals.shared.streamingURL { // URL(string:Constants.URL.LIVE_STREAM)
+            strings.append(Constants.Strings.Library)
+        } else {
+            if !Globals.shared.mediaPlayer.isZoomed {
+                if !Globals.shared.showingAbout {
+                    strings.append(Constants.Strings.About)
+                    
+                    if Globals.shared.mediaPlayer.loaded, Globals.shared.mediaPlayer.mediaItem?.playing == Playing.video {
+                        strings.append(Constants.Strings.Toggle_Zoom)
+                    } else
+                    
+                    if let hasSlides = selectedMediaItem?.hasSlides, hasSlides,
+                        selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
+                        strings.append(Constants.Strings.Toggle_Zoom)
+                    } else
                         
-                        if Globals.shared.mediaPlayer.loaded, Globals.shared.mediaPlayer.mediaItem?.playing == Playing.video {
-                            strings.append(Constants.Strings.Toggle_Zoom)
-                        } else
-                        
-                        if let hasSlides = selectedMediaItem?.hasSlides, hasSlides,
-                            selectedMediaItem?.showing?.range(of: Showing.slides) != nil {
-                            strings.append(Constants.Strings.Toggle_Zoom)
-                        } else
-                            
-                        if selectedMediaItem?.posterImage?.image != nil {
-                            strings.append(Constants.Strings.Toggle_Zoom)
-                        }
-                        
-                        if let selectedMediaItem = Globals.shared.selectedMediaItem.detail, selectedMediaItem.hasSlides {
-                            if selectedMediaItem.showing?.range(of: Showing.slides) != nil {
-                                if selectedMediaItem.pageNum > 0 {
-                                    strings.append(Constants.Strings.Previous_Slide)
-                                }
-                                
-                                if let count = selectedMediaItem.pageImages?.count, selectedMediaItem.pageNum < (count - 1) {
-                                    strings.append(Constants.Strings.Next_Slide)
-                                }
-                                
-                                strings.append(Constants.Strings.Hide_Slides)
-                            } else {
-                                strings.append(Constants.Strings.Show_Slides)
-                            }
-                        }
-                    } else {
-                        if (Globals.shared.mediaPlayer.mediaItem != nil) {
-                            strings.append(Constants.Strings.Current_Selection)
-                        } else {
-                            //Nothing to show
-                            strings.append(Constants.Strings.Library)
-                        }
+                    if selectedMediaItem?.posterImage?.image != nil {
+                        strings.append(Constants.Strings.Toggle_Zoom)
                     }
-                    
-                    // Globals.shared.streaming.streamEntries?.count > 0,
-                    if Globals.shared.reachability.isReachable {
-                        strings.append(Constants.Strings.Live)
-                    }
-                    
-                    strings.append(Constants.Strings.Category)
-                    if let count = Globals.shared.media.all?.mediaItemTags?.count, count > 0 {
-                        strings.append(Constants.Strings.Series)
-                    }
-                    
-                    strings.append(Constants.Strings.Sort)
-                    strings.append(Constants.Strings.Group)
-                    strings.append(Constants.Strings.Index)
-                    
-                    strings.append(Constants.Strings.Search)
-                    
-                    strings.append(Constants.Strings.Refresh_Media)
-                    
-                    strings.append(Constants.Strings.Clear_Slide_Cache)
-                } else {
-                    strings.append(Constants.Strings.Toggle_Zoom)
                     
                     if let selectedMediaItem = Globals.shared.selectedMediaItem.detail, selectedMediaItem.hasSlides {
                         if selectedMediaItem.showing?.range(of: Showing.slides) != nil {
                             if selectedMediaItem.pageNum > 0 {
                                 strings.append(Constants.Strings.Previous_Slide)
                             }
-
+                            
                             if let count = selectedMediaItem.pageImages?.count, selectedMediaItem.pageNum < (count - 1) {
                                 strings.append(Constants.Strings.Next_Slide)
                             }
-
+                            
                             strings.append(Constants.Strings.Hide_Slides)
-
-//                            if selectedMediaItem.playing == Playing.video, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem {
-//                                strings.append(Constants.Strings.Hide_Slides)
-//                            }
                         } else {
                             strings.append(Constants.Strings.Show_Slides)
                         }
                     }
+                } else {
+                    if (Globals.shared.mediaPlayer.mediaItem != nil) {
+                        strings.append(Constants.Strings.Current_Selection)
+                    } else {
+                        //Nothing to show
+                        strings.append(Constants.Strings.Library)
+                    }
+                }
+                
+                // Globals.shared.streaming.streamEntries?.count > 0,
+                if Globals.shared.reachability.isReachable {
+                    strings.append(Constants.Strings.Live)
+                }
+                
+                strings.append(Constants.Strings.Category)
+                if let count = Globals.shared.media.all?.mediaItemTags?.count, count > 0 {
+                    strings.append(Constants.Strings.Series)
+                }
+                
+                strings.append(Constants.Strings.Sort)
+                strings.append(Constants.Strings.Group)
+                strings.append(Constants.Strings.Index)
+                
+                strings.append(Constants.Strings.Search)
+                
+                strings.append(Constants.Strings.Refresh_Media)
+                
+                strings.append(Constants.Strings.Clear_Slide_Cache)
+            } else {
+                strings.append(Constants.Strings.Toggle_Zoom)
+                
+                if let selectedMediaItem = Globals.shared.selectedMediaItem.detail, selectedMediaItem.hasSlides {
+                    if selectedMediaItem.showing?.range(of: Showing.slides) != nil {
+                        if selectedMediaItem.pageNum > 0 {
+                            strings.append(Constants.Strings.Previous_Slide)
+                        }
+
+                        if let count = selectedMediaItem.pageImages?.count, selectedMediaItem.pageNum < (count - 1) {
+                            strings.append(Constants.Strings.Next_Slide)
+                        }
+
+                        strings.append(Constants.Strings.Hide_Slides)
+
+//                            if selectedMediaItem.playing == Playing.video, Globals.shared.mediaPlayer.mediaItem == selectedMediaItem {
+//                                strings.append(Constants.Strings.Hide_Slides)
+//                            }
+                    } else {
+                        strings.append(Constants.Strings.Show_Slides)
+                    }
                 }
             }
-            
-            popover.section.strings = strings
-            
-            popover.section.showIndex = false
-            popover.section.showHeaders = false
-            
-            if let popoverNavCon = Globals.shared.popoverNavCon {
-                present(popoverNavCon, animated: true, completion: nil )
-            }
+        }
+        
+        popover.section.strings = strings
+        
+        popover.section.showIndex = false
+        popover.section.showHeaders = false
+        
+        if let popoverNavCon = Globals.shared.popoverNavCon {
+            present(popoverNavCon, animated: true, completion: nil )
         }
     }
     
@@ -1925,10 +1943,11 @@ class MediaTableViewController : UIViewController
             return false
         }
         
-//        guard Globals.shared.mediaPlayer.url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
-//            print("Player is LIVE STREAMING.")
-//            return false
-//        }
+        // Why did we need this?  Prevent errant clicks!
+        if Globals.shared.mediaPlayer.url != nil, Globals.shared.mediaPlayer.url == Globals.shared.streamingURL { // URL(string:Constants.URL.LIVE_STREAM)
+            print("Player is LIVE STREAMING.")
+            return false
+        }
 
         var show:Bool
         
@@ -1979,6 +1998,7 @@ class MediaTableViewController : UIViewController
                 
             case Constants.SEGUE.SHOW_MEDIAITEM:
                 // URL(string:Constants.URL.LIVE_STREAM) // (Globals.shared.mediaPlayer.pip == .stopped)
+                // If they are both nil the player will pause, but if they are both nil nothing s/b playing.
                 if Globals.shared.mediaPlayer.url == Globals.shared.streamingURL {
                     Globals.shared.mediaPlayer.pause()
                 }
@@ -2164,10 +2184,11 @@ extension MediaTableViewController : UITableViewDelegate
             return
         }
         
-//        guard Globals.shared.mediaPlayer.url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
-//            print("Player is LIVE STREAMING.")
-//            return
-//        }
+        // Why did we need this?  Prevent errant clicks!
+        if Globals.shared.mediaPlayer.url != nil, Globals.shared.mediaPlayer.url == Globals.shared.streamingURL { // URL(string:Constants.URL.LIVE_STREAM)
+            print("Player is LIVE STREAMING.")
+            return
+        }
         
         if let cell: MediaTableViewCell = tableView.cellForRow(at: indexPath) as? MediaTableViewCell {
             selectedMediaItem = cell.mediaItem

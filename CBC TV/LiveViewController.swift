@@ -76,7 +76,7 @@ class LiveViewController: UIViewController
     {
         Thread.onMainThread {
             Globals.shared.mediaPlayer.view?.isHidden = true
-            self.logo.isHidden = false
+//            self.logo.isHidden = false
         }
     }
     
@@ -86,7 +86,7 @@ class LiveViewController: UIViewController
             self.setupLivePlayerView()
             
             Globals.shared.mediaPlayer.view?.isHidden = false
-            self.logo.isHidden = true
+//            self.logo.isHidden = true
         }
     }
     
@@ -129,6 +129,10 @@ class LiveViewController: UIViewController
     fileprivate func setupLivePlayerView()
     {
         guard let splitViewController = splitViewController else {
+            return
+        }
+        
+        guard Globals.shared.streamingURL != nil else {
             return
         }
         

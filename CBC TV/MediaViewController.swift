@@ -27,6 +27,11 @@ extension AVPlayerViewController
 
 class MediaViewController: UIViewController, UIGestureRecognizerDelegate
 {
+    override func shouldUpdateFocus(in context: UIFocusUpdateContext) -> Bool
+    {
+        return !Globals.shared.mediaPlayer.isZoomed
+    }
+    
 //    var pageImages:[UIImage]?
 //    // This may be too memory intensive - keeping all slides ever loaded during one run-time sesssion.
 //    {
@@ -1135,7 +1140,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             case Playing.video:
                 if (Globals.shared.mediaPlayer.mediaItem != nil) && (Globals.shared.mediaPlayer.mediaItem == selectedMediaItem) {
                     // Video is in the player
-                    logo.isHidden = Globals.shared.mediaPlayer.loaded
+//                    logo.isHidden = Globals.shared.mediaPlayer.loaded
                     Globals.shared.mediaPlayer.view?.isHidden = !Globals.shared.mediaPlayer.loaded
                     
                     if selectedMediaItem.showing?.range(of: Showing.slides) == nil {
@@ -1600,6 +1605,10 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
             
             if (FileManager.default.fileExists(atPath: fileSystemURL.path)){
                 if let pdfDocument = self.openPDF(url: fileSystemURL) {
+                    guard self.selectedMediaItem == selectedMediaItem else {
+                        return
+                    }
+                    
                     Thread.onMainThread {
                         self.slidesButton.isEnabled = false
                     }
@@ -1645,6 +1654,7 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
                                     self.showPageImage()
                                 }
                                 
+                                self.slidesButton.isEnabled = true
                                 self.loadingSlides = false
                                 self.stopAnimating()
                             }
@@ -2361,11 +2371,12 @@ extension MediaViewController : UITableViewDelegate
         guard !Globals.shared.mediaPlayer.isZoomed else {
             return
         }
-        
-//        guard Globals.shared.mediaPlayer.url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
-//            print("Player is LIVE STREAMING.")
-//            return
-//        }
+
+        // Why did we need this?  Prevent errant clicks!
+        if Globals.shared.mediaPlayer.url != nil, Globals.shared.mediaPlayer.url == Globals.shared.streamingURL { // URL(string:Constants.URL.LIVE_STREAM)
+            print("Player is LIVE STREAMING.")
+            return
+        }
         
         if let mediaItem = mediaItems?[indexPath.row], (selectedMediaItem != mediaItem) || (Globals.shared.history == nil) {
             Globals.shared.addToHistory(mediaItem)

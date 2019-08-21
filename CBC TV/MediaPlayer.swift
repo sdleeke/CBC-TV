@@ -514,6 +514,7 @@ class MediaPlayer : NSObject
     
     @objc func playerObserver()
     {
+        // Presumption is url != nil
         guard url != Globals.shared.streamingURL else {
             return
         }
@@ -601,6 +602,7 @@ class MediaPlayer : NSObject
         
         unobserve()
         
+        // Presumption is url != nil
         guard url != Globals.shared.streamingURL else { // URL(string:Constants.URL.LIVE_STREAM)
             return
         }
@@ -976,67 +978,137 @@ class MediaPlayer : NSObject
     
     func setupPlayingInfoCenter()
     {
+        guard let url = url else {
+            return
+        }
+        
         guard url != URL(string: Constants.URL.LIVE_STREAM) else {
-            var nowPlayingInfo = [String:Any]()
+//            var nowPlayingInfo = [String:Any]()
+//
+//            nowPlayingInfo[MPMediaItemPropertyTitle]         = "Live Broadcast"
+//
+//            nowPlayingInfo[MPMediaItemPropertyArtist]        = "Countryside Bible Church"
+//
+//            nowPlayingInfo[MPMediaItemPropertyAlbumTitle]    = "Live Broadcast"
+//
+//            nowPlayingInfo[MPMediaItemPropertyAlbumArtist]   = "Countryside Bible Church"
+//
+//            if let image = UIImage(named:Constants.COVER_ART_IMAGE) {
+//                nowPlayingInfo[MPMediaItemPropertyArtwork]   = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { (CGSize) -> UIImage in
+//                    return image
+//                })
+//            }
+//
+//            Thread.onMainThread { () -> (Void) in
+//                MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+//            }
             
-            nowPlayingInfo[MPMediaItemPropertyTitle]         = "Live Broadcast"
+            let metadata = AVMutableMetadataItem()
             
-            nowPlayingInfo[MPMediaItemPropertyArtist]        = "Countryside Bible Church"
+            metadata.identifier = AVMetadataIdentifier.commonIdentifierTitle
+            metadata.value = "Live Broadcast" as NSString
+            currentItem?.externalMetadata.append(metadata)
             
-            nowPlayingInfo[MPMediaItemPropertyAlbumTitle]    = "Live Broadcast"
+            metadata.identifier = AVMetadataIdentifier.commonIdentifierArtist
+            metadata.value = "Countryside Bible Church" as NSString
+            currentItem?.externalMetadata.append(metadata)
             
-            nowPlayingInfo[MPMediaItemPropertyAlbumArtist]   = "Countryside Bible Church"
+            metadata.identifier = AVMetadataIdentifier.commonIdentifierAuthor
+            metadata.value = "Countryside Bible Church" as NSString
+            currentItem?.externalMetadata.append(metadata)
             
-            if let image = UIImage(named:Constants.COVER_ART_IMAGE) {
-                nowPlayingInfo[MPMediaItemPropertyArtwork]   = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { (CGSize) -> UIImage in
-                    return image
-                })
-            }
+            metadata.identifier = AVMetadataIdentifier.commonIdentifierCreator
+            metadata.value = "Countryside Bible Church" as NSString
+            currentItem?.externalMetadata.append(metadata)
             
-            Thread.onMainThread { () -> (Void) in
-                MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+            metadata.identifier = AVMetadataIdentifier.commonIdentifierCreationDate
+            metadata.value = Date() as NSDate
+            currentItem?.externalMetadata.append(metadata)
+            
+            metadata.identifier = AVMetadataIdentifier.commonIdentifierAlbumName
+            metadata.value = "Live Broadcast" as NSString
+            currentItem?.externalMetadata.append(metadata)
+            
+            if let data = UIImage(named:Constants.COVER_ART_IMAGE)?.jpegData(compressionQuality: 1.0) {
+                let coverArtMetadata = AVMutableMetadataItem()
+                coverArtMetadata.identifier = AVMetadataIdentifier.commonIdentifierArtwork
+                coverArtMetadata.value = data as NSData
+                currentItem?.externalMetadata.append(coverArtMetadata)
             }
             return
         }
+        
+        guard let mediaItem = self.mediaItem else {
+//            Thread.onMainThread { () -> (Void) in
+//                MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+//            }
+            return
+        }
+        
+//        var nowPlayingInfo = [String:Any]()
+//
+//        nowPlayingInfo[MPMediaItemPropertyTitle]     = mediaItem.title
+//        nowPlayingInfo[MPMediaItemPropertyArtist]    = mediaItem.speaker
+//
+//        if let image = UIImage(named:Constants.COVER_ART_IMAGE) {
+//            nowPlayingInfo[MPMediaItemPropertyArtwork]   = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { (CGSize) -> UIImage in
+//                return image
+//            })
+//        } else {
+//            print("no artwork!")
+//        }
+//
+//        if mediaItem.hasMultipleParts {
+//            nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = mediaItem.multiPartName
+//            nowPlayingInfo[MPMediaItemPropertyAlbumArtist] = mediaItem.speaker
+//
+//            if let index = mediaItem.multiPartMediaItems?.firstIndex(of: mediaItem) {
+//                nowPlayingInfo[MPMediaItemPropertyAlbumTrackNumber]  = index + 1
+//            } else {
+//                print(mediaItem as Any," not found in ",mediaItem.multiPartMediaItems as Any)
+//            }
+//
+//            nowPlayingInfo[MPMediaItemPropertyAlbumTrackCount]   = mediaItem.multiPartMediaItems?.count
+//        }
+//
+//        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration]          = duration?.seconds
+//        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime]  = currentTime?.seconds
+//        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate]         = rate
+//
+//        Thread.onMainThread { () -> (Void) in
+//            MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+//        }
 
-        if let mediaItem = self.mediaItem {
-            var nowPlayingInfo = [String:Any]()
-            
-            nowPlayingInfo[MPMediaItemPropertyTitle]     = mediaItem.title
-            nowPlayingInfo[MPMediaItemPropertyArtist]    = mediaItem.speaker
-            
-            if let image = UIImage(named:Constants.COVER_ART_IMAGE) {
-                nowPlayingInfo[MPMediaItemPropertyArtwork]   = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { (CGSize) -> UIImage in
-                    return image
-                })
-            } else {
-                print("no artwork!")
-            }
-            
-            if mediaItem.hasMultipleParts {
-                nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = mediaItem.multiPartName
-                nowPlayingInfo[MPMediaItemPropertyAlbumArtist] = mediaItem.speaker
-                
-                if let index = mediaItem.multiPartMediaItems?.firstIndex(of: mediaItem) {
-                    nowPlayingInfo[MPMediaItemPropertyAlbumTrackNumber]  = index + 1
-                } else {
-                    print(mediaItem as Any," not found in ",mediaItem.multiPartMediaItems as Any)
-                }
-                
-                nowPlayingInfo[MPMediaItemPropertyAlbumTrackCount]   = mediaItem.multiPartMediaItems?.count
-            }
-            
-            nowPlayingInfo[MPMediaItemPropertyPlaybackDuration]          = duration?.seconds
-            nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime]  = currentTime?.seconds
-            nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate]         = rate
-            
-            Thread.onMainThread { () -> (Void) in
-                MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-            }
-        } else {
-            Thread.onMainThread { () -> (Void) in
-                MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
-            }
+        if let title = mediaItem.title {
+            let titleMetadata = AVMutableMetadataItem()
+            titleMetadata.identifier = AVMetadataIdentifier.commonIdentifierTitle
+            titleMetadata.value = title as NSString
+            currentItem?.externalMetadata.append(titleMetadata)
+        }
+        
+        if let speaker = mediaItem.speaker {
+            let speakerMetadata = AVMutableMetadataItem()
+            speakerMetadata.identifier = AVMetadataIdentifier.commonIdentifierArtist
+            speakerMetadata.value = speaker as NSString
+            currentItem?.externalMetadata.append(speakerMetadata)
+            speakerMetadata.identifier = AVMetadataIdentifier.commonIdentifierAuthor
+            currentItem?.externalMetadata.append(speakerMetadata)
+            speakerMetadata.identifier = AVMetadataIdentifier.commonIdentifierCreator
+            currentItem?.externalMetadata.append(speakerMetadata)
+        }
+        
+        if let date = mediaItem.fullDate {
+            let dateMetadata = AVMutableMetadataItem()
+            dateMetadata.identifier = AVMetadataIdentifier.commonIdentifierArtist
+            dateMetadata.value = date as NSDate
+            currentItem?.externalMetadata.append(dateMetadata)
+        }
+        
+        if let data = UIImage(named:Constants.COVER_ART_IMAGE)?.jpegData(compressionQuality: 1.0) {
+            let coverArtMetadata = AVMutableMetadataItem()
+            coverArtMetadata.identifier = AVMetadataIdentifier.commonIdentifierArtwork
+            coverArtMetadata.value = data as NSData
+            currentItem?.externalMetadata.append(coverArtMetadata)
         }
     }
 }
