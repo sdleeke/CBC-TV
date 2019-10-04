@@ -32,7 +32,6 @@
 		1741BDCB1EDCB8F900A79AAE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1741BDCA1EDCB8F900A79AAE /* Images.xcassets */; };
 		174E1A0C1ED084DA00D10AB5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E1A0B1ED084DA00D10AB5 /* AppDelegate.swift */; };
 		174E1A131ED084DA00D10AB5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 174E1A111ED084DA00D10AB5 /* Main.storyboard */; };
-		174E1A151ED084DA00D10AB5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 174E1A141ED084DA00D10AB5 /* Assets.xcassets */; };
 		174E1A201ED084DA00D10AB5 /* CBC_TVTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E1A1F1ED084DA00D10AB5 /* CBC_TVTests.swift */; };
 		174E1A2B1ED084DA00D10AB5 /* CBC_TVUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174E1A2A1ED084DA00D10AB5 /* CBC_TVUITests.swift */; };
 		17590CCC219F99EA00ED6EB1 /* CancellableOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17590CCB219F99EA00ED6EB1 /* CancellableOperation.swift */; };
@@ -51,6 +50,7 @@
 		17B3AC011ED8E7510086B9E7 /* fontawesome-webfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 17B3AC001ED8E3D90086B9E7 /* fontawesome-webfont.ttf */; };
 		17B8436321935D08007ABB68 /* FetchImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B8436221935D08007ABB68 /* FetchImage.swift */; };
 		17B8436521935D67007ABB68 /* generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B8436421935D67007ABB68 /* generics.swift */; };
+		17C888312336FEBF00AFF3BD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 174E1A141ED084DA00D10AB5 /* Assets.xcassets */; };
 		17DA7DA422E4A8EC00F238DB /* Streaming.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DA7DA222E4A8EB00F238DB /* Streaming.swift */; };
 		17DA7DA522E4A8EC00F238DB /* MediaStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DA7DA322E4A8EB00F238DB /* MediaStream.swift */; };
 /* End PBXBuildFile section */
@@ -361,8 +361,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				17B3AC011ED8E7510086B9E7 /* fontawesome-webfont.ttf in Resources */,
+				17C888312336FEBF00AFF3BD /* Assets.xcassets in Resources */,
 				1741BDCB1EDCB8F900A79AAE /* Images.xcassets in Resources */,
-				174E1A151ED084DA00D10AB5 /* Assets.xcassets in Resources */,
 				174E1A131ED084DA00D10AB5 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -590,14 +590,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CURRENT_PROJECT_VERSION = 130;
 				DEVELOPMENT_TEAM = 35U7HMB59T;
 				INFOPLIST_FILE = "$(SRCROOT)/CBC TV/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.1.22;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-TV";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 5.0;
-				TVOS_DEPLOYMENT_TARGET = 10.0;
+				TVOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Debug;
 		};
@@ -606,14 +608,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CURRENT_PROJECT_VERSION = 130;
 				DEVELOPMENT_TEAM = 35U7HMB59T;
 				INFOPLIST_FILE = "$(SRCROOT)/CBC TV/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.1.22;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.countrysidebible.CBC-TV";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 5.0;
-				TVOS_DEPLOYMENT_TARGET = 10.0;
+				TVOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Release;
 		};

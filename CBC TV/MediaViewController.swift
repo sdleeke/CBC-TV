@@ -353,8 +353,10 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
     
-    var observerActive = false
-    var observedItem:AVPlayerItem?
+    var observer: NSKeyValueObservation?
+    
+//    var observerActive = false
+//    var observedItem:AVPlayerItem?
 
     private var PlayerContext = 0
     
@@ -364,30 +366,36 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     
     func removePlayerObserver()
     {
-        if observerActive {
-            if observedItem != player?.currentItem {
-                print("observedItem != player?.currentItem")
-            }
-            if observedItem != nil {
-                print("MVC removeObserver: ",player?.currentItem?.observationInfo as Any)
-                
-                observedItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), context: &PlayerContext)
-                observedItem = nil
-                observerActive = false
-            } else {
-                print("observedItem == nil!")
-            }
-        }
+        observer?.invalidate()
+        
+//        if observerActive {
+//            if observedItem != player?.currentItem {
+//                print("observedItem != player?.currentItem")
+//            }
+//            if observedItem != nil {
+//                print("MVC removeObserver: ",player?.currentItem?.observationInfo as Any)
+//
+//                observedItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), context: &PlayerContext)
+//                observedItem = nil
+//                observerActive = false
+//            } else {
+//                print("observedItem == nil!")
+//            }
+//        }
     }
     
     func addPlayerObserver()
     {
-        player?.currentItem?.addObserver(self,
-                                         forKeyPath: #keyPath(AVPlayerItem.status),
-                                         options: [.old, .new],
-                                         context: &PlayerContext)
-        observerActive = true
-        observedItem = player?.currentItem
+        observer = player?.currentItem?.observe(\.status, options:[.new]) { [weak self] (currentItem, change) in
+            self?.setupProgressAndTimes()
+        }
+        
+//        player?.currentItem?.addObserver(self,
+//                                         forKeyPath: #keyPath(AVPlayerItem.status),
+//                                         options: [.old, .new],
+//                                         context: &PlayerContext)
+//        observerActive = true
+//        observedItem = player?.currentItem
     }
     
     func playerURL(url: URL?)
@@ -684,25 +692,25 @@ class MediaViewController: UIViewController, UIGestureRecognizerDelegate
     
     @IBOutlet weak var spinner: UIActivityIndicatorView!
     
-    override func observeValue(forKeyPath keyPath: String?,
-                               of object: Any?,
-                               change: [NSKeyValueChangeKey : Any]?,
-                               context: UnsafeMutableRawPointer?)
-    {
-        // Only handle observations for the playerItemContext
-
-        if keyPath == #keyPath(AVPlayerItem.status) {
-            guard (context == &PlayerContext) else {
-                super.observeValue(forKeyPath: keyPath,
-                                   of: object,
-                                   change: change,
-                                   context: context)
-                return
-            }
-            
-            setupProgressAndTimes()
-        }
-    }
+//    override func observeValue(forKeyPath keyPath: String?,
+//                               of object: Any?,
+//                               change: [NSKeyValueChangeKey : Any]?,
+//                               context: UnsafeMutableRawPointer?)
+//    {
+//        // Only handle observations for the playerItemContext
+//
+//        if keyPath == #keyPath(AVPlayerItem.status) {
+//            guard (context == &PlayerContext) else {
+//                super.observeValue(forKeyPath: keyPath,
+//                                   of: object,
+//                                   change: change,
+//                                   context: context)
+//                return
+//            }
+//
+//            setupProgressAndTimes()
+//        }
+//    }
 
     @IBAction func playPause(_ sender: UIButton)
     {
